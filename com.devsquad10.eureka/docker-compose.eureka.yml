@@ -1,0 +1,16 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: eureka
+    container_name: eureka
+
+    ports:
+      - "${SERVER_PORT}:8080"
+    networks:
+      - b2b-network
+
+networks:
+  b2b-network:
+    external: true

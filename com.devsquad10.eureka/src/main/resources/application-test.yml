@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: eureka
+
+  datasource:
+    driver-class-name: org.h2.Driver
+    hikari.jdbc-url: jdbc:h2:mem:test_db;
+    username: testdb
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true

@@ -1,0 +1,12 @@
+rootProject.name = 'b2b'
+
+include 'com.devsquad10.eureka'
+include 'com.devsquad10.common'
+include 'com.devsquad10.company'
+include 'com.devsquad10.gateway'
+include 'com.devsquad10.hub'
+include 'com.devsquad10.message'
+include 'com.devsquad10.order'
+include 'com.devsquad10.product'
+include 'com.devsquad10.shipping'
+include 'com.devsquad10.user'
