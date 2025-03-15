@@ -37,6 +37,8 @@ public interface JpaCompanyRepository
 	private BooleanBuilder buildSearchConditions(String query, String category, QCompany qCompany) {
 
 		BooleanBuilder builder = new BooleanBuilder();
+		
+		builder.and(qCompany.deletedBy.isNull());
 
 		if (query == null || query.isEmpty()) {
 			return builder;
@@ -65,8 +67,6 @@ public interface JpaCompanyRepository
 					break;
 			}
 		}
-
-		builder.and(qCompany.deletedAt.isNull());
 
 		return builder;
 	}

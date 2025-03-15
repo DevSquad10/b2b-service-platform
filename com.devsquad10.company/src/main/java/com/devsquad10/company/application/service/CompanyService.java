@@ -66,4 +66,14 @@ public class CompanyService {
 			.updatedBy("사용자")
 			.build());
 	}
+
+	public void deleteCompany(UUID id) {
+		Company targetCompany = companyRepository.findByIdAndDeletedAtIsNull(id)
+			.orElseThrow(() -> new CompanyNotFoundException("Company Not Found By  Id : " + id));
+
+		companyRepository.save(targetCompany.toBuilder()
+			.deletedAt(LocalDateTime.now())
+			.deletedBy("사용자")
+			.build());
+	}
 }
