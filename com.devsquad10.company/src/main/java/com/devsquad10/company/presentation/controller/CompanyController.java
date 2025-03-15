@@ -59,10 +59,10 @@ public class CompanyController {
 	}
 
 	@PatchMapping("/{id}")
-	public ResponseEntity<String> updateCompany(@PathVariable("id") UUID id, @RequestBody CompanyReqDto companyReqDto) {
-		companyService.updateCompany(id, companyReqDto);
+	public ResponseEntity<CompanyResDto> updateCompany(@PathVariable("id") UUID id,
+		@RequestBody CompanyReqDto companyReqDto) {
 		return ResponseEntity.status(HttpStatus.OK)
-			.body("Company updated successfully");
+			.body(companyService.updateCompany(id, companyReqDto));
 	}
 
 	@DeleteMapping("/{id}")

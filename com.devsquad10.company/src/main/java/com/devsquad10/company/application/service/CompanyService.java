@@ -3,6 +3,10 @@ package com.devsquad10.company.application.service;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,19 +26,21 @@ public class CompanyService {
 
 	private final CompanyRepository companyRepository;
 
-	public void createCompany(CompanyReqDto companyReqDto) {
+	@CachePut(cacheNames = "companyCache", key = "#result.id")
+	public CompanyResDto createCompany(CompanyReqDto companyReqDto) {
 
 		//1. 허브가 존재 유무 확인
 
 		//2. 구현
 		//추후 허브 id , 매니저 id 추가
-		companyRepository.save(Company.builder()
+		return companyRepository.save(Company.builder()
 			.name(companyReqDto.getName())
 			.address(companyReqDto.getAddress())
 			.type(companyReqDto.getType())
-			.build());
+			.build()).toResponseDto();
 	}
 
+	@Cacheable(cacheNames = "companyCache", key = "#id")
 	@Transactional(readOnly = true)
 	public CompanyResDto getCompanyById(UUID id) {
 		return companyRepository.findByIdAndDeletedAtIsNull(id)
@@ -42,6 +48,7 @@ public class CompanyService {
 			.toResponseDto();
 	}
 
+	@Cacheable(cacheNames = "companySearchCompany", key = "#q + '-' + #category + '-' + #page + '-' + #size")
 	@Transactional(readOnly = true)
 	public Page<CompanyResDto> searchCompanies(String q, String category, int page, int size, String sort,
 		String order) {
@@ -52,11 +59,15 @@ public class CompanyService {
 
 	}
 
-	public void updateCompany(UUID id, CompanyReqDto companyReqDto) {
+	@CachePut(cacheNames = "companyCache", key = "#id")
+	@Caching(evict = {
+		@CacheEvict(cacheNames = "companySearchCompany", allEntries = true)
+	})
+	public CompanyResDto updateCompany(UUID id, CompanyReqDto companyReqDto) {
 		Company targetCompany = companyRepository.findByIdAndDeletedAtIsNull(id)
 			.orElseThrow(() -> new CompanyNotFoundException("Company Not Found By  Id : " + id));
 
-		companyRepository.save(targetCompany.toBuilder()
+		return companyRepository.save(targetCompany.toBuilder()
 			.name(companyReqDto.getName())
 			.venderId(companyReqDto.getVenderId())
 			.hubId(companyReqDto.getHubId())
@@ -64,9 +75,13 @@ public class CompanyService {
 			.type(companyReqDto.getType())
 			.updatedAt(LocalDateTime.now())
 			.updatedBy("사용자")
-			.build());
+			.build()).toResponseDto();
 	}
 
+	@Caching(evict = {
+		@CacheEvict(cacheNames = "companyCache", key = "#id"),
+		@CacheEvict(cacheNames = "companySearchCompany", key = "#id")
+	})
 	public void deleteCompany(UUID id) {
 		Company targetCompany = companyRepository.findByIdAndDeletedAtIsNull(id)
 			.orElseThrow(() -> new CompanyNotFoundException("Company Not Found By  Id : " + id));

@@ -1,5 +1,6 @@
 package com.devsquad10.company.application.dto;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 import com.devsquad10.company.domain.enums.CompanyTypes;
@@ -13,7 +14,9 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class CompanyResDto {
+public class CompanyResDto implements Serializable {
+
+	private UUID id;
 
 	private String name;
 

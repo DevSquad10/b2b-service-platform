@@ -91,6 +91,7 @@ public class Company {
 
 	public CompanyResDto toResponseDto() {
 		return new CompanyResDto(
+			this.id,
 			this.name,
 			this.venderId,
 			this.hubId,
