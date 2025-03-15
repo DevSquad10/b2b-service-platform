@@ -2,6 +2,7 @@ package com.devsquad10.company.application.service;
 
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,4 +40,12 @@ public class CompanyService {
 			.toResponseDto();
 	}
 
+	public Page<CompanyResDto> searchCompanies(String q, String category, int page, int size, String sort,
+		String order) {
+
+		Page<Company> companyPages = companyRepository.findAll(q, category, page, size, sort, order);
+
+		return companyPages.map(Company::toResponseDto);
+
+	}
 }
