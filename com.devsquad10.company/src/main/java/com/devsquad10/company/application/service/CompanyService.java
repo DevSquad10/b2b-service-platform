@@ -1,5 +1,6 @@
 package com.devsquad10.company.application.service;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -34,12 +35,14 @@ public class CompanyService {
 			.build());
 	}
 
+	@Transactional(readOnly = true)
 	public CompanyResDto getCompanyById(UUID id) {
 		return companyRepository.findByIdAndDeletedAtIsNull(id)
 			.orElseThrow(() -> new CompanyNotFoundException("Company Not Found By  Id : " + id))
 			.toResponseDto();
 	}
 
+	@Transactional(readOnly = true)
 	public Page<CompanyResDto> searchCompanies(String q, String category, int page, int size, String sort,
 		String order) {
 
@@ -47,5 +50,20 @@ public class CompanyService {
 
 		return companyPages.map(Company::toResponseDto);
 
+	}
+
+	public void updateCompany(UUID id, CompanyReqDto companyReqDto) {
+		Company targetCompany = companyRepository.findByIdAndDeletedAtIsNull(id)
+			.orElseThrow(() -> new CompanyNotFoundException("Company Not Found By  Id : " + id));
+
+		companyRepository.save(targetCompany.toBuilder()
+			.name(companyReqDto.getName())
+			.venderId(companyReqDto.getVenderId())
+			.hubId(companyReqDto.getHubId())
+			.address(companyReqDto.getAddress())
+			.type(companyReqDto.getType())
+			.updatedAt(LocalDateTime.now())
+			.updatedBy("사용자")
+			.build());
 	}
 }
