@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
+import com.devsquad10.company.application.dto.CompanyResDto;
 import com.devsquad10.company.domain.enums.CompanyTypes;
 
 import jakarta.persistence.Column;
@@ -86,6 +87,16 @@ public class Company {
 		this.createdAt = time;
 		this.updatedAt = time;
 		this.createdBy = "사용자";
+	}
+
+	public CompanyResDto toResponseDto() {
+		return new CompanyResDto(
+			this.name,
+			this.venderId,
+			this.hubId,
+			this.address,
+			this.type
+		);
 	}
 
 }

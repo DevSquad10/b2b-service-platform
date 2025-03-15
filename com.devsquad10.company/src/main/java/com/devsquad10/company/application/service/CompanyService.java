@@ -1,9 +1,13 @@
 package com.devsquad10.company.application.service;
 
+import java.util.UUID;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.devsquad10.company.application.dto.CompanyReqDto;
+import com.devsquad10.company.application.dto.CompanyResDto;
+import com.devsquad10.company.application.exception.CompanyNotFoundException;
 import com.devsquad10.company.domain.model.Company;
 import com.devsquad10.company.domain.repository.CompanyRepository;
 
@@ -28,4 +32,11 @@ public class CompanyService {
 			.type(companyReqDto.getType())
 			.build());
 	}
+
+	public CompanyResDto getCompanyById(UUID id) {
+		return companyRepository.findByIdAndDeletedAtIsNull(id)
+			.orElseThrow(() -> new CompanyNotFoundException("Company Not Found By  Id : " + id))
+			.toResponseDto();
+	}
+
 }

@@ -7,7 +7,7 @@ import com.devsquad10.company.domain.model.Company;
 
 public interface CompanyRepository {
 
-	Optional<Company> findById(UUID id);
+	Optional<Company> findByIdAndDeletedAtIsNull(UUID id);
 
 	Company save(Company company);
 }
