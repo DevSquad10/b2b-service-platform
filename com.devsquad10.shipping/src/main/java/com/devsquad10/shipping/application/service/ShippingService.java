@@ -141,4 +141,11 @@ public class ShippingService {
 			.requestDetails(shippingUpdateReqDto.getRequestDetails())
 			.build()).toResponseDto();
 	}
+
+	@Transactional(readOnly = true)
+	public ShippingResDto getShippingById(UUID id) {
+		return shippingRepository.findByIdAndDeletedAtIsNull(id)
+			.orElseThrow(() -> new ShippingNotFoundException(id + " 해당하는 배송 ID가 존재하지 않습니다."))
+			.toResponseDto();
+	}
 }
