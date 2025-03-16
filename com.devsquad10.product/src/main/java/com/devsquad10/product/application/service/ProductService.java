@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.devsquad10.product.application.dto.ProductReqDto;
 import com.devsquad10.product.application.dto.ProductResDto;
-import com.devsquad10.product.application.excption.ProductNotFoundException;
+import com.devsquad10.product.application.exception.ProductNotFoundException;
 import com.devsquad10.product.domain.model.Product;
 import com.devsquad10.product.domain.repository.ProductRepository;
 
