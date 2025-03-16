@@ -27,7 +27,7 @@ ext {
     set('springCloudVersion', "2023.0.5")
 }
 
-def querydslDir = "$buildDir/generated/querydsl"
+def querydslDir = "$buildDir/generated/sources/annotationProcessor/java/main"
 
 sourceSets {
     main {
