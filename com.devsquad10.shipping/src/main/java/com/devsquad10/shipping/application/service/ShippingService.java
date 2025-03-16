@@ -7,13 +7,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.devsquad10.shipping.application.dto.ShippingPostReqDto;
-import com.devsquad10.shipping.application.dto.ShippingPostResDto;
+import com.devsquad10.shipping.application.dto.ShippingResDto;
 import com.devsquad10.shipping.domain.enums.ShippingHistoryStatus;
 import com.devsquad10.shipping.domain.enums.ShippingStatus;
 import com.devsquad10.shipping.domain.model.Shipping;
 import com.devsquad10.shipping.domain.model.ShippingHistory;
-import com.devsquad10.shipping.domain.repository.ShippingRepository;
 import com.devsquad10.shipping.domain.repository.ShippingHistoryRepository;
+import com.devsquad10.shipping.domain.repository.ShippingRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +29,7 @@ public class ShippingService {
 	private final ShippingHistoryRepository shippingHistoryRepository;
 
 	@CachePut(cacheNames = "shippingCache", key = "#result.id")
-	public ShippingPostResDto createShipping(ShippingPostReqDto shippingPostReqDto) {
+	public ShippingResDto createShipping(ShippingPostReqDto shippingPostReqDto) {
 		//TODO: 1.주문: reqMessage(공급업체ID, 수령업체ID, 배송지 주소, 요청사항) 받기
 
 		//TODO: 2.업체: 각각 매개변수(공급업체ID, 수령업체ID) 조회하여 출발허브ID, 도착허브ID 추출
@@ -87,6 +87,8 @@ public class ShippingService {
 
 		//TODO: 8.배송 업체배송담당자ID, 현재상태(HUB_ARV) update
 
-		return savedShipping.toPostResponseDto();
+		return savedShipping.toResponseDto();
 	}
+
+
 }

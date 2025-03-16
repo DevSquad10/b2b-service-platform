@@ -11,7 +11,7 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import com.devsquad10.shipping.application.dto.ShippingPostResDto;
+import com.devsquad10.shipping.application.dto.ShippingResDto;
 import com.devsquad10.shipping.domain.enums.ShippingStatus;
 
 import jakarta.persistence.CascadeType;
@@ -32,7 +32,6 @@ import jakarta.persistence.TemporalType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
@@ -118,8 +117,8 @@ public class Shipping {
 		this.deletedBy = "defaultUser"; // 현재 사용자로 설정
 	}
 
-	public ShippingPostResDto toPostResponseDto() {
-		return new ShippingPostResDto(
+	public ShippingResDto toResponseDto() {
+		return new ShippingResDto(
 			this.id,
 			this.status,
 			this.orderId

@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ShippingPostResDto implements Serializable {
+public class ShippingResDto implements Serializable {
 
 	private UUID id;
 

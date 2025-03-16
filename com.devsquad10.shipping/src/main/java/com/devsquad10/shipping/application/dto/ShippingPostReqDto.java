@@ -1,9 +1,5 @@
 package com.devsquad10.shipping.application.dto;
 
-import java.util.UUID;
-
-import com.devsquad10.shipping.domain.enums.ShippingStatus;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
