@@ -11,7 +11,7 @@ import com.devsquad10.hub.presentation.res.ApiResponse;
 
 @RestControllerAdvice
 public class HubExceptionHandler {
-
+	// TODO: custom error code로 설정
 	@ExceptionHandler(HubNotFoundException.class)
 	@ResponseStatus(HttpStatus.NOT_FOUND)
 	public ResponseEntity<ApiResponse<String>> handleHubNotFoundException(HubNotFoundException e) {
