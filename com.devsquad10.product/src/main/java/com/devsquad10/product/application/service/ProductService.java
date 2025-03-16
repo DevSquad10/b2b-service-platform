@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.devsquad10.product.application.dto.ProductReqDto;
 import com.devsquad10.product.application.dto.ProductResDto;
 import com.devsquad10.product.application.exception.ProductNotFoundException;
+import com.devsquad10.product.domain.enums.ProductStatus;
 import com.devsquad10.product.domain.model.Product;
 import com.devsquad10.product.domain.repository.ProductRepository;
 
@@ -39,6 +40,7 @@ public class ProductService {
 			.quantity(productReqDto.getQuantity())
 			.supplierId(productReqDto.getSupplierId())
 			.hubId(productReqDto.getHubId())
+			.status(ProductStatus.AVAILABLE)
 			.build()).toResponseDto();
 	}
 

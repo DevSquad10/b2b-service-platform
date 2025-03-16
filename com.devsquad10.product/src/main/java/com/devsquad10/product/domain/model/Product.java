@@ -7,6 +7,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import com.devsquad10.product.application.dto.ProductResDto;
+import com.devsquad10.product.domain.enums.ProductStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -46,9 +47,14 @@ public class Product {
 	@Column(nullable = false)
 	private Integer price;
 
+	@Column
 	private UUID supplierId;
 
+	@Column
 	private UUID hubId;
+
+	@Column(nullable = false)
+	private ProductStatus status;
 
 	// 레코드 생성 일시
 	@CreatedDate
@@ -94,7 +100,8 @@ public class Product {
 			this.quantity,
 			this.price,
 			this.supplierId,
-			this.hubId
+			this.hubId,
+			this.status
 		);
 	}
 }
