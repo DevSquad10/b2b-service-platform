@@ -2,6 +2,7 @@ package com.devsquad10.product.application.service;
 
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,5 +41,13 @@ public class ProductService {
 		return productRepository.findByIdAndDeletedAtIsNull(id)
 			.orElseThrow(() -> new ProductNotFoundException("Product Not Found By Id : " + id))
 			.toResponseDto();
+	}
+
+	public Page<ProductResDto> searchProducts(String q, String category, int page, int size, String sort,
+		String order) {
+
+		Page<Product> productPages = productRepository.findAll(q, category, page, size, sort, order);
+
+		return productPages.map(Product::toResponseDto);
 	}
 }
