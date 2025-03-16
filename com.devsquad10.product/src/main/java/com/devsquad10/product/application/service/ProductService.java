@@ -67,4 +67,14 @@ public class ProductService {
 			.updatedBy("사용자")
 			.build()).toResponseDto();
 	}
+
+	public void deleteProduct(UUID id) {
+		Product targetProduct = productRepository.findByIdAndDeletedAtIsNull(id)
+			.orElseThrow(() -> new ProductNotFoundException("Product Not Found By Id :" + id));
+
+		productRepository.save(targetProduct.toBuilder()
+			.deletedAt(LocalDateTime.now())
+			.deletedBy("사용자")
+			.build());
+	}
 }
