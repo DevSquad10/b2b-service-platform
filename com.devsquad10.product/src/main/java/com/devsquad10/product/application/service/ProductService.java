@@ -3,6 +3,10 @@ package com.devsquad10.product.application.service;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +25,7 @@ public class ProductService {
 
 	private final ProductRepository productRepository;
 
+	@CachePut(cacheNames = "productCache", key = "#result.id")
 	public ProductResDto createProduct(ProductReqDto productReqDto) {
 
 		// 특정 업체 존재 유무 확인
@@ -37,6 +42,7 @@ public class ProductService {
 			.build()).toResponseDto();
 	}
 
+	@Cacheable(cacheNames = "productCache", key = "#id")
 	@Transactional(readOnly = true)
 	public ProductResDto getProductById(UUID id) {
 		return productRepository.findByIdAndDeletedAtIsNull(id)
@@ -44,6 +50,7 @@ public class ProductService {
 			.toResponseDto();
 	}
 
+	@Cacheable(cacheNames = "productSearch", key = "#q + '-' + #category + '-' + #page + '-' + #size")
 	public Page<ProductResDto> searchProducts(String q, String category, int page, int size, String sort,
 		String order) {
 
@@ -52,6 +59,10 @@ public class ProductService {
 		return productPages.map(Product::toResponseDto);
 	}
 
+	@CachePut(cacheNames = "productCache", key = "#id")
+	@Caching(evict = {
+		@CacheEvict(cacheNames = "productSearch", allEntries = true)
+	})
 	public ProductResDto updateProduct(UUID id, ProductReqDto productReqDto) {
 		Product targetProduct = productRepository.findByIdAndDeletedAtIsNull(id)
 			.orElseThrow(() -> new ProductNotFoundException("Product Not Found By Id :" + id));
@@ -68,6 +79,10 @@ public class ProductService {
 			.build()).toResponseDto();
 	}
 
+	@Caching(evict = {
+		@CacheEvict(cacheNames = "productCache", key = "#id"),
+		@CacheEvict(cacheNames = "productSearch", key = "#id")
+	})
 	public void deleteProduct(UUID id) {
 		Product targetProduct = productRepository.findByIdAndDeletedAtIsNull(id)
 			.orElseThrow(() -> new ProductNotFoundException("Product Not Found By Id :" + id));
