@@ -8,12 +8,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.devsquad10.shipping.application.dto.ShippingPostReqDto;
 import com.devsquad10.shipping.application.dto.ShippingResDto;
+import com.devsquad10.shipping.application.dto.ShippingUpdateReqDto;
+import com.devsquad10.shipping.application.exception.ShippingNotFoundException;
 import com.devsquad10.shipping.domain.enums.ShippingHistoryStatus;
 import com.devsquad10.shipping.domain.enums.ShippingStatus;
 import com.devsquad10.shipping.domain.model.Shipping;
 import com.devsquad10.shipping.domain.model.ShippingHistory;
-import com.devsquad10.shipping.domain.repository.ShippingHistoryRepository;
 import com.devsquad10.shipping.domain.repository.ShippingRepository;
+import com.devsquad10.shipping.domain.repository.ShippingHistoryRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -70,25 +72,73 @@ public class ShippingService {
 			.historyStatus(ShippingHistoryStatus.HUB_WAIT)
 		.build();
 
-		//savedShipping.addShippingHistory(shippingHistory);
-		ShippingHistory savedShippingHistory = shippingHistoryRepository.save(shippingHistory);
-		log.info("savedShippingHistory 상태 {}", savedShippingHistory.getHistoryStatus());
-
-
 		//TODO: 5.주문: 전달 messageDto(배송ID, 예외상태 코드)
 
-		//TODO: 6.주문이 생성되면 orderId과 메시지 전송시간을 전달 받은 후, 배송 orderId UPDATE
-		// 주문 생성 전까지 허브간 이동 불가 = 배송 경로기록 상태(HUB_WAIT) 변경 못함.
-
-		//TODO: 7.배송 담당자 배정 처리(주문 생성 전송시간 기준으로 허브간 이동이 시작되었다고 가정)
-		// 전송시간+예상소요시간 기준
-		// 배송 경로기록 마지막 순번의 현재상태가 "목적지 허브 도착:HUB_ARV"일 때만 가능
-		// 배송 진행여부 확인해서 "대기 중:False"일 때만 라운드 로빈 배정
-
-		//TODO: 8.배송 업체배송담당자ID, 현재상태(HUB_ARV) update
+		ShippingHistory savedShippingHistory = shippingHistoryRepository.save(shippingHistory);
+		log.info("savedShippingHistory 상태 {}", savedShippingHistory.getHistoryStatus());
 
 		return savedShipping.toResponseDto();
 	}
 
+	//TODO: 배송 정보(수령인, 수령인 번호) update
+	public ShippingResDto updateShipping(UUID id, ShippingUpdateReqDto shippingUpdateReqDto) {
+		Shipping shipping = shippingRepository.findByIdAndDeletedAtIsNull(id)
+			.orElseThrow(() -> new ShippingNotFoundException("ID " + id + "에 해당하는 배송 데이터를 찾을 수 없습니다."));
 
+		shipping.preUpdate();
+		return shippingRepository.save(shipping.toBuilder()
+			.recipientName((shippingUpdateReqDto.getRecipientName() == null) ? shipping.getRecipientName() : shippingUpdateReqDto.getRecipientName())
+			.recipientPhone((shippingUpdateReqDto.getRecipientPhone() == null) ? shipping.getRecipientPhone() : shippingUpdateReqDto.getRecipientPhone())
+			.build()).toResponseDto();
+	}
+
+	//TODO: 현재상태(HUB_ARV) update
+	public ShippingResDto statusUpdateShipping(UUID id, ShippingUpdateReqDto shippingUpdateReqDto) {
+		Shipping shipping = shippingRepository.findByIdAndDeletedAtIsNull(id)
+			.orElseThrow(() -> new ShippingNotFoundException("ID " + id + "에 해당하는 배송 데이터를 찾을 수 없습니다."));
+
+		shipping.preUpdate();
+		return shippingRepository.save(shipping.toBuilder()
+			.status(shippingUpdateReqDto.getStatus())
+			.build()).toResponseDto();
+	}
+
+	//TODO: 배송 업체배송담당자ID update
+	//TODO: 배송 담당자 배정 처리(주문 생성 전송시간 기준으로 허브간 이동이 시작되었다고 가정)
+	// 전송시간+예상소요시간 기준
+	// 배송 경로기록 마지막 순번의 현재상태가 "목적지 허브 도착:HUB_ARV"일 때만 가능
+	// 배송 진행여부 확인해서 "대기 중:False"일 때만 라운드 로빈 배정
+	public ShippingResDto managerIdUpdateShipping(UUID id, ShippingUpdateReqDto shippingUpdateReqDto) {
+		Shipping shipping = shippingRepository.findByIdAndDeletedAtIsNull(id)
+			.orElseThrow(() -> new ShippingNotFoundException("ID " + id + "에 해당하는 배송 데이터를 찾을 수 없습니다."));
+
+		shipping.preUpdate();
+		return shippingRepository.save(shipping.toBuilder()
+			.companyShippingManagerId(shippingUpdateReqDto.getCompanyShippingManagerId())
+			.build()).toResponseDto();
+	}
+
+	//TODO: 주문이 생성되면 orderId과 메시지 전송시간을 전달 받은 후, 배송 orderId UPDATE
+	// 주문 생성 전까지 허브간 이동 불가 = 배송 경로기록 상태(HUB_WAIT) 변경 못함.
+	public ShippingResDto orderIdUpdateShipping(UUID id, ShippingUpdateReqDto shippingUpdateReqDto) {
+		Shipping shipping = shippingRepository.findByIdAndDeletedAtIsNull(id)
+			.orElseThrow(() -> new ShippingNotFoundException("ID " + id + "에 해당하는 배송 데이터를 찾을 수 없습니다."));
+
+		shipping.preUpdate();
+		return shippingRepository.save(shipping.toBuilder()
+			.orderId(shippingUpdateReqDto.getOrderId())
+			.build()).toResponseDto();
+	}
+
+	//TODO: 주문정보(배송 주소지, 요청사항) update
+	public ShippingResDto infoUpdateShipping(UUID id, ShippingUpdateReqDto shippingUpdateReqDto) {
+		Shipping shipping = shippingRepository.findByIdAndDeletedAtIsNull(id)
+			.orElseThrow(() -> new ShippingNotFoundException("ID " + id + "에 해당하는 배송 데이터를 찾을 수 없습니다."));
+
+		shipping.preUpdate();
+		return shippingRepository.save(shipping.toBuilder()
+			.address((shippingUpdateReqDto.getAddress() == null) ? shipping.getAddress() : shippingUpdateReqDto.getAddress())
+			.requestDetails(shippingUpdateReqDto.getRequestDetails())
+			.build()).toResponseDto();
+	}
 }
