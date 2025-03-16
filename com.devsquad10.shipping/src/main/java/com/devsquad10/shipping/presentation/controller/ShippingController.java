@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -56,6 +57,16 @@ public class ShippingController {
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.OK)
 				.body(ShippingResponse.failure(HttpStatus.BAD_REQUEST.value(), "배송 수정이 불가능합니다."));
+		}
+	}
+
+	@GetMapping("/{id}")
+	public ResponseEntity<ShippingResponse<?>> getShippingById(@PathVariable(name = "id") UUID id) {
+		try {
+			return ResponseEntity.ok(ShippingResponse.success(HttpStatus.OK.value(), shippingService.getShippingById(id)));
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+				.body(ShippingResponse.failure(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
 		}
 	}
 }
