@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +18,7 @@ import com.devsquad10.hub.presentation.req.HubCreateRequestDto;
 import com.devsquad10.hub.presentation.req.HubUpdateRequestDto;
 import com.devsquad10.hub.presentation.res.ApiResponse;
 import com.devsquad10.hub.presentation.res.HubCreateResponseDto;
+import com.devsquad10.hub.presentation.res.HubDeleteResponseDto;
 import com.devsquad10.hub.presentation.res.HubGetOneResponseDto;
 import com.devsquad10.hub.presentation.res.HubUpdateResponseDto;
 
@@ -62,6 +64,19 @@ public class HubController {
 		@Valid @RequestBody HubUpdateRequestDto request
 	) {
 		HubUpdateResponseDto response = hubService.updateHub(id, request);
+
+		return ResponseEntity.status(HttpStatus.OK)
+			.body(ApiResponse.success(
+				HttpStatus.OK.value(),
+				response
+			));
+	}
+
+	@DeleteMapping("/{id}")
+	public ResponseEntity<ApiResponse<HubDeleteResponseDto>> deleteHub(
+		@PathVariable UUID id
+	) {
+		HubDeleteResponseDto response = hubService.deleteHub(id);
 
 		return ResponseEntity.status(HttpStatus.OK)
 			.body(ApiResponse.success(
