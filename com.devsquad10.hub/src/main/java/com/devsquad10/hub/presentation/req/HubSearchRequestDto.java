@@ -2,6 +2,9 @@ package com.devsquad10.hub.presentation.req;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
+
+import org.springframework.data.domain.Sort;
 
 import com.devsquad10.hub.presentation.enums.HubSortOption;
 
@@ -16,7 +19,13 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class HubGetRequestDto {
+public class HubSearchRequestDto {
+
+	private UUID id;
+
+	private String name;
+
+	private String address;
 
 	@Builder.Default
 	private Integer size = 10;
@@ -24,8 +33,12 @@ public class HubGetRequestDto {
 	@Builder.Default
 	private Integer page = 0;
 
+	// TODO: Sort Option 관련 예외 처리
 	@Builder.Default
-	private HubSortOption sortOption = HubSortOption.CREATED_AT_DESC;
+	private HubSortOption sortOption = HubSortOption.CREATED_AT;
+
+	@Builder.Default
+	private Sort.Direction sortOrder = Sort.Direction.DESC;
 
 	public int getPage() {
 		return (page != null && page > 0) ? page - 1 : 0;
