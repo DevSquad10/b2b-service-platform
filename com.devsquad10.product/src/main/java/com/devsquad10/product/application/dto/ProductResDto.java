@@ -3,6 +3,8 @@ package com.devsquad10.product.application.dto;
 import java.io.Serializable;
 import java.util.UUID;
 
+import com.devsquad10.product.domain.enums.ProductStatus;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,4 +29,6 @@ public class ProductResDto implements Serializable {
 	private UUID supplierId;
 
 	private UUID hubId;
+
+	private ProductStatus status;
 }
