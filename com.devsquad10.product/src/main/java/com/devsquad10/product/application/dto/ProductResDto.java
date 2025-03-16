@@ -1,5 +1,6 @@
 package com.devsquad10.product.application.dto;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 import lombok.AllArgsConstructor;
@@ -11,7 +12,7 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductResDto {
+public class ProductResDto implements Serializable {
 
 	private UUID id;
 
