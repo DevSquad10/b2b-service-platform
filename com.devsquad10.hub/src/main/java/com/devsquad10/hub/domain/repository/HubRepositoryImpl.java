@@ -3,6 +3,8 @@ package com.devsquad10.hub.domain.repository;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import com.devsquad10.hub.domain.model.Hub;
@@ -24,5 +26,10 @@ public class HubRepositoryImpl implements HubRepository {
 	@Override
 	public Optional<Hub> findById(UUID id) {
 		return jpaHubRepository.findById(id);
+	}
+
+	@Override
+	public Page<Hub> findAll(Pageable pageable) {
+		return jpaHubRepository.findAll(pageable);
 	}
 }
