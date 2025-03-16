@@ -1,5 +1,6 @@
 package com.devsquad10.product.application.service;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -49,5 +50,21 @@ public class ProductService {
 		Page<Product> productPages = productRepository.findAll(q, category, page, size, sort, order);
 
 		return productPages.map(Product::toResponseDto);
+	}
+
+	public ProductResDto updateProduct(UUID id, ProductReqDto productReqDto) {
+		Product targetProduct = productRepository.findByIdAndDeletedAtIsNull(id)
+			.orElseThrow(() -> new ProductNotFoundException("Product Not Found By Id :" + id));
+
+		return productRepository.save(targetProduct.toBuilder()
+			.name(productReqDto.getName())
+			.description(productReqDto.getDescription())
+			.price(productReqDto.getPrice())
+			.quantity(productReqDto.getQuantity())
+			.supplierId(productReqDto.getSupplierId())
+			.hubId(productReqDto.getHubId())
+			.updatedAt(LocalDateTime.now())
+			.updatedBy("사용자")
+			.build()).toResponseDto();
 	}
 }
