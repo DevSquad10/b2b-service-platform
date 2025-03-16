@@ -4,9 +4,11 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.hibernate.annotations.SQLRestriction;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -27,6 +29,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Table(name = "p_hub")
 @SQLRestriction("deleted_at IS NULL")
+// TODO: Audit Fields 분리
+@EntityListeners(AuditingEntityListener.class)
 public class Hub {
 	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)
@@ -72,6 +76,7 @@ public class Hub {
 		this.updatedAt = LocalDateTime.now();
 
 		// TODO: created_by
+		this.createdBy = UUID.randomUUID();
 	}
 
 	@PreUpdate
