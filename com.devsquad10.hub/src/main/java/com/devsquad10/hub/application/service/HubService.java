@@ -9,8 +9,10 @@ import com.devsquad10.hub.application.exception.HubNotFoundException;
 import com.devsquad10.hub.domain.model.Hub;
 import com.devsquad10.hub.domain.repository.HubRepository;
 import com.devsquad10.hub.presentation.req.HubCreateRequestDto;
+import com.devsquad10.hub.presentation.req.HubUpdateRequestDto;
 import com.devsquad10.hub.presentation.res.HubCreateResponseDto;
 import com.devsquad10.hub.presentation.res.HubGetOneResponseDto;
+import com.devsquad10.hub.presentation.res.HubUpdateResponseDto;
 
 import lombok.RequiredArgsConstructor;
 
@@ -39,5 +41,20 @@ public class HubService {
 			.orElseThrow(() -> new HubNotFoundException("Hub not found with id: " + id.toString()));
 
 		return HubGetOneResponseDto.toResponseDto(hub);
+	}
+
+	public HubUpdateResponseDto updateHub(UUID id, HubUpdateRequestDto request) {
+		Hub hub = hubRepository.findById(id)
+			.orElseThrow(() -> new HubNotFoundException("Hub not found with id: " + id.toString()));
+
+		hub.update(
+			request.getName(),
+			request.getAddress(),
+			request.getLatitude(),
+			request.getLongitude()
+		);
+
+		Hub updatedHub = hubRepository.save(hub);
+		return HubUpdateResponseDto.toResponseDto(updatedHub);
 	}
 }
