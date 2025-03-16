@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,12 +16,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.devsquad10.hub.application.service.HubService;
 import com.devsquad10.hub.presentation.req.HubCreateRequestDto;
+import com.devsquad10.hub.presentation.req.HubGetRequestDto;
 import com.devsquad10.hub.presentation.req.HubUpdateRequestDto;
 import com.devsquad10.hub.presentation.res.ApiResponse;
 import com.devsquad10.hub.presentation.res.HubCreateResponseDto;
 import com.devsquad10.hub.presentation.res.HubDeleteResponseDto;
 import com.devsquad10.hub.presentation.res.HubGetOneResponseDto;
 import com.devsquad10.hub.presentation.res.HubUpdateResponseDto;
+import com.devsquad10.hub.presentation.res.PagedHubResponseDto;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -77,6 +80,19 @@ public class HubController {
 		@PathVariable UUID id
 	) {
 		HubDeleteResponseDto response = hubService.deleteHub(id);
+
+		return ResponseEntity.status(HttpStatus.OK)
+			.body(ApiResponse.success(
+				HttpStatus.OK.value(),
+				response
+			));
+	}
+
+	@GetMapping
+	public ResponseEntity<ApiResponse<PagedHubResponseDto>> getAllHubs(
+		@ModelAttribute @Valid HubGetRequestDto request
+	) {
+		PagedHubResponseDto response = hubService.getHub(request);
 
 		return ResponseEntity.status(HttpStatus.OK)
 			.body(ApiResponse.success(
