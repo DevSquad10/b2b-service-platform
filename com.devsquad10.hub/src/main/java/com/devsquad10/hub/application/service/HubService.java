@@ -4,8 +4,6 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,7 +11,7 @@ import com.devsquad10.hub.application.exception.HubNotFoundException;
 import com.devsquad10.hub.domain.model.Hub;
 import com.devsquad10.hub.domain.repository.HubRepository;
 import com.devsquad10.hub.presentation.req.HubCreateRequestDto;
-import com.devsquad10.hub.presentation.req.HubGetRequestDto;
+import com.devsquad10.hub.presentation.req.HubSearchRequestDto;
 import com.devsquad10.hub.presentation.req.HubUpdateRequestDto;
 import com.devsquad10.hub.presentation.res.HubCreateResponseDto;
 import com.devsquad10.hub.presentation.res.HubDeleteResponseDto;
@@ -79,14 +77,9 @@ public class HubService {
 			.build();
 	}
 
-	public PagedHubResponseDto getHub(HubGetRequestDto request) {
-		// TODO: 정렬 조건 추후 구현
-		Pageable pageable = PageRequest.of(
-			request.getPage(),
-			request.getSize()
-		);
+	public PagedHubResponseDto getHub(HubSearchRequestDto request) {
 
-		Page<Hub> hubPage = hubRepository.findAll(pageable);
+		Page<Hub> hubPage = hubRepository.findAll(request);
 
 		Page<PagedHubItemResponseDto> dtoPage = hubPage.map(PagedHubItemResponseDto::toResponseDto);
 

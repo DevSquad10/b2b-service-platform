@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.devsquad10.hub.application.service.HubService;
 import com.devsquad10.hub.presentation.req.HubCreateRequestDto;
-import com.devsquad10.hub.presentation.req.HubGetRequestDto;
+import com.devsquad10.hub.presentation.req.HubSearchRequestDto;
 import com.devsquad10.hub.presentation.req.HubUpdateRequestDto;
 import com.devsquad10.hub.presentation.res.ApiResponse;
 import com.devsquad10.hub.presentation.res.HubCreateResponseDto;
@@ -90,7 +90,7 @@ public class HubController {
 
 	@GetMapping
 	public ResponseEntity<ApiResponse<PagedHubResponseDto>> getAllHubs(
-		@ModelAttribute @Valid HubGetRequestDto request
+		@ModelAttribute @Valid HubSearchRequestDto request
 	) {
 		PagedHubResponseDto response = hubService.getHub(request);
 

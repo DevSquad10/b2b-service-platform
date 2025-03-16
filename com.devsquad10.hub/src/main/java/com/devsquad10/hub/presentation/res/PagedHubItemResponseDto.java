@@ -1,5 +1,6 @@
 package com.devsquad10.hub.presentation.res;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.devsquad10.hub.domain.model.Hub;
@@ -23,6 +24,8 @@ public class PagedHubItemResponseDto {
 	private String address;
 	private Double latitude;
 	private Double longitude;
+	private LocalDateTime createdAt;
+	private LocalDateTime updatedAt;
 
 	public static PagedHubItemResponseDto toResponseDto(Hub hub) {
 		return PagedHubItemResponseDto.builder()
@@ -31,6 +34,8 @@ public class PagedHubItemResponseDto {
 			.address(hub.getAddress())
 			.latitude(hub.getLatitude())
 			.longitude(hub.getLongitude())
+			.createdAt(hub.getCreatedAt())
+			.updatedAt(hub.getUpdatedAt())
 			.build();
 	}
 }

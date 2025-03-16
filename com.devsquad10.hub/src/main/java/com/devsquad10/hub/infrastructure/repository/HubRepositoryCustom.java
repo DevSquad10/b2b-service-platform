@@ -1,17 +1,10 @@
-package com.devsquad10.hub.domain.repository;
-
-import java.util.Optional;
-import java.util.UUID;
+package com.devsquad10.hub.infrastructure.repository;
 
 import org.springframework.data.domain.Page;
 
 import com.devsquad10.hub.domain.model.Hub;
 import com.devsquad10.hub.presentation.req.HubSearchRequestDto;
 
-public interface HubRepository {
-	Hub save(Hub hub);
-
-	Optional<Hub> findById(UUID id);
-
+public interface HubRepositoryCustom {
 	Page<Hub> findAll(HubSearchRequestDto request);
 }
