@@ -26,6 +26,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -37,7 +38,7 @@ import lombok.Getter;
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "p_shipping")
 @Getter
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 public class Shipping {
 
@@ -110,6 +111,12 @@ public class Shipping {
 	public void prePersist() {
 		this.createdAt = LocalDateTime.now(); // 현재 시간으로 설정
 		this.createdBy = "defaultUser"; // 현재 사용자로 설정 (예: SecurityContext에서 사용자 정보 가져오기)
+	}
+
+	@PreUpdate
+	public void preUpdate() {
+		this.updatedAt = LocalDateTime.now();
+		this.updatedBy = "updateUser";
 	}
 
 	public void softDelete() {
