@@ -56,14 +56,14 @@ public interface JpaShippingRepository
 					builder.or(parseUUID(query,qShipping.departureHubId));
 					break;
 				case "companyShippingManagerId":
-					builder.or(parseUUID(query,qShipping.companyShippingManagerId));;
+					builder.or(parseUUID(query,qShipping.companyShippingManagerId));
 					break;
 				case "status":
 					builder.or(qShipping.status.stringValue().containsIgnoreCase(query));
 					break;
 				default:
 					builder.or(parseUUID(query,qShipping.departureHubId));
-					builder.or(parseUUID(query,qShipping.companyShippingManagerId));;
+					builder.or(parseUUID(query,qShipping.companyShippingManagerId));
 					builder.or(qShipping.status.stringValue().containsIgnoreCase(query));
 					break;
 			}
