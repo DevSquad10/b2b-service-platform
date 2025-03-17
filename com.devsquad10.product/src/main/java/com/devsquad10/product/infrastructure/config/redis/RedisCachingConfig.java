@@ -1,4 +1,4 @@
-package com.devsquad10.product.infrastructure.config;
+package com.devsquad10.product.infrastructure.config.redis;
 
 import java.time.Duration;
 

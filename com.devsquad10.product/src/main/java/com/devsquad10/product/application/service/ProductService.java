@@ -3,6 +3,8 @@ package com.devsquad10.product.application.service;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -13,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.devsquad10.product.application.dto.ProductReqDto;
 import com.devsquad10.product.application.dto.ProductResDto;
+import com.devsquad10.product.application.dto.message.StockDecrementMessage;
 import com.devsquad10.product.application.exception.ProductNotFoundException;
 import com.devsquad10.product.domain.enums.ProductStatus;
 import com.devsquad10.product.domain.model.Product;
@@ -24,7 +27,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ProductService {
 
+	@Value("${message.queue.error.stock}")
+	public String queueErrorStock;
+
 	private final ProductRepository productRepository;
+	private final RabbitTemplate rabbitTemplate;
 
 	@CachePut(cacheNames = "productCache", key = "#result.id")
 	public ProductResDto createProduct(ProductReqDto productReqDto) {
@@ -93,5 +100,32 @@ public class ProductService {
 			.deletedAt(LocalDateTime.now())
 			.deletedBy("사용자")
 			.build());
+	}
+
+	public void decreaseStock(StockDecrementMessage stockDecrementMessage) {
+		UUID targetProductId = stockDecrementMessage.getProductId();
+		int orderQuantity = stockDecrementMessage.getQuantity();
+
+		// 1. 상품 조회
+		Product targetProduct = productRepository.findByIdAndDeletedAtIsNull(targetProductId)
+			.orElseThrow(() -> new ProductNotFoundException("Product Not Found By Id :" + targetProductId));
+
+		// 2. 재고 부족 확인
+		// if (targetProduct.getQuantity() < orderQuantity) {
+		// 	// 재고 부족 error.message 발송
+		// 	StockDecrementMessage errorMessage = stockDecrementMessage.toBuilder()
+		// 		.errorType("OUT_OF_STOCK")
+		// 		.build();
+		//
+		// 	rabbitTemplate.convertAndSend(queueErrorStock, errorMessage);
+		// 	return;
+		// }
+
+		targetProduct.decreaseQuantity(orderQuantity);
+
+		productRepository.save(targetProduct);
+
+		// message 정상 처리 메시지 발송
+		// rabbitTemplate
 	}
 }

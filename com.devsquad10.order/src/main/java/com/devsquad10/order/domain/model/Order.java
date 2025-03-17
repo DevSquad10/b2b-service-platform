@@ -4,10 +4,13 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
 
+import com.devsquad10.order.application.dto.message.StockDecrementMessage;
 import com.devsquad10.order.domain.enums.OrderStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -25,6 +28,7 @@ public class Order implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
+	@GeneratedValue(strategy = GenerationType.UUID)
 	private UUID id;
 
 	@Column
@@ -55,4 +59,12 @@ public class Order implements Serializable {
 
 	@Column(nullable = false)
 	private OrderStatus status; // 주문 상태
+
+	public StockDecrementMessage toStockDecrementMessage() {
+		return StockDecrementMessage.builder()
+			.orderId(this.id)
+			.productId(this.productId)
+			.quantity(this.quantity)
+			.build();
+	}
 }

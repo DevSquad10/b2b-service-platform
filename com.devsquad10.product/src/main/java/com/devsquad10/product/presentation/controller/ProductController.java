@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.devsquad10.product.application.dto.ProductReqDto;
 import com.devsquad10.product.application.dto.ProductResDto;
-import com.devsquad10.product.application.dto.ProductResponse;
+import com.devsquad10.product.application.dto.response.ProductResponse;
 import com.devsquad10.product.application.service.ProductService;
 
 import lombok.RequiredArgsConstructor;

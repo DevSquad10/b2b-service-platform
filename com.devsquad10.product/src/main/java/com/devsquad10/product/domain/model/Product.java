@@ -104,4 +104,12 @@ public class Product {
 			this.status
 		);
 	}
+
+	public void decreaseQuantity(int orderQuantity) {
+		if (this.quantity < orderQuantity) {
+			// throw new OutOfStockException("Not enough stock for product: " + id);
+		}
+		this.quantity -= orderQuantity;
+	}
+
 }
