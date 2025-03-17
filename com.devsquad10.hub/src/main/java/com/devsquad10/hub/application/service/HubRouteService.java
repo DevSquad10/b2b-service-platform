@@ -10,7 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.devsquad10.hub.application.dto.RouteCalculationResult;
 import com.devsquad10.hub.application.dto.req.HubRouteCreateRequestDto;
 import com.devsquad10.hub.application.dto.res.HubRouteCreateResponseDto;
+import com.devsquad10.hub.application.dto.res.HubRouteGetOneResponseDto;
 import com.devsquad10.hub.application.exception.HubNotFoundException;
+import com.devsquad10.hub.application.exception.HubRouteNotFoundException;
 import com.devsquad10.hub.domain.model.Hub;
 import com.devsquad10.hub.domain.model.HubRoute;
 import com.devsquad10.hub.domain.repository.HubRepository;
@@ -57,5 +59,13 @@ public class HubRouteService {
 
 		// return HubRouteCreateResponseDto.toResponseDto(savedRoute, calculationResult.getWaypoints());
 		return HubRouteCreateResponseDto.toResponseDto(savedRoute, dummyList);
+	}
+
+	@Transactional(readOnly = true)
+	public HubRouteGetOneResponseDto getOneHubRoute(UUID id) {
+		HubRoute hubRoute = hubRouteRepository.findById(id)
+			.orElseThrow(() -> new HubRouteNotFoundException("허브 경로를 찾을 수 없습니다."));
+
+		return HubRouteGetOneResponseDto.toResponseDto(hubRoute);
 	}
 }
