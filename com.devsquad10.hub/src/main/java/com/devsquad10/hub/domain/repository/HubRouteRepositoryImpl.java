@@ -3,8 +3,10 @@ package com.devsquad10.hub.domain.repository;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Repository;
 
+import com.devsquad10.hub.application.dto.req.HubRouteSearchRequestDto;
 import com.devsquad10.hub.domain.model.HubRoute;
 import com.devsquad10.hub.infrastructure.repository.JpaHubRouteRepository;
 
@@ -24,5 +26,10 @@ public class HubRouteRepositoryImpl implements HubRouteRepository {
 	@Override
 	public Optional<HubRoute> findById(UUID id) {
 		return jpaHubRouteRepository.findById(id);
+	}
+
+	@Override
+	public Page<HubRoute> findAll(HubRouteSearchRequestDto request) {
+		return jpaHubRouteRepository.findAll(request);
 	}
 }
