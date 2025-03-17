@@ -3,6 +3,7 @@ package com.devsquad10.shipping.application.service;
 import java.util.UUID;
 
 import org.springframework.cache.annotation.CachePut;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,8 +15,8 @@ import com.devsquad10.shipping.domain.enums.ShippingHistoryStatus;
 import com.devsquad10.shipping.domain.enums.ShippingStatus;
 import com.devsquad10.shipping.domain.model.Shipping;
 import com.devsquad10.shipping.domain.model.ShippingHistory;
-import com.devsquad10.shipping.domain.repository.ShippingRepository;
 import com.devsquad10.shipping.domain.repository.ShippingHistoryRepository;
+import com.devsquad10.shipping.domain.repository.ShippingRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -147,5 +148,14 @@ public class ShippingService {
 		return shippingRepository.findByIdAndDeletedAtIsNull(id)
 			.orElseThrow(() -> new ShippingNotFoundException(id + " 해당하는 배송 ID가 존재하지 않습니다."))
 			.toResponseDto();
+	}
+
+	@Transactional(readOnly = true)
+	public Page<ShippingResDto> searchShipping(String query, String category, int page, int size, String sort, String order) {
+		Page<Shipping> shippingPage = shippingRepository.findAll(query, category, page, size, sort, order);
+
+		log.info("query {}", query);
+		log.info("category {}", category);
+		return shippingPage.map(Shipping::toResponseDto);
 	}
 }

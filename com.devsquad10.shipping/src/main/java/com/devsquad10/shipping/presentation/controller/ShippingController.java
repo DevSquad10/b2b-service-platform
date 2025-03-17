@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.devsquad10.shipping.application.dto.ShippingPostReqDto;
@@ -67,6 +68,25 @@ public class ShippingController {
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 				.body(ShippingResponse.failure(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
+		}
+	}
+
+	@GetMapping("/search")
+	public ResponseEntity<ShippingResponse<?>> searchShipping(
+		@RequestParam(name = "query", required = false) String query,
+		@RequestParam(name = "category", required = false) String category,
+		@RequestParam(name = "page",defaultValue= "0") int page,
+		@RequestParam(name = "size",defaultValue = "10") int size,
+		@RequestParam(name = "sortBy", defaultValue = "createdAt") String sort,
+		@RequestParam(name = "order", defaultValue = "desc") String order) {
+
+		try {
+			return ResponseEntity.status(HttpStatus.OK)
+				.body(ShippingResponse.success(HttpStatus.OK.value(),
+					shippingService.searchShipping(query, category, page, size, sort, order)));
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+				.body(ShippingResponse.failure(HttpStatus.BAD_REQUEST.value(), "검색 결과가 존재하지 않습니다."));
 		}
 	}
 }
