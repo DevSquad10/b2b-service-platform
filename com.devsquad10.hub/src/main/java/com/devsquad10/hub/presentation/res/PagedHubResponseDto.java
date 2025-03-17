@@ -1,5 +1,6 @@
 package com.devsquad10.hub.presentation.res;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -11,7 +12,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class PagedHubResponseDto {
+public class PagedHubResponseDto implements Serializable {
 	private List<PagedHubItemResponseDto> hubs;
 	private int totalPages;
 	private long totalElements;

@@ -3,6 +3,10 @@ package com.devsquad10.hub.application.service;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +33,9 @@ public class HubService {
 
 	private final HubRepository hubRepository;
 
+	@Caching(evict = {
+		@CacheEvict(value = "hubSearchCache", allEntries = true)
+	})
 	public HubCreateResponseDto createHub(HubCreateRequestDto request) {
 		Hub hub = Hub.builder()
 			.name(request.getName())
@@ -42,6 +49,7 @@ public class HubService {
 		return HubCreateResponseDto.toResponseDto(savedHub);
 	}
 
+	@Cacheable(value = "hubCache", key = "#id.toString()")
 	public HubGetOneResponseDto getOneHub(UUID id) {
 		Hub hub = hubRepository.findById(id)
 			.orElseThrow(() -> new HubNotFoundException("Hub not found with id: " + id.toString()));
@@ -49,6 +57,10 @@ public class HubService {
 		return HubGetOneResponseDto.toResponseDto(hub);
 	}
 
+	@Caching(
+		put = {@CachePut(value = "hubCache", key = "#id.toString()")},
+		evict = {@CacheEvict(value = "hubSearchCache", allEntries = true)}
+	)
 	public HubUpdateResponseDto updateHub(UUID id, HubUpdateRequestDto request) {
 		Hub hub = hubRepository.findById(id)
 			.orElseThrow(() -> new HubNotFoundException("Hub not found with id: " + id.toString()));
@@ -64,6 +76,10 @@ public class HubService {
 		return HubUpdateResponseDto.toResponseDto(updatedHub);
 	}
 
+	@Caching(evict = {
+		@CacheEvict(value = "hubCache", key = "#id.toString()"),
+		@CacheEvict(value = "hubSearchCache", allEntries = true)
+	})
 	public HubDeleteResponseDto deleteHub(UUID id) {
 		Hub hub = hubRepository.findById(id)
 			.orElseThrow(() -> new HubNotFoundException("Hub not found with id: " + id.toString()));
@@ -77,6 +93,9 @@ public class HubService {
 			.build();
 	}
 
+	@Cacheable(value = "hubSearchCache",
+		key = "{#request.id, #request.name, #request.address, #request.page, #request.size, #request.sortOption?.name(), #request.sortOrder?.name()}"
+	)
 	public PagedHubResponseDto getHub(HubSearchRequestDto request) {
 
 		Page<Hub> hubPage = hubRepository.findAll(request);

@@ -1,5 +1,6 @@
 package com.devsquad10.hub.presentation.res;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -14,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class HubGetOneResponseDto {
+public class HubGetOneResponseDto implements Serializable {
 	// TODO: dto 개선
 
 	private UUID id;

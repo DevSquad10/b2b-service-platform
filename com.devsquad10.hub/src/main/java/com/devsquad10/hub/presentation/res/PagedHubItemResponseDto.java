@@ -1,5 +1,6 @@
 package com.devsquad10.hub.presentation.res;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -17,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PagedHubItemResponseDto {
+public class PagedHubItemResponseDto implements Serializable {
 
 	private UUID id;
 	private String name;
