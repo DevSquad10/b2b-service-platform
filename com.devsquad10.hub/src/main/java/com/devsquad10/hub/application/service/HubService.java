@@ -1,6 +1,5 @@
 package com.devsquad10.hub.application.service;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.springframework.cache.annotation.CacheEvict;
@@ -18,7 +17,6 @@ import com.devsquad10.hub.presentation.req.HubCreateRequestDto;
 import com.devsquad10.hub.presentation.req.HubSearchRequestDto;
 import com.devsquad10.hub.presentation.req.HubUpdateRequestDto;
 import com.devsquad10.hub.presentation.res.HubCreateResponseDto;
-import com.devsquad10.hub.presentation.res.HubDeleteResponseDto;
 import com.devsquad10.hub.presentation.res.HubGetOneResponseDto;
 import com.devsquad10.hub.presentation.res.HubUpdateResponseDto;
 import com.devsquad10.hub.presentation.res.PagedHubItemResponseDto;
@@ -80,17 +78,13 @@ public class HubService {
 		@CacheEvict(value = "hubCache", key = "#id.toString()"),
 		@CacheEvict(value = "hubSearchCache", allEntries = true)
 	})
-	public HubDeleteResponseDto deleteHub(UUID id) {
+	public void deleteHub(UUID id) {
 		Hub hub = hubRepository.findById(id)
 			.orElseThrow(() -> new HubNotFoundException("Hub not found with id: " + id.toString()));
 
 		// TODO: deleted_by 구현 시 수정
 		hub.delete(UUID.randomUUID());
 		hubRepository.save(hub);
-
-		return HubDeleteResponseDto.builder()
-			.deletedAt(LocalDateTime.now())
-			.build();
 	}
 
 	@Cacheable(value = "hubSearchCache",

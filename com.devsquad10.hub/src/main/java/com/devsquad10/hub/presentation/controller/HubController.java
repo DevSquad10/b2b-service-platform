@@ -20,7 +20,6 @@ import com.devsquad10.hub.presentation.req.HubSearchRequestDto;
 import com.devsquad10.hub.presentation.req.HubUpdateRequestDto;
 import com.devsquad10.hub.presentation.res.ApiResponse;
 import com.devsquad10.hub.presentation.res.HubCreateResponseDto;
-import com.devsquad10.hub.presentation.res.HubDeleteResponseDto;
 import com.devsquad10.hub.presentation.res.HubGetOneResponseDto;
 import com.devsquad10.hub.presentation.res.HubUpdateResponseDto;
 import com.devsquad10.hub.presentation.res.PagedHubResponseDto;
@@ -76,15 +75,15 @@ public class HubController {
 	}
 
 	@DeleteMapping("/{id}")
-	public ResponseEntity<ApiResponse<HubDeleteResponseDto>> deleteHub(
+	public ResponseEntity<ApiResponse<String>> deleteHub(
 		@PathVariable UUID id
 	) {
-		HubDeleteResponseDto response = hubService.deleteHub(id);
+		hubService.deleteHub(id);
 
 		return ResponseEntity.status(HttpStatus.OK)
 			.body(ApiResponse.success(
 				HttpStatus.OK.value(),
-				response
+				"Hub successfully deleted"
 			));
 	}
 
