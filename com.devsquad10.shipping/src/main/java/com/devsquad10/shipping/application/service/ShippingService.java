@@ -3,7 +3,10 @@ package com.devsquad10.shipping.application.service;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -82,7 +85,11 @@ public class ShippingService {
 		return savedShipping.toResponseDto();
 	}
 
-	//TODO: 배송 정보(수령인, 수령인 번호) update
+	// 배송 정보(수령인, 수령인 번호) update
+	@CachePut(cacheNames = "shippingCache", key = "#result.id", condition = "#id != null")
+	@Caching(evict = {
+		@CacheEvict(cacheNames = "shippingSearchCache", allEntries = true)
+	})
 	public ShippingResDto updateShipping(UUID id, ShippingUpdateReqDto shippingUpdateReqDto) {
 		Shipping shipping = shippingRepository.findByIdAndDeletedAtIsNull(id)
 			.orElseThrow(() -> new ShippingNotFoundException("ID " + id + "에 해당하는 배송 데이터를 찾을 수 없습니다."));
@@ -94,7 +101,11 @@ public class ShippingService {
 			.build()).toResponseDto();
 	}
 
-	//TODO: 현재상태(HUB_ARV) update
+	@CachePut(cacheNames = "shippingCache", key = "#result.id", condition = "#id != null")
+	@Caching(evict = {
+		@CacheEvict(cacheNames = "shippingSearchCache", allEntries = true)
+	})
+	// 현재상태(HUB_ARV) update
 	public ShippingResDto statusUpdateShipping(UUID id, ShippingUpdateReqDto shippingUpdateReqDto) {
 		Shipping shipping = shippingRepository.findByIdAndDeletedAtIsNull(id)
 			.orElseThrow(() -> new ShippingNotFoundException("ID " + id + "에 해당하는 배송 데이터를 찾을 수 없습니다."));
@@ -105,7 +116,11 @@ public class ShippingService {
 			.build()).toResponseDto();
 	}
 
-	//TODO: 배송 업체배송담당자ID update
+	@CachePut(cacheNames = "shippingCache", key = "#result.id", condition = "#id != null")
+	@Caching(evict = {
+		@CacheEvict(cacheNames = "shippingSearchCache", allEntries = true)
+	})
+	// 배송 업체배송담당자ID update
 	//TODO: 배송 담당자 배정 처리(주문 생성 전송시간 기준으로 허브간 이동이 시작되었다고 가정)
 	// 전송시간+예상소요시간 기준
 	// 배송 경로기록 마지막 순번의 현재상태가 "목적지 허브 도착:HUB_ARV"일 때만 가능
@@ -120,6 +135,10 @@ public class ShippingService {
 			.build()).toResponseDto();
 	}
 
+	@CachePut(cacheNames = "shippingCache", key = "#result.id", condition = "#id != null")
+	@Caching(evict = {
+		@CacheEvict(cacheNames = "shippingSearchCache", allEntries = true)
+	})
 	//TODO: 주문이 생성되면 orderId과 메시지 전송시간을 전달 받은 후, 배송 orderId UPDATE
 	// 주문 생성 전까지 허브간 이동 불가 = 배송 경로기록 상태(HUB_WAIT) 변경 못함.
 	public ShippingResDto orderIdUpdateShipping(UUID id, ShippingUpdateReqDto shippingUpdateReqDto) {
@@ -132,7 +151,14 @@ public class ShippingService {
 			.build()).toResponseDto();
 	}
 
-	//TODO: 주문정보(배송 주소지, 요청사항) update
+	@CachePut(cacheNames = "shippingCache", key = "#result.id", condition = "#id != null")
+	@Caching(evict = {
+		@CacheEvict(cacheNames = "shippingSearchCache",
+			allEntries = true,
+			condition = "@cacheManager.getCache('shippingSearchCache') != null"
+		)
+	})
+	// 주문정보(배송 주소지, 요청사항) update
 	public ShippingResDto infoUpdateShipping(UUID id, ShippingUpdateReqDto shippingUpdateReqDto) {
 		Shipping shipping = shippingRepository.findByIdAndDeletedAtIsNull(id)
 			.orElseThrow(() -> new ShippingNotFoundException("ID " + id + "에 해당하는 배송 데이터를 찾을 수 없습니다."));
@@ -144,6 +170,8 @@ public class ShippingService {
 			.build()).toResponseDto();
 	}
 
+	// TODO: 캐싱 처리 안됨 - postgres 데이터 있음
+	@Cacheable(cacheNames = "shippingCache", key = "#id", condition = "#id != null")
 	@Transactional(readOnly = true)
 	public ShippingResDto getShippingById(UUID id) {
 		return shippingRepository.findByIdAndDeletedAtIsNull(id)
@@ -151,6 +179,8 @@ public class ShippingService {
 			.toResponseDto();
 	}
 
+	// TODO: query, category != null 인 경우, queryDSL 적용 안됨
+	@Cacheable(cacheNames = "shippingSearchCache", key = "#query +'=' + #category")
 	@Transactional(readOnly = true)
 	public Page<ShippingResDto> searchShipping(String query, String category, int page, int size, String sort, String order) {
 		Page<Shipping> shippingPage = shippingRepository.findAll(query, category, page, size, sort, order);
@@ -160,6 +190,14 @@ public class ShippingService {
 		return shippingPage.map(Shipping::toResponseDto);
 	}
 
+	// TODO: 1) condition="#id != null"인 경우, 개별 캐싱(shippingCache) 삭제 안됨
+	// 2) condition 없는 경우, 캐싱 삭제 자체가 안됨 & postgres 의 데이터는 삭제됨
+	@Caching(evict = {
+		@CacheEvict(cacheNames = "shippingCache", key = "#id"),
+		@CacheEvict(cacheNames = "shippingSearchCache",
+			allEntries = true,
+			condition = "@cacheManager.getCache('shippingSearchCache') != null")
+	})
 	@Transactional
 	public void deleteShipping(UUID id) {
 		Shipping shipping = shippingRepository.findByIdAndDeletedAtIsNull(id)

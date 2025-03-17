@@ -9,8 +9,8 @@ import org.springframework.data.redis.cache.CacheKeyPrefix;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
-import org.springframework.data.redis.serializer.RedisSerializer;
 
 @Configuration
 @EnableCaching
@@ -21,9 +21,10 @@ public class RedisConfig {
 		RedisCacheConfiguration config = RedisCacheConfiguration
 			.defaultCacheConfig()
 			.disableCachingNullValues()
-			.entryTtl(Duration.ofSeconds(120))
+			.entryTtl(Duration.ofHours(1))
 			.computePrefixWith(CacheKeyPrefix.simple())
-			.serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(RedisSerializer.json()));
+			// Java 직렬화 대신 JSON 직렬화 사용하여 직렬화 문제 해결(Cannot deserialize)
+			.serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()));
 		return RedisCacheManager
 			.builder(connectionFactory)
 			.cacheDefaults(config)

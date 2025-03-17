@@ -29,11 +29,14 @@ public class ShippingController {
 	private final ShippingService shippingService;
 
 	@PostMapping
-	public ResponseEntity<String> shipping(@RequestBody ShippingPostReqDto shippingReqDto) {
-
-		shippingService.createShipping(shippingReqDto);
-
-		return ResponseEntity.status(HttpStatus.OK).body("배송 생성");
+	public ResponseEntity<ShippingResponse<?>> shipping(@RequestBody ShippingPostReqDto shippingReqDto) {
+		try {
+			return ResponseEntity.status(HttpStatus.OK)
+				.body(ShippingResponse.success(HttpStatus.OK.value(), shippingService.createShipping(shippingReqDto)));
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+				.body(ShippingResponse.failure(HttpStatus.BAD_REQUEST.value(), "배송 생성 불가능 : " + e.getMessage()));
+		}
 	}
 
 	@PatchMapping("/{id}")
@@ -58,7 +61,7 @@ public class ShippingController {
 			}
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.OK)
-				.body(ShippingResponse.failure(HttpStatus.BAD_REQUEST.value(), "배송 수정이 불가능합니다."));
+				.body(ShippingResponse.failure(HttpStatus.BAD_REQUEST.value(), "배송 수정 불가능: " + e.getMessage()));
 		}
 	}
 
@@ -67,8 +70,8 @@ public class ShippingController {
 		try {
 			return ResponseEntity.ok(ShippingResponse.success(HttpStatus.OK.value(), shippingService.getShippingById(id)));
 		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-				.body(ShippingResponse.failure(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+				.body(ShippingResponse.failure(HttpStatus.BAD_REQUEST.value(), "배송 조회 불가능: " + e.getMessage()));
 		}
 	}
 
@@ -87,15 +90,21 @@ public class ShippingController {
 					shippingService.searchShipping(query, category, page, size, sort, order)));
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-				.body(ShippingResponse.failure(HttpStatus.BAD_REQUEST.value(), "검색 결과가 존재하지 않습니다."));
+				.body(ShippingResponse.failure(HttpStatus.BAD_REQUEST.value(), "검색 결과가 존재하지 않음 : " + e.getMessage()));
 		}
 	}
 
 	@DeleteMapping("/{id}")
 	public ResponseEntity<ShippingResponse<String>> deleteShipping(@PathVariable(name = "id") UUID id) {
-		shippingService.deleteShipping(id);
 
-		return ResponseEntity.status(HttpStatus.OK)
-			.body(ShippingResponse.success(HttpStatus.OK.value(), "배송이 삭제되었습니다."));
+		try {
+			shippingService.deleteShipping(id);
+
+			return ResponseEntity.status(HttpStatus.OK)
+				.body(ShippingResponse.success(HttpStatus.OK.value(), "배송이 삭제되었습니다."));
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+				.body(ShippingResponse.failure(HttpStatus.BAD_REQUEST.value(), "배송 삭제 불가능 : " + e.getMessage()));
+		}
 	}
 }
