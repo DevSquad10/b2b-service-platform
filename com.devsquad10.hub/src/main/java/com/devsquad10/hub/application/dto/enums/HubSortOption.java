@@ -1,4 +1,4 @@
-package com.devsquad10.hub.presentation.enums;
+package com.devsquad10.hub.application.dto.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

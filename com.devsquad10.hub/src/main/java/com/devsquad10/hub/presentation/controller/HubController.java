@@ -14,15 +14,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.devsquad10.hub.application.dto.req.HubCreateRequestDto;
+import com.devsquad10.hub.application.dto.req.HubSearchRequestDto;
+import com.devsquad10.hub.application.dto.req.HubUpdateRequestDto;
+import com.devsquad10.hub.application.dto.res.ApiResponse;
+import com.devsquad10.hub.application.dto.res.HubCreateResponseDto;
+import com.devsquad10.hub.application.dto.res.HubGetOneResponseDto;
+import com.devsquad10.hub.application.dto.res.HubUpdateResponseDto;
+import com.devsquad10.hub.application.dto.res.PagedHubResponseDto;
 import com.devsquad10.hub.application.service.HubService;
-import com.devsquad10.hub.presentation.req.HubCreateRequestDto;
-import com.devsquad10.hub.presentation.req.HubSearchRequestDto;
-import com.devsquad10.hub.presentation.req.HubUpdateRequestDto;
-import com.devsquad10.hub.presentation.res.ApiResponse;
-import com.devsquad10.hub.presentation.res.HubCreateResponseDto;
-import com.devsquad10.hub.presentation.res.HubGetOneResponseDto;
-import com.devsquad10.hub.presentation.res.HubUpdateResponseDto;
-import com.devsquad10.hub.presentation.res.PagedHubResponseDto;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

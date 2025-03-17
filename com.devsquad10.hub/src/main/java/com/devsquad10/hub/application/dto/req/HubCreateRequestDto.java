@@ -1,4 +1,4 @@
-package com.devsquad10.hub.presentation.req;
+package com.devsquad10.hub.application.dto.req;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class HubUpdateRequestDto {
+public class HubCreateRequestDto {
 	@NotBlank
 	private String name;
 

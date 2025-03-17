@@ -8,10 +8,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.StringUtils;
 
+import com.devsquad10.hub.application.dto.enums.HubSortOption;
+import com.devsquad10.hub.application.dto.req.HubSearchRequestDto;
 import com.devsquad10.hub.domain.model.Hub;
 import com.devsquad10.hub.domain.model.QHub;
-import com.devsquad10.hub.presentation.enums.HubSortOption;
-import com.devsquad10.hub.presentation.req.HubSearchRequestDto;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQueryFactory;

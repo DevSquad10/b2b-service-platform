@@ -1,4 +1,4 @@
-package com.devsquad10.hub.presentation.res;
+package com.devsquad10.hub.application.dto.res;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
