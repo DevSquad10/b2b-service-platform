@@ -71,7 +71,6 @@ public class Shipping {
 	private String recipientName;
 
 	@Column(nullable = false)
-	// TODO: 수령인 전화번호로 컬럼명 수정
 	private String recipientPhone;
 
 	@Column
@@ -119,9 +118,12 @@ public class Shipping {
 		this.updatedBy = "updateUser";
 	}
 
-	public void softDelete() {
+	// TODO: 삭제유저 구현 예정
+	public Shipping softDelete() {
 		this.deletedAt = LocalDateTime.now(); // 현재 시간으로 설정
-		this.deletedBy = "defaultUser"; // 현재 사용자로 설정
+		this.deletedBy = "deleteUser"; // 현재 사용자로 설정
+
+		return this;
 	}
 
 	public ShippingResDto toResponseDto() {
@@ -132,8 +134,8 @@ public class Shipping {
 		);
 	}
 
-	public void addShippingHistory(ShippingHistory shippingHistory) {
-		shippingHistory.setShipping(this); // 양방향 관계 설정
-		this.historyList.add(shippingHistory);
-	}
+	// public void addShippingHistory(ShippingHistory shippingHistory) {
+	// 	shippingHistory.setShipping(this); // 양방향 관계 설정
+	// 	this.historyList.add(shippingHistory);
+	// }
 }

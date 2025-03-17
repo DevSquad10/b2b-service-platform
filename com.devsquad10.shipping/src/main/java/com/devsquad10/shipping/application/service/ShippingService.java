@@ -1,5 +1,6 @@
 package com.devsquad10.shipping.application.service;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.cache.annotation.CachePut;
@@ -157,5 +158,28 @@ public class ShippingService {
 		log.info("query {}", query);
 		log.info("category {}", category);
 		return shippingPage.map(Shipping::toResponseDto);
+	}
+
+	@Transactional
+	public void deleteShipping(UUID id) {
+		Shipping shipping = shippingRepository.findByIdAndDeletedAtIsNull(id)
+			.orElseThrow(() -> new ShippingNotFoundException(id + " 해당하는 배송 ID가 존재하지 않습니다."));
+
+		// 배송 삭제 처리
+		shippingRepository.save(shipping.softDelete());
+
+		// 배송 ID로 배송경로기록 List 추출
+		List<ShippingHistory> historyList = shippingHistoryRepository.findByShippingIdAndDeletedAtIsNull(id);
+
+		// 배송 삭제 될 때, 배송 경로기록도 삭제 처리
+		if(!historyList.isEmpty()) {
+			List<UUID> historyIdList = historyList.stream()
+				.map(ShippingHistory::getId)
+				.toList();
+			for(UUID historyId : historyIdList) {
+				ShippingHistory history = shippingHistoryRepository.findByIdAndDeletedAtIsNull(historyId);
+				shippingHistoryRepository.save(history.softDelete());
+			}
+		}
 	}
 }

@@ -22,6 +22,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -107,8 +108,17 @@ public class ShippingHistory {
 		this.createdBy = "defaultUser"; // 현재 사용자로 설정 (예: SecurityContext에서 사용자 정보 가져오기)
 	}
 
-	public void softDelete() {
+	@PreUpdate
+	public void preUpdate() {
+		this.updatedAt = LocalDateTime.now();
+		this.updatedBy = "updateUser";
+	}
+
+	// TODO: 삭제유저 구현 예정
+	public ShippingHistory softDelete() {
 		this.deletedAt = LocalDateTime.now(); // 현재 시간으로 설정
-		this.deletedBy = "defaultUser"; // 현재 사용자로 설정
+		this.deletedBy = "deleteUser"; // 현재 사용자로 설정
+
+		return this;
 	}
 }
