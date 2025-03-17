@@ -12,7 +12,7 @@ import com.devsquad10.product.application.exception.ProductNotFoundException;
 @RestControllerAdvice
 public class ProductExceptionHandler {
 
-	@ExceptionHandler(Exception.class)
+	@ExceptionHandler(ProductNotFoundException.class)
 	@ResponseStatus(HttpStatus.NOT_FOUND)
 	public ResponseEntity<ProductResponse<String>> productNotFoundException(ProductNotFoundException ex) {
 		return ResponseEntity.status(HttpStatus.NOT_FOUND)
