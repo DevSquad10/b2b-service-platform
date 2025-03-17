@@ -25,10 +25,11 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ProductService {
 
-	@Value("${message.queue.error.stock}")
-	public String queueErrorStock;
+	@Value("${stockMessage.queue.stock.response}")
+	public String queueResponseStock;
 
 	private final ProductRepository productRepository;
 	private final RabbitTemplate rabbitTemplate;
@@ -106,26 +107,27 @@ public class ProductService {
 		UUID targetProductId = stockDecrementMessage.getProductId();
 		int orderQuantity = stockDecrementMessage.getQuantity();
 
-		// 1. 상품 조회
-		Product targetProduct = productRepository.findByIdAndDeletedAtIsNull(targetProductId)
+		// 1. 재고 차감 시도 (쿼리로 처리)
+		int updatedRow = productRepository.decreaseStock(targetProductId, orderQuantity);
+
+		// 2. 재고 부족 처리
+		if (updatedRow == 0) {
+			StockDecrementMessage errorMessage = stockDecrementMessage.toBuilder()
+				.status("OUT_OF_STOCK")
+				.build();
+			rabbitTemplate.convertAndSend(queueResponseStock, errorMessage);
+			return;
+		}
+
+		// 3. 정상 처리 메시지 발송
+		Product updatedProduct = productRepository.findByIdAndDeletedAtIsNull(targetProductId)
 			.orElseThrow(() -> new ProductNotFoundException("Product Not Found By Id :" + targetProductId));
 
-		// 2. 재고 부족 확인
-		// if (targetProduct.getQuantity() < orderQuantity) {
-		// 	// 재고 부족 error.message 발송
-		// 	StockDecrementMessage errorMessage = stockDecrementMessage.toBuilder()
-		// 		.errorType("OUT_OF_STOCK")
-		// 		.build();
-		//
-		// 	rabbitTemplate.convertAndSend(queueErrorStock, errorMessage);
-		// 	return;
-		// }
+		StockDecrementMessage successMessage = stockDecrementMessage.toBuilder()
+			.status("SUCCESS")
+			.price(updatedProduct.getPrice())
+			.build();
 
-		targetProduct.decreaseQuantity(orderQuantity);
-
-		productRepository.save(targetProduct);
-
-		// message 정상 처리 메시지 발송
-		// rabbitTemplate
+		rabbitTemplate.convertAndSend(queueResponseStock, successMessage);
 	}
 }

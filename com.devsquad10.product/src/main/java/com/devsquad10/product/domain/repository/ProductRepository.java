@@ -15,4 +15,5 @@ public interface ProductRepository {
 
 	Page<Product> findAll(String q, String category, int page, int size, String sort, String order);
 
+	int decreaseStock(UUID productId, int orderQuantity);
 }

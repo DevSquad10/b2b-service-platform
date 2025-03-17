@@ -16,7 +16,7 @@ public class ProductEndPoint {
 
 	private final ProductService productService;
 
-	@RabbitListener(queues = "${message.queue.stock}")
+	@RabbitListener(queues = "${stockMessage.queue.stock.request}")
 	public void handleStockDecrementRequest(StockDecrementMessage stockDecrementMessage) {
 		productService.decreaseStock(stockDecrementMessage);
 	}
