@@ -75,6 +75,11 @@ clean {
 	delete file(generated)
 }
 
+// 컴파일 플래그 설정
+tasks.withType(JavaCompile) {
+	options.compilerArgs << '-parameters'
+}
+
 tasks.named('test') {
 	useJUnitPlatform()
 }
