@@ -14,12 +14,13 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 public class StockDecrementMessage {
-
 	private UUID orderId;
 
 	private UUID productId;
 
 	private Integer quantity;
 
-	private String errorType;
+	private String status;
+
+	private Integer price;
 }

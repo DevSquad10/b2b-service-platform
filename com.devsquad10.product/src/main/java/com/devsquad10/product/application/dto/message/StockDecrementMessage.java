@@ -20,5 +20,7 @@ public class StockDecrementMessage {
 
 	private Integer quantity;
 
-	private String errorType;
+	private String status;
+
+	private Integer price;
 }

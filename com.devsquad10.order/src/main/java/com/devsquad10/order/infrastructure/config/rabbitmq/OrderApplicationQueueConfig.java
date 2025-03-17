@@ -12,57 +12,56 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OrderApplicationQueueConfig {
 
-	// 일반 상황
-	@Value("${message.exchange.stock}")
-	private String stockExchange;
+	// exchange
+	@Value("${stockMessage.exchange.stock.request}")
+	private String stockRequestExchange;
 
-	@Value("${message.queue.stock}")
-	private String queueStock;
+	@Value("${stockMessage.exchange.stock.response}")
+	private String stockResponseExchange;
 
-	// 예외 처리
-	@Value("${message.exchange.error}")
-	private String errorProductStockExchange;
+	@Value("${stockMessage.queue.stock.request}")
+	private String queueRequestStock;
 
-	@Value("${message.queue.error.stock}")
-	private String queueErrorProductStock;
+	@Value("${stockMessage.queue.stock.response}")
+	private String queueResponseStock;
 
 	/**
 	 * exchange
 	 */
 	@Bean
-	public TopicExchange exchange() {
-		return new TopicExchange(stockExchange);
+	public TopicExchange stockRequestExchange() {
+		return new TopicExchange(stockRequestExchange);
 	}
 
 	@Bean
-	public TopicExchange errorOrderExchange() {
-		return new TopicExchange(errorProductStockExchange);
+	public TopicExchange stockResponseExchange() {
+		return new TopicExchange(stockResponseExchange);
 	}
 
 	/**
 	 * queue
 	 */
 	@Bean
-	public Queue queueStock() {
-		return new Queue(queueStock);
+	public Queue queueRequestStock() {
+		return new Queue(queueRequestStock);
 	}
 
 	@Bean
-	public Queue queueErrorProductStock() {
-		return new Queue(queueErrorProductStock);
+	public Queue queueResponseStock() {
+		return new Queue(queueResponseStock);
 	}
 
 	/**
 	 * binding
 	 */
 	@Bean
-	public Binding bindingProduct() {
-		return BindingBuilder.bind(queueStock()).to(exchange()).with(queueStock);
+	public Binding bindingRequestStock() {
+		return BindingBuilder.bind(queueRequestStock()).to(stockRequestExchange()).with(queueRequestStock);
 	}
 
 	@Bean
-	public Binding bindingErrorOrder() {
-		return BindingBuilder.bind(queueErrorProductStock()).to(errorOrderExchange()).with(queueErrorProductStock);
+	public Binding bindingResponseStock() {
+		return BindingBuilder.bind(queueResponseStock()).to(stockResponseExchange()).with(queueResponseStock);
 	}
 
 	@Bean
