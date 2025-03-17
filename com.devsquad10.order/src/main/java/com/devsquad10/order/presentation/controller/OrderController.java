@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.devsquad10.order.application.dto.OrderReqDto;
-import com.devsquad10.order.application.dto.OrderResponse;
+import com.devsquad10.order.application.dto.response.OrderResponse;
 import com.devsquad10.order.application.service.OrderService;
 
 import lombok.RequiredArgsConstructor;

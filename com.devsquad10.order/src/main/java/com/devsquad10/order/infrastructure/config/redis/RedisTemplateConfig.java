@@ -1,4 +1,4 @@
-package com.devsquad10.order.infrastructure.config.config;
+package com.devsquad10.order.infrastructure.config.redis;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
