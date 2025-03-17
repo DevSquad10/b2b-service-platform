@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.devsquad10.hub.application.dto.res.ApiResponse;
 import com.devsquad10.hub.application.exception.HubNotFoundException;
-import com.devsquad10.hub.presentation.res.ApiResponse;
 
 @RestControllerAdvice
 public class HubExceptionHandler {

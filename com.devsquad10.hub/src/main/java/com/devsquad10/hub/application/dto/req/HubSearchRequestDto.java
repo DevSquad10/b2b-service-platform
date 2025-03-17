@@ -1,4 +1,4 @@
-package com.devsquad10.hub.presentation.req;
+package com.devsquad10.hub.application.dto.req;
 
 import java.util.Optional;
 import java.util.Set;
@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import org.springframework.data.domain.Sort;
 
-import com.devsquad10.hub.presentation.enums.HubSortOption;
+import com.devsquad10.hub.application.dto.enums.HubSortOption;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

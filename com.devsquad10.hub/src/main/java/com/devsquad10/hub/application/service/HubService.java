@@ -1,6 +1,5 @@
 package com.devsquad10.hub.application.service;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.springframework.cache.annotation.CacheEvict;
@@ -11,18 +10,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.devsquad10.hub.application.dto.req.HubCreateRequestDto;
+import com.devsquad10.hub.application.dto.req.HubSearchRequestDto;
+import com.devsquad10.hub.application.dto.req.HubUpdateRequestDto;
+import com.devsquad10.hub.application.dto.res.HubCreateResponseDto;
+import com.devsquad10.hub.application.dto.res.HubGetOneResponseDto;
+import com.devsquad10.hub.application.dto.res.HubUpdateResponseDto;
+import com.devsquad10.hub.application.dto.res.PagedHubItemResponseDto;
+import com.devsquad10.hub.application.dto.res.PagedHubResponseDto;
 import com.devsquad10.hub.application.exception.HubNotFoundException;
 import com.devsquad10.hub.domain.model.Hub;
 import com.devsquad10.hub.domain.repository.HubRepository;
-import com.devsquad10.hub.presentation.req.HubCreateRequestDto;
-import com.devsquad10.hub.presentation.req.HubSearchRequestDto;
-import com.devsquad10.hub.presentation.req.HubUpdateRequestDto;
-import com.devsquad10.hub.presentation.res.HubCreateResponseDto;
-import com.devsquad10.hub.presentation.res.HubDeleteResponseDto;
-import com.devsquad10.hub.presentation.res.HubGetOneResponseDto;
-import com.devsquad10.hub.presentation.res.HubUpdateResponseDto;
-import com.devsquad10.hub.presentation.res.PagedHubItemResponseDto;
-import com.devsquad10.hub.presentation.res.PagedHubResponseDto;
 
 import lombok.RequiredArgsConstructor;
 
@@ -80,17 +78,13 @@ public class HubService {
 		@CacheEvict(value = "hubCache", key = "#id.toString()"),
 		@CacheEvict(value = "hubSearchCache", allEntries = true)
 	})
-	public HubDeleteResponseDto deleteHub(UUID id) {
+	public void deleteHub(UUID id) {
 		Hub hub = hubRepository.findById(id)
 			.orElseThrow(() -> new HubNotFoundException("Hub not found with id: " + id.toString()));
 
 		// TODO: deleted_by 구현 시 수정
 		hub.delete(UUID.randomUUID());
 		hubRepository.save(hub);
-
-		return HubDeleteResponseDto.builder()
-			.deletedAt(LocalDateTime.now())
-			.build();
 	}
 
 	@Cacheable(value = "hubSearchCache",
