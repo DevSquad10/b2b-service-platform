@@ -1,5 +1,6 @@
 package com.devsquad10.hub.presentation.res;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -14,7 +15,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class HubUpdateResponseDto {
+public class HubUpdateResponseDto implements Serializable {
 
 	// TODO: dto 개선
 

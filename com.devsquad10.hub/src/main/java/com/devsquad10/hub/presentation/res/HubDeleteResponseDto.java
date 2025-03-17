@@ -1,5 +1,6 @@
 package com.devsquad10.hub.presentation.res;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import lombok.AllArgsConstructor;
@@ -11,6 +12,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class HubDeleteResponseDto {
+public class HubDeleteResponseDto implements Serializable {
 	private LocalDateTime deletedAt;
 }
