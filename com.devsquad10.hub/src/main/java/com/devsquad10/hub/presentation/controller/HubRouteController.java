@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,11 +15,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.devsquad10.hub.application.dto.req.HubRouteCreateRequestDto;
+import com.devsquad10.hub.application.dto.req.HubRouteSearchRequestDto;
 import com.devsquad10.hub.application.dto.req.HubRouteUpdateRequestDto;
 import com.devsquad10.hub.application.dto.res.ApiResponse;
 import com.devsquad10.hub.application.dto.res.HubRouteCreateResponseDto;
 import com.devsquad10.hub.application.dto.res.HubRouteGetOneResponseDto;
 import com.devsquad10.hub.application.dto.res.HubRouteUpdateResponseDto;
+import com.devsquad10.hub.application.dto.res.PagedHubRouteResponseDto;
 import com.devsquad10.hub.application.service.HubRouteService;
 
 import jakarta.validation.Valid;
@@ -80,6 +83,19 @@ public class HubRouteController {
 			.body(ApiResponse.success(
 				HttpStatus.OK.value(),
 				"HubRoute successfully deleted"
+			));
+	}
+
+	@GetMapping
+	public ResponseEntity<ApiResponse<PagedHubRouteResponseDto>> getAllHubs(
+		@ModelAttribute @Valid HubRouteSearchRequestDto request
+	) {
+		PagedHubRouteResponseDto response = hubRouteService.getHub(request);
+
+		return ResponseEntity.status(HttpStatus.OK)
+			.body(ApiResponse.success(
+				HttpStatus.OK.value(),
+				response
 			));
 	}
 }

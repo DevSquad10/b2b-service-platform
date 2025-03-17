@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 import com.devsquad10.hub.domain.model.HubRoute;
 
 @Repository
-public interface JpaHubRouteRepository extends JpaRepository<HubRoute, UUID> {
+public interface JpaHubRouteRepository extends JpaRepository<HubRoute, UUID>, HubRouteRepositoryCustom {
 }

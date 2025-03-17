@@ -4,15 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.devsquad10.hub.application.dto.RouteCalculationResult;
 import com.devsquad10.hub.application.dto.req.HubRouteCreateRequestDto;
+import com.devsquad10.hub.application.dto.req.HubRouteSearchRequestDto;
 import com.devsquad10.hub.application.dto.req.HubRouteUpdateRequestDto;
 import com.devsquad10.hub.application.dto.res.HubRouteCreateResponseDto;
 import com.devsquad10.hub.application.dto.res.HubRouteGetOneResponseDto;
 import com.devsquad10.hub.application.dto.res.HubRouteUpdateResponseDto;
+import com.devsquad10.hub.application.dto.res.PagedHubRouteItemResponseDto;
+import com.devsquad10.hub.application.dto.res.PagedHubRouteResponseDto;
 import com.devsquad10.hub.application.exception.HubNotFoundException;
 import com.devsquad10.hub.application.exception.HubRouteNotFoundException;
 import com.devsquad10.hub.domain.model.Hub;
@@ -105,5 +109,13 @@ public class HubRouteService {
 		// TODO: 사용자 정보 구현 시 수정
 		hubRoute.delete(UUID.randomUUID());
 		hubRouteRepository.save(hubRoute);
+	}
+
+	public PagedHubRouteResponseDto getHub(HubRouteSearchRequestDto request) {
+		Page<HubRoute> hubRoutePage = hubRouteRepository.findAll(request);
+
+		Page<PagedHubRouteItemResponseDto> dtoPage = hubRoutePage.map(PagedHubRouteItemResponseDto::toResponseDto);
+
+		return PagedHubRouteResponseDto.toResponseDto(dtoPage, request.getSortOption());
 	}
 }
