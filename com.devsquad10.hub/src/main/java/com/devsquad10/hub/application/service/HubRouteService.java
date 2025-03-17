@@ -97,4 +97,13 @@ public class HubRouteService {
 		// return HubRouteUpdateResponseDto.toResponseDto(updatedRoute, calculationResult.getWaypoints());
 		return HubRouteUpdateResponseDto.toResponseDto(updatedRoute, dummyList);
 	}
+
+	public void deleteHubRoute(UUID id) {
+		HubRoute hubRoute = hubRouteRepository.findById(id)
+			.orElseThrow(() -> new HubRouteNotFoundException("허브 경로를 찾을 수 없습니다."));
+
+		// TODO: 사용자 정보 구현 시 수정
+		hubRoute.delete(UUID.randomUUID());
+		hubRouteRepository.save(hubRoute);
+	}
 }
