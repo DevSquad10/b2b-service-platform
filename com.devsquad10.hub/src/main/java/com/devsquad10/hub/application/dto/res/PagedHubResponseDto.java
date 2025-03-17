@@ -1,11 +1,11 @@
-package com.devsquad10.hub.presentation.res;
+package com.devsquad10.hub.application.dto.res;
 
 import java.io.Serializable;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
 
-import com.devsquad10.hub.presentation.enums.HubSortOption;
+import com.devsquad10.hub.application.dto.enums.HubSortOption;
 
 import lombok.Builder;
 import lombok.Getter;

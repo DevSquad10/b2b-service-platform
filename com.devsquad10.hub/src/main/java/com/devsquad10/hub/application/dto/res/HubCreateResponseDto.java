@@ -1,6 +1,5 @@
-package com.devsquad10.hub.presentation.res;
+package com.devsquad10.hub.application.dto.res;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -15,7 +14,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class HubGetOneResponseDto implements Serializable {
+public class HubCreateResponseDto {
+
 	// TODO: dto 개선
 
 	private UUID id;
@@ -30,8 +30,8 @@ public class HubGetOneResponseDto implements Serializable {
 	private LocalDateTime deletedAt;
 	private UUID deletedBy;
 
-	public static HubGetOneResponseDto toResponseDto(Hub hub) {
-		return HubGetOneResponseDto.builder()
+	public static HubCreateResponseDto toResponseDto(Hub hub) {
+		return HubCreateResponseDto.builder()
 			.id(hub.getId())
 			.name(hub.getName())
 			.address(hub.getAddress())

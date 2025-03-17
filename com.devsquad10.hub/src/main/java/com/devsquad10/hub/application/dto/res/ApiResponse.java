@@ -1,4 +1,4 @@
-package com.devsquad10.hub.presentation.res;
+package com.devsquad10.hub.application.dto.res;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
