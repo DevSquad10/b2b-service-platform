@@ -48,7 +48,7 @@ public class CompanyService {
 			.toResponseDto();
 	}
 
-	@Cacheable(cacheNames = "companySearchCompany", key = "#q + '-' + #category + '-' + #page + '-' + #size")
+	@Cacheable(cacheNames = "companySearch", key = "#q + '-' + #category + '-' + #page + '-' + #size")
 	@Transactional(readOnly = true)
 	public Page<CompanyResDto> searchCompanies(String q, String category, int page, int size, String sort,
 		String order) {
@@ -61,7 +61,7 @@ public class CompanyService {
 
 	@CachePut(cacheNames = "companyCache", key = "#id")
 	@Caching(evict = {
-		@CacheEvict(cacheNames = "companySearchCompany", allEntries = true)
+		@CacheEvict(cacheNames = "companySearch", allEntries = true)
 	})
 	public CompanyResDto updateCompany(UUID id, CompanyReqDto companyReqDto) {
 		Company targetCompany = companyRepository.findByIdAndDeletedAtIsNull(id)
@@ -80,7 +80,7 @@ public class CompanyService {
 
 	@Caching(evict = {
 		@CacheEvict(cacheNames = "companyCache", key = "#id"),
-		@CacheEvict(cacheNames = "companySearchCompany", key = "#id")
+		@CacheEvict(cacheNames = "companySearch", key = "#id")
 	})
 	public void deleteCompany(UUID id) {
 		Company targetCompany = companyRepository.findByIdAndDeletedAtIsNull(id)
