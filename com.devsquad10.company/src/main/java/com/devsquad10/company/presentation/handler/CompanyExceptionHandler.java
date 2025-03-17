@@ -7,13 +7,14 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.devsquad10.company.application.dto.CompanyResponse;
+import com.devsquad10.company.application.exception.CompanyNotFoundException;
 
 @RestControllerAdvice
 public class CompanyExceptionHandler {
 
-	@ExceptionHandler(Exception.class)
+	@ExceptionHandler(CompanyNotFoundException.class)
 	@ResponseStatus(HttpStatus.NOT_FOUND)
-	public ResponseEntity<CompanyResponse<String>> CompanyNotFoundException(Exception ex) {
+	public ResponseEntity<CompanyResponse<String>> companyNotFoundException(CompanyNotFoundException ex) {
 		return ResponseEntity.status(HttpStatus.NOT_FOUND)
 			.body(CompanyResponse.failure(HttpStatus.NOT_FOUND.value(), ex.getMessage()));
 	}
