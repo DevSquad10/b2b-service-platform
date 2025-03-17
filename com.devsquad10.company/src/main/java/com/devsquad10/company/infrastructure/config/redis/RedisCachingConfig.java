@@ -15,7 +15,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
 @EnableCaching
-public class RedisConfig {
+public class RedisCachingConfig {
 
 	public static final String COMPANY_CACHE = "companyCache";
 	public static final String COMPANY_SEARCH_CACHE = "companySearchCache";
