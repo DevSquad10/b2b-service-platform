@@ -52,7 +52,7 @@ public class ProductService {
 			.toResponseDto();
 	}
 
-	@Cacheable(cacheNames = "productSearch", key = "#q + '-' + #category + '-' + #page + '-' + #size")
+	@Cacheable(cacheNames = "productSearchCache", key = "#q + '-' + #category + '-' + #page + '-' + #size")
 	public Page<ProductResDto> searchProducts(String q, String category, int page, int size, String sort,
 		String order) {
 
@@ -63,7 +63,7 @@ public class ProductService {
 
 	@CachePut(cacheNames = "productCache", key = "#id")
 	@Caching(evict = {
-		@CacheEvict(cacheNames = "productSearch", allEntries = true)
+		@CacheEvict(cacheNames = "productSearchCache", allEntries = true)
 	})
 	public ProductResDto updateProduct(UUID id, ProductReqDto productReqDto) {
 		Product targetProduct = productRepository.findByIdAndDeletedAtIsNull(id)
@@ -83,7 +83,7 @@ public class ProductService {
 
 	@Caching(evict = {
 		@CacheEvict(cacheNames = "productCache", key = "#id"),
-		@CacheEvict(cacheNames = "productSearch", key = "#id")
+		@CacheEvict(cacheNames = "productSearchCache", key = "#id")
 	})
 	public void deleteProduct(UUID id) {
 		Product targetProduct = productRepository.findByIdAndDeletedAtIsNull(id)
