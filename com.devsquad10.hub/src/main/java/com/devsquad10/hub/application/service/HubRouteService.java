@@ -9,8 +9,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.devsquad10.hub.application.dto.RouteCalculationResult;
 import com.devsquad10.hub.application.dto.req.HubRouteCreateRequestDto;
+import com.devsquad10.hub.application.dto.req.HubRouteUpdateRequestDto;
 import com.devsquad10.hub.application.dto.res.HubRouteCreateResponseDto;
 import com.devsquad10.hub.application.dto.res.HubRouteGetOneResponseDto;
+import com.devsquad10.hub.application.dto.res.HubRouteUpdateResponseDto;
 import com.devsquad10.hub.application.exception.HubNotFoundException;
 import com.devsquad10.hub.application.exception.HubRouteNotFoundException;
 import com.devsquad10.hub.domain.model.Hub;
@@ -67,5 +69,32 @@ public class HubRouteService {
 			.orElseThrow(() -> new HubRouteNotFoundException("허브 경로를 찾을 수 없습니다."));
 
 		return HubRouteGetOneResponseDto.toResponseDto(hubRoute);
+	}
+
+	public HubRouteUpdateResponseDto updateHubRoute(UUID id, HubRouteUpdateRequestDto request) {
+		HubRoute hubRoute = hubRouteRepository.findById(id)
+			.orElseThrow(() -> new HubRouteNotFoundException("허브 경로를 찾을 수 없습니다."));
+
+		RouteCalculationResult calculationResult =
+			hubRouteCalculateService.calculateRoute(hubRoute.getDepartureHub(), hubRoute.getDestinationHub());
+
+		hubRoute.update(
+			// TODO: 임시 값 설정
+			// calculationResult.getDistance(),
+			// calculationResult.getDuration()
+			(Math.random() * 10000),
+			((int)(Math.random() * 1000000))
+		);
+
+		// TODO: 임시 값 설정
+		List<UUID> dummyList = new ArrayList<>();
+		dummyList.add(UUID.fromString("11111111-1111-1111-1111-111111111101"));
+		dummyList.add(UUID.fromString("11111111-1111-1111-1111-111111111102"));
+		dummyList.add(UUID.fromString("11111111-1111-1111-1111-111111111103"));
+
+		HubRoute updatedRoute = hubRouteRepository.save(hubRoute);
+
+		// return HubRouteUpdateResponseDto.toResponseDto(updatedRoute, calculationResult.getWaypoints());
+		return HubRouteUpdateResponseDto.toResponseDto(updatedRoute, dummyList);
 	}
 }
