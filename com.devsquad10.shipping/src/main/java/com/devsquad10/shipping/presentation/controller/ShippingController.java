@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -88,5 +89,13 @@ public class ShippingController {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 				.body(ShippingResponse.failure(HttpStatus.BAD_REQUEST.value(), "검색 결과가 존재하지 않습니다."));
 		}
+	}
+
+	@DeleteMapping("/{id}")
+	public ResponseEntity<ShippingResponse<String>> deleteShipping(@PathVariable(name = "id") UUID id) {
+		shippingService.deleteShipping(id);
+
+		return ResponseEntity.status(HttpStatus.OK)
+			.body(ShippingResponse.success(HttpStatus.OK.value(), "배송이 삭제되었습니다."));
 	}
 }
