@@ -125,6 +125,7 @@ public class ProductService {
 
 		StockDecrementMessage successMessage = stockDecrementMessage.toBuilder()
 			.status("SUCCESS")
+			.supplierId(updatedProduct.getSupplierId())
 			.price(updatedProduct.getPrice())
 			.build();
 

@@ -18,6 +18,8 @@ public class StockDecrementMessage {
 
 	private UUID productId;
 
+	private UUID supplierId;
+
 	private Integer quantity;
 
 	private String status;
