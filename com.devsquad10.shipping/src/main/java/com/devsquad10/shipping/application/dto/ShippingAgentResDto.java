@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ShippingAgentResDto implements Serializable {
 
-	private UUID id;
+	private UUID shippingId;
 
 	private UUID hubId;
 

@@ -27,6 +27,8 @@ public class QShippingAgent extends EntityPathBase<ShippingAgent> {
 
     public final StringPath deletedBy = createString("deletedBy");
 
+    public final ComparablePath<java.util.UUID> hubId = createComparable("hubId", java.util.UUID.class);
+
     public final ComparablePath<java.util.UUID> id = createComparable("id", java.util.UUID.class);
 
     public final BooleanPath isTransit = createBoolean("isTransit");

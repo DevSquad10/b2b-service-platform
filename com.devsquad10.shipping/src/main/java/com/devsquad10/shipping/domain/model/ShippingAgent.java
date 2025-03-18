@@ -9,6 +9,7 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.devsquad10.shipping.application.dto.ShippingAgentResDto;
 import com.devsquad10.shipping.domain.enums.ShippingAgentType;
 
 import jakarta.persistence.Column;
@@ -56,7 +57,7 @@ public class ShippingAgent {
 	@Enumerated(EnumType.STRING)
 	private ShippingAgentType type;
 
-	@Column
+	@Column(unique = true)
 	private Integer shippingSequence;
 
 	// 배송 진행 여부 : True(배송중), False(대기중)
