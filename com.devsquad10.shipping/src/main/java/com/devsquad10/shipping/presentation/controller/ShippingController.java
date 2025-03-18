@@ -28,6 +28,7 @@ public class ShippingController {
 
 	private final ShippingService shippingService;
 
+	// TODO: 주문 생성 시, 메시지 전달 endpoint 로 변경 예정
 	@PostMapping
 	public ResponseEntity<ShippingResponse<?>> shipping(@RequestBody ShippingPostReqDto shippingReqDto) {
 		try {

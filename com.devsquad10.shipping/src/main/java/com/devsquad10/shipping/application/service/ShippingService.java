@@ -37,10 +37,9 @@ public class ShippingService {
 
 	@CachePut(cacheNames = "shippingCache", key = "#result.id")
 	public ShippingResDto createShipping(ShippingPostReqDto shippingPostReqDto) {
-		//TODO: 1.주문: reqMessage(공급업체ID, 수령업체ID, 배송지 주소, 요청사항) 받기
+		//TODO: 1.주문: reqMessage(주문ID, 공급업체ID, 수령업체ID, 배송지 주소, 요청사항) 받기
 
 		//TODO: 2.업체: 각각 매개변수(공급업체ID, 수령업체ID) 조회하여 출발허브ID, 도착허브ID 추출
-
 		//TODO: 2-2.허브: 존재하는 허브 ID 확인
 
 		//TODO: 3.배송 생성: shippingPostReqDto(수령인, 수령인 번호) 등
@@ -57,7 +56,7 @@ public class ShippingService {
 			.companyShippingManagerId(null)
 		.build();
 
-		// Shipping 엔티티를 먼저 저장합니다.
+		// Shipping 엔티티를 먼저 저장
 		Shipping savedShipping = shippingRepository.save(shipping);
 		log.info("Creating shipping {}", savedShipping);
 
@@ -77,10 +76,11 @@ public class ShippingService {
 			.historyStatus(ShippingHistoryStatus.HUB_WAIT)
 		.build();
 
-		//TODO: 5.주문: 전달 messageDto(배송ID, 예외상태 코드)
-
 		ShippingHistory savedShippingHistory = shippingHistoryRepository.save(shippingHistory);
 		log.info("savedShippingHistory 상태 {}", savedShippingHistory.getHistoryStatus());
+
+
+		//TODO: 5.배송/배송경로기록 생성 완료 -> 주문에 messageDto(배송ID, 예외상태 코드) 전달
 
 		return savedShipping.toResponseDto();
 	}
