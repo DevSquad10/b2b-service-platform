@@ -99,4 +99,14 @@ public class HubController {
 				response
 			));
 	}
+
+	@GetMapping("/exists/{uuid}")
+	public ResponseEntity<ApiResponse<Boolean>> isHubExists(@PathVariable UUID uuid) {
+		boolean exists = hubService.existById(uuid);
+		return ResponseEntity.status(HttpStatus.OK)
+			.body(ApiResponse.success(
+				HttpStatus.OK.value(),
+				exists
+			));
+	}
 }
