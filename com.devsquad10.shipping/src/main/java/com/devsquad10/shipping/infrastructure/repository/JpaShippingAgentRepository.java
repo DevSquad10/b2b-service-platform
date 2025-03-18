@@ -6,7 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.devsquad10.shipping.domain.model.ShippingAgent;
+import com.devsquad10.shipping.domain.repository.ShippingAgentRepository;
 
 @Repository
-public interface JpaShippingAgentRepository extends JpaRepository<ShippingAgent, UUID> {
+public interface JpaShippingAgentRepository extends JpaRepository<ShippingAgent, UUID>, ShippingAgentRepository {
 }
