@@ -55,23 +55,13 @@ public class HubRouteService {
 		HubRoute hubRoute = HubRoute.builder()
 			.departureHub(departureHub)
 			.destinationHub(destinationHub)
-			// TODO: 임시 값 설정
-			// .distance(calculationResult.getDistance())
-			// .duration(calculationResult.getDuration())
-			.distance(Math.random() * 10000)
-			.duration((int)(Math.random() * 1000000))
+			.distance(calculationResult.getDistance())
+			.duration(calculationResult.getDuration())
 			.build();
 
 		HubRoute savedRoute = hubRouteRepository.save(hubRoute);
 
-		// TODO: 임시 값 설정
-		List<UUID> dummyList = new ArrayList<>();
-		dummyList.add(UUID.fromString("11111111-1111-1111-1111-111111111101"));
-		dummyList.add(UUID.fromString("11111111-1111-1111-1111-111111111102"));
-		dummyList.add(UUID.fromString("11111111-1111-1111-1111-111111111103"));
-
-		// return HubRouteCreateResponseDto.toResponseDto(savedRoute, calculationResult.getWaypoints());
-		return HubRouteCreateResponseDto.toResponseDto(savedRoute, dummyList);
+		return HubRouteCreateResponseDto.toResponseDto(savedRoute, calculationResult.getWaypoints());
 	}
 
 	@Transactional(readOnly = true)
