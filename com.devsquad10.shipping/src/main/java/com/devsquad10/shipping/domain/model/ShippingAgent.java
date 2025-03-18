@@ -43,6 +43,9 @@ public class ShippingAgent {
 	private UUID id;
 
 	@Column
+	private UUID hubId;
+
+	@Column
 	private UUID shippingManagerId;
 
 	@Column
