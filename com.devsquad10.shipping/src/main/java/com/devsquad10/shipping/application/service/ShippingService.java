@@ -11,10 +11,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.devsquad10.shipping.application.dto.ShippingPostReqDto;
-import com.devsquad10.shipping.application.dto.ShippingResDto;
-import com.devsquad10.shipping.application.dto.ShippingUpdateReqDto;
-import com.devsquad10.shipping.application.exception.ShippingNotFoundException;
+import com.devsquad10.shipping.application.dto.request.ShippingPostReqDto;
+import com.devsquad10.shipping.application.dto.response.ShippingResDto;
+import com.devsquad10.shipping.application.dto.request.ShippingUpdateReqDto;
+import com.devsquad10.shipping.application.exception.shipping.ShippingNotFoundException;
 import com.devsquad10.shipping.domain.enums.ShippingHistoryStatus;
 import com.devsquad10.shipping.domain.enums.ShippingStatus;
 import com.devsquad10.shipping.domain.model.Shipping;
