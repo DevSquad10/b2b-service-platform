@@ -60,7 +60,6 @@ public class Shipping {
 	@Column(nullable = false)
 	private UUID destinationHubId;
 
-	// TODO: 주문생성 후, 전달 받기
 	@Column
 	private UUID orderId;
 

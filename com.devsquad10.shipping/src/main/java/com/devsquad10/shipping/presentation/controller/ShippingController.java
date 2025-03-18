@@ -29,6 +29,7 @@ public class ShippingController {
 
 	private final ShippingService shippingService;
 
+	// TODO: 권한 확인 - MASTER
 	// TODO: 주문 생성 시, 메시지 전달 endpoint 로 변경 예정
 	@PostMapping
 	public ResponseEntity<ShippingResponse<ShippingResDto>> shipping(
@@ -41,6 +42,7 @@ public class ShippingController {
 			);
 	}
 
+	// TODO: 권한 확인 - MASTER, 담당 HUB, DVL_AGENT
 	@PatchMapping("/{id}")
 	public ResponseEntity<ShippingResponse<?>> updateShipping(
 		@PathVariable(name = "id") UUID id,
@@ -59,12 +61,6 @@ public class ShippingController {
 						HttpStatus.OK.value(),
 						shippingService.managerIdUpdateShipping(id, shippingUpdateReqDto))
 					);
-			} else if(shippingUpdateReqDto.getOrderId() != null) {
-				return ResponseEntity.status(HttpStatus.OK)
-					.body(ShippingResponse.success(
-						HttpStatus.OK.value(),
-						shippingService.orderIdUpdateShipping(id, shippingUpdateReqDto))
-					);
 			} else if(shippingUpdateReqDto.getAddress() != null
 				|| shippingUpdateReqDto.getRequestDetails() != null) {
 				return ResponseEntity.status(HttpStatus.OK)
@@ -80,7 +76,7 @@ public class ShippingController {
 					);
 			}
 		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.OK)
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 				.body(ShippingResponse.failure(
 					HttpStatus.BAD_REQUEST.value(),
 					"배송 수정 불가능: " + e.getMessage())
@@ -88,8 +84,9 @@ public class ShippingController {
 		}
 	}
 
+	// TODO: 권한 확인 - ALL + 담당 HUB, DVL_AGENT
 	@GetMapping("/{id}")
-	public ResponseEntity<ShippingResponse<?>> getShippingById(
+	public ResponseEntity<ShippingResponse<ShippingResDto>> getShippingById(
 		@PathVariable(name = "id") UUID id) {
 
 		return ResponseEntity.ok(ShippingResponse.success(
@@ -98,6 +95,7 @@ public class ShippingController {
 		);
 	}
 
+	// TODO: 권한 확인 - ALL + 담당 HUB, DVL_AGENT
 	@GetMapping("/search")
 	public ResponseEntity<ShippingResponse<?>> searchShipping(
 		@RequestParam(name = "query", required = false) String query,
@@ -114,6 +112,7 @@ public class ShippingController {
 			);
 	}
 
+	// TODO: 권한 확인 - MASTER, 담당 HUB
 	@DeleteMapping("/{id}")
 	public ResponseEntity<ShippingResponse<String>> deleteShipping(
 		@PathVariable(name = "id") UUID id) {
