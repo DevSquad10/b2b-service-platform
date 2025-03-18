@@ -37,11 +37,13 @@ public class ShippingAgentService {
 
 	public void createShippingAgent(@Valid ShippingAgentPostFeignRequest request) {
 
-		// TODO: User 정보 feign client 로 받기
+		//TODO: User 정보 feign client 로 받기
+		// 권한 확인 - MASTER, 담당 HUB
 		UUID reqShippingManagerId = request.getId(); // 배송담당자 ID
 		String reqSlackId = request.getSlackId();
 
 		// 담당자 타입 존재 유효성 검사
+		// TODO: COM_DVL 경우, 소속 허브 ID 유효성 검사 필요
 		ShippingAgentType reqType = request.getType();
 		if(reqType != ShippingAgentType.HUB_DVL && reqType != ShippingAgentType.COM_DVL) {
 			throw new ShippingAgentTypeNotFoundException(reqType + " Shipping Agent type is not supported");
@@ -83,6 +85,7 @@ public class ShippingAgentService {
 		);
 	}
 
+	// TODO: 권한 확인 - MASTER, 담당 HUB, 담당 DLV_AGENT
 	@Transactional(readOnly = true)
 	public ShippingAgentResDto getShippingAgentById(UUID id) {
 
@@ -100,4 +103,10 @@ public class ShippingAgentService {
 			.build()
 			.toResponse();
 	}
+
+
+
+
+	// TODO: 담당자 배정 로직 구현은 새로운 서비스 생성하고
+	//  더미데이터 180명 query 만들어서 구현!
 }

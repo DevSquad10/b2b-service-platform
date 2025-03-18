@@ -26,12 +26,14 @@ public class ShippingAgentController {
 
 	private final ShippingAgentService shippingAgentService;
 
-	// TODO: 유저 feign client 호출하면 배송관리자 생성 endpoint 로 연결
+	//TODO: 유저 feign client 호출하면 배송관리자 생성 endpoint 로 연결
+	// 권한 확인 - MASTER, 담당 HUB
 	@PostMapping
 	public void createShippingAgent(@Valid @RequestBody ShippingAgentPostFeignRequest request) {
 		shippingAgentService.createShippingAgent(request);
 	}
 
+	// TODO: 권한 확인 - MASTER, 담당 HUB, 담당 DLV_AGENT
 	@GetMapping("/{id}")
 	public ResponseEntity<ShippingAgentResponse<ShippingAgentResDto>> getShippingAgent(
 		@PathVariable(name = "id") UUID id) {
@@ -41,4 +43,8 @@ public class ShippingAgentController {
 				shippingAgentService.getShippingAgentById(id))
 			);
 	}
+
+
+
+
 }
