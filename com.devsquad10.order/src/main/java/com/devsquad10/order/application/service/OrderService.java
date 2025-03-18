@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,6 +53,15 @@ public class OrderService {
 		return orderRepository.findByIdAndDeletedAtIsNull(id)
 			.orElseThrow(() -> new OrderNotFoundException("Order Not Found By Id : " + id))
 			.toResponseDto();
+	}
+
+	@Transactional(readOnly = true)
+	public Page<OrderResDto> searchOrders(String q, String category, int page, int size, String sort, String order) {
+
+		Page<Order> orderPages = orderRepository.findAll(q, category, page, size, sort, order);
+
+		return orderPages.map(Order::toResponseDto);
+
 	}
 
 	private void sendStockDecrementMessage(StockDecrementMessage stockDecrementMessage) {
