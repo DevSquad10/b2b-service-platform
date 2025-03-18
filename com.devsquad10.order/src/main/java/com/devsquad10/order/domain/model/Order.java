@@ -1,16 +1,21 @@
-package com.devsquad10.product.domain.model;
+package com.devsquad10.order.domain.model;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.UUID;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
-import com.devsquad10.product.application.dto.ProductResDto;
-import com.devsquad10.product.domain.enums.ProductStatus;
+import com.devsquad10.order.application.dto.OrderResDto;
+import com.devsquad10.order.application.dto.message.StockDecrementMessage;
+import com.devsquad10.order.domain.enums.OrderStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -28,33 +33,43 @@ import lombok.NoArgsConstructor;
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "p_product")
-public class Product {
+@Table(name = "p_order")
+public class Order implements Serializable {
+	private static final long serialVersionUID = 1L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)
 	private UUID id;
 
-	@Column(nullable = false)
-	private String name;
-
-	@Column(nullable = false)
-	private String description;
-
-	@Column(nullable = false)
-	private Integer quantity;
-
-	@Column(nullable = false)
-	private Integer price;
+	@Column
+	private UUID supplierId; // 공급업체
 
 	@Column
-	private UUID supplierId;
+	private UUID recipientsId; // 수령업체
 
 	@Column
-	private UUID hubId;
+	private UUID productId; // 상품 ID
+
+	@Column
+	private UUID shippingId; // 배송 ID;
 
 	@Column(nullable = false)
-	private ProductStatus status;
+	private String productName; // 상품명
+
+	@Column(nullable = false)
+	private Integer quantity; // 주문 수량
+
+	private Integer totalAmount; // 총 금액
+
+	@Column(nullable = false)
+	private String requestDetails; // 요청사항
+
+	@Column(nullable = false)
+	private Date deadLine; // 납품기한일자
+
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private OrderStatus status; // 주문 상태
 
 	// 레코드 생성 일시
 	@CreatedDate
@@ -92,17 +107,27 @@ public class Product {
 		this.createdBy = "사용자";
 	}
 
-	public ProductResDto toResponseDto() {
-		return new ProductResDto(
+	public OrderResDto toResponseDto() {
+		return new OrderResDto(
 			this.id,
-			this.name,
-			this.description,
-			this.quantity,
-			this.price,
 			this.supplierId,
-			this.hubId,
+			this.recipientsId,
+			this.productId,
+			this.shippingId,
+			this.productName,
+			this.quantity,
+			this.totalAmount,
+			this.requestDetails,
+			this.deadLine,
 			this.status
 		);
 	}
 
+	public StockDecrementMessage toStockDecrementMessage() {
+		return StockDecrementMessage.builder()
+			.orderId(this.id)
+			.productId(this.productId)
+			.quantity(this.quantity)
+			.build();
+	}
 }

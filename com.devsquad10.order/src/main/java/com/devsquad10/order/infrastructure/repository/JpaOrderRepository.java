@@ -1,4 +1,4 @@
-package com.devsquad10.product.infrastructure.repository;
+package com.devsquad10.order.infrastructure.repository;
 
 import java.util.UUID;
 
@@ -6,36 +6,24 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
-import org.springframework.stereotype.Repository;
 
-import com.devsquad10.product.domain.model.Product;
-import com.devsquad10.product.domain.model.QProduct;
-import com.devsquad10.product.domain.repository.ProductRepository;
+import com.devsquad10.order.domain.model.Order;
+import com.devsquad10.order.domain.model.QOrder;
+import com.devsquad10.order.domain.repository.OrderRepository;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.ComparableExpressionBase;
 
-import jakarta.transaction.Transactional;
+public interface JpaOrderRepository
+	extends JpaRepository<Order, UUID>, QuerydslPredicateExecutor<Order>, OrderRepository {
 
-@Repository
-public interface JpaProductRepository
-	extends JpaRepository<Product, UUID>, QuerydslPredicateExecutor<Product>, ProductRepository {
-
-	@Modifying
-	@Transactional
-	@Query("UPDATE Product p SET p.quantity = p.quantity - :orderQuantity " +
-		"WHERE p.id = :productId AND p.quantity >= :orderQuantity")
-	int decreaseStock(UUID productId, int orderQuantity);
-
-	default Page<Product> findAll(String query, String category, int page, int size, String sortBy,
+	default Page<Order> findAll(String query, String category, int page, int size, String sortBy,
 		String order) {
 
-		QProduct product = QProduct.product;
+		QOrder qOrder = QOrder.order;
 
 		// 검색 조건 생성
-		BooleanBuilder builder = buildSearchConditions(query, category, product);
+		BooleanBuilder builder = buildSearchConditions(query, category, qOrder);
 
 		Sort sort = getSortOrder(sortBy, order);
 
@@ -45,11 +33,11 @@ public interface JpaProductRepository
 
 	}
 
-	private BooleanBuilder buildSearchConditions(String query, String category, QProduct qProduct) {
+	private BooleanBuilder buildSearchConditions(String query, String category, QOrder qOrder) {
 
 		BooleanBuilder builder = new BooleanBuilder();
 
-		builder.and(qProduct.deletedAt.isNull());
+		builder.and(qOrder.deletedAt.isNull());
 
 		if (query == null || query.isEmpty()) {
 			return builder;
@@ -57,24 +45,29 @@ public interface JpaProductRepository
 
 		if (category == null || category.isEmpty()) {
 			// 카테고리 지정이 없으면 모든 필드에서 검색
-			builder.or(qProduct.name.containsIgnoreCase(query));
-			builder.or(parseUUID(query, qProduct.supplierId));
-			builder.or(parseUUID(query, qProduct.hubId));
+			builder.or(parseUUID(query, qOrder.supplierId));
+			builder.or(parseUUID(query, qOrder.recipientsId));
+			builder.or(parseUUID(query, qOrder.productId));
+			builder.or(parseUUID(query, qOrder.shippingId));
 		} else {
 			switch (category) {
-				case "name":
-					builder.or(qProduct.name.containsIgnoreCase(query));
+				case "supplier":
+					builder.or(parseUUID(query, qOrder.supplierId));
 					break;
-				case "supplierId":
-					builder.or(parseUUID(query, qProduct.supplierId));
+				case "recipients":
+					builder.or(parseUUID(query, qOrder.recipientsId));
 					break;
-				case "hubId":
-					builder.or(parseUUID(query, qProduct.hubId));
+				case "product":
+					builder.or(parseUUID(query, qOrder.productId));
+					break;
+				case "shipping":
+					builder.or(parseUUID(query, qOrder.shippingId));
 					break;
 				default:
-					builder.or(qProduct.name.containsIgnoreCase(query));
-					builder.or(parseUUID(query, qProduct.supplierId));
-					builder.or(parseUUID(query, qProduct.hubId));
+					builder.or(parseUUID(query, qOrder.supplierId));
+					builder.or(parseUUID(query, qOrder.recipientsId));
+					builder.or(parseUUID(query, qOrder.productId));
+					builder.or(parseUUID(query, qOrder.shippingId));
 					break;
 			}
 		}
