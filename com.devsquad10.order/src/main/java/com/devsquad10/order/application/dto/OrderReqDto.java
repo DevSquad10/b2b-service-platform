@@ -15,9 +15,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OrderReqDto {
-
-	private UUID supplierId; // 공급업체
-
+	
 	private UUID recipientsId; // 수령업체
 
 	private UUID productId; // 상품 ID

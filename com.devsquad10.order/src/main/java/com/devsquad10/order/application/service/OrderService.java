@@ -31,7 +31,6 @@ public class OrderService {
 
 	public void createOrder(OrderReqDto orderReqDto) {
 		Order order = Order.builder()
-			.supplierId(orderReqDto.getSupplierId())
 			.recipientsId(orderReqDto.getRecipientsId())
 			.productId(orderReqDto.getProductId())
 			.productName(orderReqDto.getProductName())
@@ -79,6 +78,7 @@ public class OrderService {
 				() -> new OrderNotFoundException("Order Not Found By Id : " + stockDecrementMessage.getOrderId()));
 
 		orderRepository.save(targetOrder.toBuilder()
+			.shippingId(stockDecrementMessage.getSupplierId())
 			.totalAmount(stockDecrementMessage.getPrice() * targetOrder.getQuantity())
 			.status(OrderStatus.PREPARING_SHIPMENT)
 			.build());
