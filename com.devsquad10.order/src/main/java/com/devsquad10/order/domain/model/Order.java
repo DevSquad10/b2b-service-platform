@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
+import com.devsquad10.order.application.dto.OrderResDto;
 import com.devsquad10.order.application.dto.message.StockDecrementMessage;
 import com.devsquad10.order.domain.enums.OrderStatus;
 
@@ -104,6 +105,22 @@ public class Order implements Serializable {
 		this.createdAt = time;
 		this.updatedAt = time;
 		this.createdBy = "사용자";
+	}
+
+	public OrderResDto toResponseDto() {
+		return new OrderResDto(
+			this.id,
+			this.supplierId,
+			this.recipientsId,
+			this.productId,
+			this.shippingId,
+			this.productName,
+			this.quantity,
+			this.totalAmount,
+			this.requestDetails,
+			this.deadLine,
+			this.status
+		);
 	}
 
 	public StockDecrementMessage toStockDecrementMessage() {

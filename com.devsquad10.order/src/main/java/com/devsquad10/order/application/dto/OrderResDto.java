@@ -1,6 +1,6 @@
 package com.devsquad10.order.application.dto;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.UUID;
 
 import com.devsquad10.order.domain.enums.OrderStatus;
@@ -34,7 +34,7 @@ public class OrderResDto {
 
 	private String requestDetails; // 요청사항
 
-	private LocalDateTime deadLine; // 납품기한일자
+	private Date deadLine; // 납품기한일자
 
 	private OrderStatus status; // 주문 상태
 }
