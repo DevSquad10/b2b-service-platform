@@ -32,4 +32,9 @@ public class HubRepositoryImpl implements HubRepository {
 	public Page<Hub> findAll(HubSearchRequestDto request) {
 		return jpaHubRepository.findAll(request);
 	}
+
+	@Override
+	public boolean existsById(UUID id) {
+		return jpaHubRepository.existsById(id);
+	}
 }
