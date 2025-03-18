@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.devsquad10.product.application.client.CompanyClient;
 import com.devsquad10.product.application.dto.ProductReqDto;
 import com.devsquad10.product.application.dto.ProductResDto;
 import com.devsquad10.product.application.dto.message.StockDecrementMessage;
@@ -33,11 +34,13 @@ public class ProductService {
 
 	private final ProductRepository productRepository;
 	private final RabbitTemplate rabbitTemplate;
+	private final CompanyClient companyClient;
 
 	@CachePut(cacheNames = "productCache", key = "#result.id")
 	public ProductResDto createProduct(ProductReqDto productReqDto) {
 
 		// 특정 업체 존재 유무 확인
+		// feign client
 
 		// 업체가 존재하면 그 업체가 소속한 허브 id 등록
 

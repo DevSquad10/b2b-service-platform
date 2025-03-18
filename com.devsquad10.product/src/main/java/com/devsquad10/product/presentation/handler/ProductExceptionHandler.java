@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.devsquad10.product.application.dto.ProductResponse;
+import com.devsquad10.product.application.dto.response.ProductResponse;
 import com.devsquad10.product.application.exception.ProductNotFoundException;
 
 @RestControllerAdvice
