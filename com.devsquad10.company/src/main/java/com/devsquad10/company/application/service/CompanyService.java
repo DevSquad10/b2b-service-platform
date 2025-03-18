@@ -11,12 +11,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.devsquad10.company.application.client.HubClient;
 import com.devsquad10.company.application.dto.CompanyReqDto;
 import com.devsquad10.company.application.dto.CompanyResDto;
 import com.devsquad10.company.application.exception.CompanyNotFoundException;
 import com.devsquad10.company.domain.model.Company;
 import com.devsquad10.company.domain.repository.CompanyRepository;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -25,16 +27,23 @@ import lombok.RequiredArgsConstructor;
 public class CompanyService {
 
 	private final CompanyRepository companyRepository;
+	private final HubClient hubClient;
 
 	@CachePut(cacheNames = "companyCache", key = "#result.id")
 	public CompanyResDto createCompany(CompanyReqDto companyReqDto) {
 
+		UUID hubId = companyReqDto.getHubId();
+
 		//1. 허브가 존재 유무 확인
+		if (!hubClient.isHubExists(hubId)) {
+			throw new EntityNotFoundException("Hub Not Found By Id : " + hubId);
+		}
 
 		//2. 구현
-		//추후 허브 id , 매니저 id 추가
+		// 매니저 id 는 게이트웨이에서 받아서 적용
 		return companyRepository.save(Company.builder()
 			.name(companyReqDto.getName())
+			.hubId(hubId)
 			.address(companyReqDto.getAddress())
 			.type(companyReqDto.getType())
 			.build()).toResponseDto();
@@ -48,7 +57,7 @@ public class CompanyService {
 			.toResponseDto();
 	}
 
-	@Cacheable(cacheNames = "companySearch", key = "#q + '-' + #category + '-' + #page + '-' + #size")
+	@Cacheable(cacheNames = "companySearchCache", key = "#q + '-' + #category + '-' + #page + '-' + #size")
 	@Transactional(readOnly = true)
 	public Page<CompanyResDto> searchCompanies(String q, String category, int page, int size, String sort,
 		String order) {
@@ -61,7 +70,7 @@ public class CompanyService {
 
 	@CachePut(cacheNames = "companyCache", key = "#id")
 	@Caching(evict = {
-		@CacheEvict(cacheNames = "companySearch", allEntries = true)
+		@CacheEvict(cacheNames = "companySearchCache", allEntries = true)
 	})
 	public CompanyResDto updateCompany(UUID id, CompanyReqDto companyReqDto) {
 		Company targetCompany = companyRepository.findByIdAndDeletedAtIsNull(id)
@@ -80,7 +89,7 @@ public class CompanyService {
 
 	@Caching(evict = {
 		@CacheEvict(cacheNames = "companyCache", key = "#id"),
-		@CacheEvict(cacheNames = "companySearch", key = "#id")
+		@CacheEvict(cacheNames = "companySearchCache", key = "#id")
 	})
 	public void deleteCompany(UUID id) {
 		Company targetCompany = companyRepository.findByIdAndDeletedAtIsNull(id)
