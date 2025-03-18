@@ -7,7 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.devsquad10.shipping.application.dto.response.ShippingAgentResDto;
 import com.devsquad10.shipping.application.exception.shippingAgent.HubIdNotFoundException;
+import com.devsquad10.shipping.application.exception.shippingAgent.ShippingAgentNotFoundException;
 import com.devsquad10.shipping.application.exception.shippingAgent.ShippingAgentTypeNotFoundException;
 import com.devsquad10.shipping.domain.enums.ShippingAgentType;
 import com.devsquad10.shipping.domain.model.ShippingAgent;
@@ -79,5 +81,23 @@ public class ShippingAgentService {
 			.isTransit(false)
 			.build()
 		);
+	}
+
+	@Transactional(readOnly = true)
+	public ShippingAgentResDto getShippingAgentById(UUID id) {
+
+		ShippingAgent targetshippingAgent = shippingAgentRepository.findById(id)
+			.orElseThrow(() -> new ShippingAgentNotFoundException(id + ": 배송 관리자 ID가 존재하지 않습니다."));
+
+		return ShippingAgent.builder()
+			.id(targetshippingAgent.getId())
+			.hubId(targetshippingAgent.getHubId())
+			.shippingManagerId(targetshippingAgent.getShippingManagerId())
+			.shippingManagerSlackId(targetshippingAgent.getShippingManagerSlackId())
+			.type(targetshippingAgent.getType())
+			.shippingSequence(targetshippingAgent.getShippingSequence())
+			.isTransit(targetshippingAgent.getIsTransit())
+			.build()
+			.toResponse();
 	}
 }

@@ -1,10 +1,18 @@
 package com.devsquad10.shipping.presentation.controller;
 
+import java.util.UUID;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.devsquad10.shipping.application.dto.ShippingAgentResponse;
+import com.devsquad10.shipping.application.dto.response.ShippingAgentResDto;
 import com.devsquad10.shipping.application.service.ShippingAgentService;
 import com.devsquad10.shipping.infrastructure.client.ShippingAgentPostFeignRequest;
 
@@ -22,5 +30,15 @@ public class ShippingAgentController {
 	@PostMapping
 	public void createShippingAgent(@Valid @RequestBody ShippingAgentPostFeignRequest request) {
 		shippingAgentService.createShippingAgent(request);
+	}
+
+	@GetMapping("/{id}")
+	public ResponseEntity<ShippingAgentResponse<ShippingAgentResDto>> getShippingAgent(
+		@PathVariable(name = "id") UUID id) {
+
+		return ResponseEntity.ok(ShippingAgentResponse.success(
+				HttpStatus.OK.value(),
+				shippingAgentService.getShippingAgentById(id))
+			);
 	}
 }
