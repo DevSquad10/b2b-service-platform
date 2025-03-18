@@ -7,8 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.devsquad10.shipping.application.exception.HubIdNotFoundException;
-import com.devsquad10.shipping.application.exception.ShippingAgentTypeNotFoundException;
+import com.devsquad10.shipping.application.exception.shippingAgent.HubIdNotFoundException;
+import com.devsquad10.shipping.application.exception.shippingAgent.ShippingAgentTypeNotFoundException;
 import com.devsquad10.shipping.domain.enums.ShippingAgentType;
 import com.devsquad10.shipping.domain.model.ShippingAgent;
 import com.devsquad10.shipping.domain.repository.ShippingAgentRepository;

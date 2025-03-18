@@ -9,7 +9,6 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import com.devsquad10.shipping.application.dto.ShippingAgentResDto;
 import com.devsquad10.shipping.domain.enums.ShippingAgentType;
 
 import jakarta.persistence.Column;

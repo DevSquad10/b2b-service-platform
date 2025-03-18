@@ -1,4 +1,4 @@
-package com.devsquad10.shipping.application.dto;
+package com.devsquad10.shipping.application.dto.response;
 
 import java.io.Serializable;
 import java.util.UUID;

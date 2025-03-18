@@ -1,4 +1,4 @@
-package com.devsquad10.shipping.application.dto;
+package com.devsquad10.shipping.application.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

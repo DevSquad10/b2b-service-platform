@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.devsquad10.shipping.application.dto.ShippingPostReqDto;
-import com.devsquad10.shipping.application.dto.ShippingResDto;
+import com.devsquad10.shipping.application.dto.request.ShippingPostReqDto;
+import com.devsquad10.shipping.application.dto.response.ShippingResDto;
 import com.devsquad10.shipping.application.dto.ShippingResponse;
-import com.devsquad10.shipping.application.dto.ShippingUpdateReqDto;
+import com.devsquad10.shipping.application.dto.request.ShippingUpdateReqDto;
 import com.devsquad10.shipping.application.service.ShippingService;
 
 import lombok.RequiredArgsConstructor;

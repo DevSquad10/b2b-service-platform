@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.devsquad10.shipping.application.dto.ShippingAgentResponse;
-import com.devsquad10.shipping.application.exception.HubIdNotFoundException;
-import com.devsquad10.shipping.application.exception.ShippingAgentTypeNotFoundException;
+import com.devsquad10.shipping.application.exception.shippingAgent.HubIdNotFoundException;
+import com.devsquad10.shipping.application.exception.shippingAgent.ShippingAgentTypeNotFoundException;
 
 import jakarta.persistence.EntityNotFoundException;
 

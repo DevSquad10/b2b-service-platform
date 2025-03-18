@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.devsquad10.shipping.application.dto.ShippingResponse;
-import com.devsquad10.shipping.application.exception.ShippingNotFoundException;
+import com.devsquad10.shipping.application.exception.shipping.ShippingNotFoundException;
 
 @RestControllerAdvice
 public class ShippingHandler {
