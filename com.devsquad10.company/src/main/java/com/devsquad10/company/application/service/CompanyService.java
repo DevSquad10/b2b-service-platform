@@ -100,4 +100,10 @@ public class CompanyService {
 			.deletedBy("사용자")
 			.build());
 	}
+
+	public UUID getHubIdIfCompanyExists(UUID id) {
+		Company company = companyRepository.findByIdAndDeletedAtIsNull(id)
+			.orElse(null);
+		return (company != null) ? company.getHubId() : null;
+	}
 }
