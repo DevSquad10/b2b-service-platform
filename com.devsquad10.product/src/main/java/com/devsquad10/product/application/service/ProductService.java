@@ -22,6 +22,7 @@ import com.devsquad10.product.domain.enums.ProductStatus;
 import com.devsquad10.product.domain.model.Product;
 import com.devsquad10.product.domain.repository.ProductRepository;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -41,7 +42,10 @@ public class ProductService {
 
 		// 특정 업체 존재 유무 확인
 		// feign client
+		UUID hubId = companyClient.getHubIdIfCompanyExists(productReqDto.getSupplierId());
 
+		if (hubId == null)
+			throw new EntityNotFoundException("Supplier Fot Found By Id : " + productReqDto.getSupplierId());
 		// 업체가 존재하면 그 업체가 소속한 허브 id 등록
 
 		return productRepository.save(Product.builder()
@@ -50,7 +54,7 @@ public class ProductService {
 			.price(productReqDto.getPrice())
 			.quantity(productReqDto.getQuantity())
 			.supplierId(productReqDto.getSupplierId())
-			.hubId(productReqDto.getHubId())
+			.hubId(hubId)
 			.status(ProductStatus.AVAILABLE)
 			.build()).toResponseDto();
 	}

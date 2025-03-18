@@ -9,12 +9,21 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.devsquad10.product.application.dto.response.ProductResponse;
 import com.devsquad10.product.application.exception.ProductNotFoundException;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @RestControllerAdvice
 public class ProductExceptionHandler {
 
 	@ExceptionHandler(ProductNotFoundException.class)
 	@ResponseStatus(HttpStatus.NOT_FOUND)
 	public ResponseEntity<ProductResponse<String>> productNotFoundException(ProductNotFoundException ex) {
+		return ResponseEntity.status(HttpStatus.NOT_FOUND)
+			.body(ProductResponse.failure(HttpStatus.NOT_FOUND.value(), ex.getMessage()));
+	}
+
+	@ExceptionHandler(EntityNotFoundException.class)
+	@ResponseStatus(HttpStatus.NOT_FOUND)
+	public ResponseEntity<ProductResponse<String>> entityNotFoundException(EntityNotFoundException ex) {
 		return ResponseEntity.status(HttpStatus.NOT_FOUND)
 			.body(ProductResponse.failure(HttpStatus.NOT_FOUND.value(), ex.getMessage()));
 	}
