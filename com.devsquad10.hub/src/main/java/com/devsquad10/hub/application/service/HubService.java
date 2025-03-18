@@ -98,4 +98,9 @@ public class HubService {
 
 		return PagedHubResponseDto.toResponseDto(dtoPage, request.getSortOption());
 	}
+
+	@Transactional(readOnly = true)
+	public boolean existById(UUID id) {
+		return hubRepository.existsById(id);
+	}
 }
