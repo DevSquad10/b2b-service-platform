@@ -1,10 +1,14 @@
 package com.devsquad10.order.application.service;
 
+import java.util.UUID;
+
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.devsquad10.order.application.dto.OrderReqDto;
+import com.devsquad10.order.application.dto.OrderResDto;
 import com.devsquad10.order.application.dto.message.StockDecrementMessage;
 import com.devsquad10.order.application.exception.OrderNotFoundException;
 import com.devsquad10.order.domain.enums.OrderStatus;
@@ -15,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class OrderService {
 
 	@Value("${stockMessage.queue.stock.request}")
@@ -42,6 +47,13 @@ public class OrderService {
 
 	}
 
+	@Transactional(readOnly = true)
+	public OrderResDto getOrderById(UUID id) {
+		return orderRepository.findByIdAndDeletedAtIsNull(id)
+			.orElseThrow(() -> new OrderNotFoundException("Order Not Found By Id : " + id))
+			.toResponseDto();
+	}
+
 	private void sendStockDecrementMessage(StockDecrementMessage stockDecrementMessage) {
 		rabbitTemplate.convertAndSend(queueRequestStock, stockDecrementMessage);
 	}
@@ -51,8 +63,6 @@ public class OrderService {
 	// 배송 대기 중 WAITING_FOR_SHIPMENT ( 납품일자 전까지 대기로 상태 변경 )
 	// 배송 출발 SHIPPED ( 배송납품일 당일 6시 슬랙 메시지 전달 후 배송 출발로 상태 변경 )
 	// 배송 완료 DELIVERED ( 배송 예상 시간이 되면 완료로 상태 변경 )
-
-	// 모든 과정이 정상적으로 처리되고나서 db에 저장
 	public void handlerShippingRequest(StockDecrementMessage stockDecrementMessage) {
 		Order targetOrder = orderRepository.findByIdAndDeletedAtIsNull(stockDecrementMessage.getOrderId())
 			.orElseThrow(
@@ -63,16 +73,17 @@ public class OrderService {
 			.status(OrderStatus.PREPARING_SHIPMENT)
 			.build());
 
-		// 배송으로 메시지 전달
 		// rabbitTemplate.convertAndSend();
 	}
 
 	public void updateOrderStatus(StockDecrementMessage stockDecrementMessage) {
 		Order targetOrder = orderRepository.findByIdAndDeletedAtIsNull(stockDecrementMessage.getOrderId())
-			.orElseThrow(() -> new RuntimeException());
+			.orElseThrow(
+				() -> new OrderNotFoundException("Order Not Found By Id : " + stockDecrementMessage.getOrderId()));
 
 		orderRepository.save(targetOrder.toBuilder()
 			.status(OrderStatus.fromString(stockDecrementMessage.getStatus()))
 			.build());
 	}
+
 }
