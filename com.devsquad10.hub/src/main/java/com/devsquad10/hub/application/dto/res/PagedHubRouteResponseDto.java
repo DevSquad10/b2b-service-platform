@@ -1,11 +1,10 @@
 package com.devsquad10.hub.application.dto.res;
 
-import java.io.Serializable;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
 
-import com.devsquad10.hub.application.dto.enums.HubSortOption;
+import com.devsquad10.hub.application.dto.enums.HubRouteSortOption;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
@@ -14,11 +13,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
-public class PagedHubResponseDto implements Serializable {
-	private List<PagedHubItemResponseDto> hubs;
+public class PagedHubRouteResponseDto {
+	private List<PagedHubRouteItemResponseDto> hubRoutes;
 	private int totalPages;
 	private long totalElements;
 	private int pageSize;
@@ -32,14 +31,14 @@ public class PagedHubResponseDto implements Serializable {
 
 	private boolean hasNext;
 	private boolean hasPrevious;
-	private HubSortOption sortOption;
+	private HubRouteSortOption sortOption;
 
-	public static PagedHubResponseDto toResponseDto(
-		Page<PagedHubItemResponseDto> page,
-		HubSortOption sortOption
+	public static PagedHubRouteResponseDto toResponseDto(
+		Page<PagedHubRouteItemResponseDto> page,
+		HubRouteSortOption sortOption
 	) {
-		return PagedHubResponseDto.builder()
-			.hubs(page.getContent())
+		return PagedHubRouteResponseDto.builder()
+			.hubRoutes(page.getContent())
 			.totalPages(page.getTotalPages())
 			.totalElements(page.getTotalElements())
 			.pageSize(page.getSize())
