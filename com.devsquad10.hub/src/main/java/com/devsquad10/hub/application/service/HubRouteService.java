@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +39,9 @@ public class HubRouteService {
 	private final HubRouteRepository hubRouteRepository;
 	private final HubRouteCalculateService hubRouteCalculateService;
 
+	@Caching(evict = {
+		@CacheEvict(value = "hubRouteSearchCache", allEntries = true)
+	})
 	public HubRouteCreateResponseDto createHubRoute(HubRouteCreateRequestDto request) {
 		Hub departureHub = hubRepository.findById(request.getDepartureHubId())
 			.orElseThrow(() -> new HubNotFoundException("출발 허브를 찾을 수 없습니다. ID: " + request.getDepartureHubId()));
@@ -68,6 +75,7 @@ public class HubRouteService {
 	}
 
 	@Transactional(readOnly = true)
+	@Cacheable(value = "hubRouteCache", key = "#id.toString()")
 	public HubRouteGetOneResponseDto getOneHubRoute(UUID id) {
 		HubRoute hubRoute = hubRouteRepository.findById(id)
 			.orElseThrow(() -> new HubRouteNotFoundException("허브 경로를 찾을 수 없습니다."));
@@ -75,6 +83,10 @@ public class HubRouteService {
 		return HubRouteGetOneResponseDto.toResponseDto(hubRoute);
 	}
 
+	@Caching(
+		put = {@CachePut(value = "hubRouteCache", key = "#id.toString()")},
+		evict = {@CacheEvict(value = "hubRouteSearchCache", allEntries = true)}
+	)
 	public HubRouteUpdateResponseDto updateHubRoute(UUID id, HubRouteUpdateRequestDto request) {
 		HubRoute hubRoute = hubRouteRepository.findById(id)
 			.orElseThrow(() -> new HubRouteNotFoundException("허브 경로를 찾을 수 없습니다."));
@@ -102,6 +114,10 @@ public class HubRouteService {
 		return HubRouteUpdateResponseDto.toResponseDto(updatedRoute, dummyList);
 	}
 
+	@Caching(evict = {
+		@CacheEvict(value = "hubRouteCache", key = "#id.toString()"),
+		@CacheEvict(value = "hubRouteSearchCache", allEntries = true)
+	})
 	public void deleteHubRoute(UUID id) {
 		HubRoute hubRoute = hubRouteRepository.findById(id)
 			.orElseThrow(() -> new HubRouteNotFoundException("허브 경로를 찾을 수 없습니다."));
@@ -111,6 +127,9 @@ public class HubRouteService {
 		hubRouteRepository.save(hubRoute);
 	}
 
+	@Cacheable(value = "hubRouteSearchCache",
+		key = "#request.toString()"
+	)
 	public PagedHubRouteResponseDto getHub(HubRouteSearchRequestDto request) {
 		Page<HubRoute> hubRoutePage = hubRouteRepository.findAll(request);
 
