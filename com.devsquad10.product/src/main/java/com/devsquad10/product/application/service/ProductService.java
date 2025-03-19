@@ -118,29 +118,30 @@ public class ProductService {
 		// 1. 재고 차감 시도 (쿼리로 처리)
 		int updatedRow = productRepository.decreaseStock(targetProductId, orderQuantity);
 
+		Product product = productRepository.findByIdAndDeletedAtIsNull(targetProductId)
+			.orElseThrow(() -> new ProductNotFoundException("Product Not Found By Id :" + targetProductId));
+
 		// 2. 재고 부족 처리
 		if (updatedRow == 0) {
 			StockDecrementMessage errorMessage = stockDecrementMessage.toBuilder()
+				.productName(product.getName())
 				.status("OUT_OF_STOCK")
 				.build();
 			rabbitTemplate.convertAndSend(queueResponseStock, errorMessage);
 			return;
 		}
 
-		// 3. 정상 처리 메시지 발송
-		Product updatedProduct = productRepository.findByIdAndDeletedAtIsNull(targetProductId)
-			.orElseThrow(() -> new ProductNotFoundException("Product Not Found By Id :" + targetProductId));
-
-		if (updatedProduct.getQuantity() == 0) {
-			updatedProduct.statusSoldOut();
-			productRepository.save(updatedProduct);
+		if (product.getQuantity() == 0) {
+			product.statusSoldOut();
+			productRepository.save(product);
 			// Sold out 메시지 전송
 		}
 
 		StockDecrementMessage successMessage = stockDecrementMessage.toBuilder()
+			.productName(product.getName())
 			.status("SUCCESS")
-			.supplierId(updatedProduct.getSupplierId())
-			.price(updatedProduct.getPrice())
+			.supplierId(product.getSupplierId())
+			.price(product.getPrice())
 			.build();
 
 		rabbitTemplate.convertAndSend(queueResponseStock, successMessage);

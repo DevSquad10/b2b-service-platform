@@ -52,8 +52,7 @@ public class Order implements Serializable {
 
 	@Column
 	private UUID shippingId; // 배송 ID;
-
-	@Column(nullable = false)
+	
 	private String productName; // 상품명
 
 	@Column(nullable = false)

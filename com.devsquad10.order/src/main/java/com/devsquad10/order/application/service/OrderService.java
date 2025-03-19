@@ -33,7 +33,6 @@ public class OrderService {
 		Order order = Order.builder()
 			.recipientsId(orderReqDto.getRecipientsId())
 			.productId(orderReqDto.getProductId())
-			.productName(orderReqDto.getProductName())
 			.quantity(orderReqDto.getQuantity())
 			.requestDetails(orderReqDto.getRequestDetails())
 			.deadLine(orderReqDto.getDeadLine())
@@ -65,35 +64,6 @@ public class OrderService {
 
 	private void sendStockDecrementMessage(StockDecrementMessage stockDecrementMessage) {
 		rabbitTemplate.convertAndSend(queueRequestStock, stockDecrementMessage);
-	}
-
-	// 3. 배송 ID 는 배송에서 처리가 완료되면 받은 ID 값 등록
-	// 배송 준비 중 PREPARING_SHIPMENT ( 배송 생성 message 전달 후 상태 변경)
-	// 배송 대기 중 WAITING_FOR_SHIPMENT ( 납품일자 전까지 대기로 상태 변경 )
-	// 배송 출발 SHIPPED ( 배송납품일 당일 6시 슬랙 메시지 전달 후 배송 출발로 상태 변경 )
-	// 배송 완료 DELIVERED ( 배송 예상 시간이 되면 완료로 상태 변경 )
-	public void handlerShippingRequest(StockDecrementMessage stockDecrementMessage) {
-		Order targetOrder = orderRepository.findByIdAndDeletedAtIsNull(stockDecrementMessage.getOrderId())
-			.orElseThrow(
-				() -> new OrderNotFoundException("Order Not Found By Id : " + stockDecrementMessage.getOrderId()));
-
-		orderRepository.save(targetOrder.toBuilder()
-			.shippingId(stockDecrementMessage.getSupplierId())
-			.totalAmount(stockDecrementMessage.getPrice() * targetOrder.getQuantity())
-			.status(OrderStatus.PREPARING_SHIPMENT)
-			.build());
-
-		// rabbitTemplate.convertAndSend();
-	}
-
-	public void updateOrderStatus(StockDecrementMessage stockDecrementMessage) {
-		Order targetOrder = orderRepository.findByIdAndDeletedAtIsNull(stockDecrementMessage.getOrderId())
-			.orElseThrow(
-				() -> new OrderNotFoundException("Order Not Found By Id : " + stockDecrementMessage.getOrderId()));
-
-		orderRepository.save(targetOrder.toBuilder()
-			.status(OrderStatus.fromString(stockDecrementMessage.getStatus()))
-			.build());
 	}
 
 }
