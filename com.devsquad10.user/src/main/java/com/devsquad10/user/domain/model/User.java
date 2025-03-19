@@ -1,5 +1,7 @@
 package com.devsquad10.user.domain.model;
 
+import com.devsquad10.user.application.dto.UserRequestDto;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -38,7 +40,11 @@ public class User {
 	@Enumerated(value = EnumType.STRING)
 	private UserRoleEnum role;
 
-	@Column
-	private String currentAddress;
-
+	public User(UserRequestDto requestDto, String password) {
+		this.username = requestDto.getUsername();
+		this.password = password;
+		this.email = requestDto.getEmail();
+		this.slackId = requestDto.getSlackId();
+		this.role = requestDto.getRole();
+	}
 }
