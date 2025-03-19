@@ -16,6 +16,8 @@ import lombok.ToString;
 @NoArgsConstructor
 public class StockSoldOutMessage {
 
+	private UUID supplierId;
+
 	private UUID productId;
 
 	private Date soldOutAt;

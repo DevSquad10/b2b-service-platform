@@ -54,9 +54,10 @@ public class ProductEventService {
 		if (product.getQuantity() == 0) {
 			product.statusSoldOut();
 			productRepository.save(product);
-			
+
 			// company에 보내줘야할 것 ( 상품 id , 재고 소진 일자)
-			StockSoldOutMessage stockSoldOutMessage = new StockSoldOutMessage(product.getId(), new Date());
+			StockSoldOutMessage stockSoldOutMessage = new StockSoldOutMessage(product.getSupplierId(), product.getId(),
+				new Date());
 			rabbitTemplate.convertAndSend(queueStockSoldOut, stockSoldOutMessage);
 		}
 
