@@ -11,7 +11,7 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import com.devsquad10.shipping.application.dto.ShippingResDto;
+import com.devsquad10.shipping.application.dto.response.ShippingResDto;
 import com.devsquad10.shipping.domain.enums.ShippingStatus;
 
 import jakarta.persistence.CascadeType;
@@ -60,7 +60,6 @@ public class Shipping {
 	@Column(nullable = false)
 	private UUID destinationHubId;
 
-	// TODO: 주문생성 후, 전달 받기
 	@Column
 	private UUID orderId;
 
@@ -106,12 +105,14 @@ public class Shipping {
 	@Column
 	private String deletedBy;
 
+	// TODO: user 설정
 	@PrePersist
 	public void prePersist() {
-		this.createdAt = LocalDateTime.now(); // 현재 시간으로 설정
-		this.createdBy = "defaultUser"; // 현재 사용자로 설정 (예: SecurityContext에서 사용자 정보 가져오기)
+		this.createdAt = LocalDateTime.now();
+		this.createdBy = "defaultUser"; // (예: SecurityContext에서 사용자 정보)
 	}
 
+	// TODO: user 설정
 	@PreUpdate
 	public void preUpdate() {
 		this.updatedAt = LocalDateTime.now();
@@ -119,9 +120,10 @@ public class Shipping {
 	}
 
 	// TODO: 삭제유저 구현 예정
+	// 소프트 삭제 처리
 	public Shipping softDelete() {
-		this.deletedAt = LocalDateTime.now(); // 현재 시간으로 설정
-		this.deletedBy = "deleteUser"; // 현재 사용자로 설정
+		this.deletedAt = LocalDateTime.now();
+		this.deletedBy = "deleteUser";
 
 		return this;
 	}

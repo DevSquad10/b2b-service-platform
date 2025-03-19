@@ -28,6 +28,16 @@ ext {
 }
 
 dependencies {
+	// feign client
+	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
+	// validation 설정
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+//	// Jackson2JsonRedisSerializer 의존성
+//	implementation 'com.fasterxml.jackson.core:jackson-databind'
+//	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
 	//queryDSL 의존성
 	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
 	implementation "com.querydsl:querydsl-core"

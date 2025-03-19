@@ -1,7 +1,6 @@
 package com.devsquad10.hub.application.dto.res;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 import com.devsquad10.hub.domain.model.HubRoute;
@@ -27,9 +26,8 @@ public class HubRouteCreateResponseDto {
 	private Integer duration;
 	private LocalDateTime createdAt;
 	private UUID createdBy;
-	private List<UUID> waypoints;
 
-	public static HubRouteCreateResponseDto toResponseDto(HubRoute hubRoute, List<UUID> waypoints) {
+	public static HubRouteCreateResponseDto toResponseDto(HubRoute hubRoute) {
 		return HubRouteCreateResponseDto.builder()
 			.id(hubRoute.getId())
 			.departureHubId(hubRoute.getDepartureHub().getId())
@@ -40,7 +38,6 @@ public class HubRouteCreateResponseDto {
 			.duration(hubRoute.getDuration())
 			.createdAt(hubRoute.getCreatedAt())
 			.createdBy(hubRoute.getCreatedBy())
-			.waypoints(waypoints)
 			.build();
 	}
 }

@@ -4,7 +4,7 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
 import com.devsquad10.order.application.dto.message.StockDecrementMessage;
-import com.devsquad10.order.application.service.OrderService;
+import com.devsquad10.order.application.service.OrderEventService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -12,14 +12,14 @@ import lombok.RequiredArgsConstructor;
 @Component
 public class OrderEndPoint {
 
-	private final OrderService orderService;
+	private final OrderEventService orderEventService;
 
 	@RabbitListener(queues = "${stockMessage.queue.stock.response}")
 	public void handlerStockDecrementResponse(StockDecrementMessage stockDecrementMessage) {
 		if (stockDecrementMessage.getStatus().equals("SUCCESS")) {
-			orderService.handlerShippingRequest(stockDecrementMessage);
+			orderEventService.handlerShippingRequest(stockDecrementMessage);
 		} else if (stockDecrementMessage.getStatus().equals("OUT_OF_STOCK")) {
-			orderService.updateOrderStatus(stockDecrementMessage);
+			orderEventService.updateOrderStatus(stockDecrementMessage);
 		}
 	}
 }

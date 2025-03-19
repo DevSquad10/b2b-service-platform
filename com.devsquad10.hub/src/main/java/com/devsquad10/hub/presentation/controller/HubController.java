@@ -101,7 +101,7 @@ public class HubController {
 	}
 
 	@GetMapping("/exists/{uuid}")
-	public Boolean isHubExists(@PathVariable UUID uuid) {
+	public Boolean isHubExists(@PathVariable(name = "uuid") UUID uuid) {
 		return hubService.existById(uuid);
 	}
 }

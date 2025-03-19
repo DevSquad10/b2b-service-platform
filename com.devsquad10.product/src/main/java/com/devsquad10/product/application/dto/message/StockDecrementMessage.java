@@ -20,10 +20,11 @@ public class StockDecrementMessage {
 
 	private UUID supplierId;
 
+	private String productName;
+
 	private Integer quantity;
 
 	private String status;
 
 	private Integer price;
 }
-
