@@ -3,7 +3,6 @@ package com.devsquad10.shipping.application.service;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.devsquad10.shipping.application.dto.response.ShippingAgentResDto;
@@ -17,11 +16,8 @@ import com.devsquad10.shipping.domain.repository.ShippingAgentRepository;
 import com.devsquad10.shipping.infrastructure.client.HubServiceClient;
 import com.devsquad10.shipping.infrastructure.client.ShippingAgentPatchFeignRequest;
 import com.devsquad10.shipping.infrastructure.client.ShippingAgentPostFeignRequest;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -53,26 +49,13 @@ public class ShippingAgentService {
 		// HubId 존재 유효성 검사
 		UUID reqHubId = request.getHubId();
 		// HubId 존재 유무 feign client 호출
-		ResponseEntity<String> response = hubServiceClient.isHubExists(reqHubId);
-		if (response != null && response.getBody() != null) {
-			JsonNode root = null;
-			try {
-				root = objectMapper.readTree(response.getBody());
-				boolean bodyValue = root.path("body").asBoolean();
-				if (!bodyValue) {
-					// body 값이 false 경우 처리
-					throw new HubIdNotFoundException("Hub id " + reqHubId + " not found");
-				}
-			} catch (JsonProcessingException e) {
-				throw new RuntimeException(e);
-			}
-		} else {
-			throw new EntityNotFoundException("Hub id " + reqHubId + " not found");
+		if(!hubServiceClient.isHubExists(reqHubId)) {
+			throw new HubIdNotFoundException("Hub id " + reqHubId + " not found");
 		}
 
 		// 순차적 순번 배정을 위한 최대값 추출 및 다음 순번 처리
 		Optional<Integer> maxSequence = shippingAgentRepository.findMaxShippingSequence();
-		Integer nextSequence = maxSequence.map(s->++s).orElse(1);
+		Integer nextSequence = maxSequence.map(s -> ++s).orElse(1);
 		log.info("nextSequence : {}", nextSequence);
 
 		shippingAgentRepository.save(ShippingAgent.builder()
@@ -137,11 +120,19 @@ public class ShippingAgentService {
 		// UUID id,
 		ShippingAgentPatchFeignRequest request) {
 
-		log.info("id: {}", request.getId());
+		// shippingId 유효성 검사
 		ShippingAgent target = shippingAgentRepository.findByIdAndDeletedAtIsNull(request.getId())
-			.orElseThrow(() -> new ShippingAgentNotFoundException(request.getId() + ": 배송 관리자 ID가 존재하지 않습니다."));
+			.orElseThrow(() ->
+				new ShippingAgentNotFoundException(
+					"배송 관리자 ID:" + request.getId()  + "가 존재하지 않습니다."));
 
-		log.info("id: {}", request.getId());
+		// hubId 유효성 검사
+		if(request.getHubId() != null) {
+			if(!hubServiceClient.isHubExists(request.getHubId())) {
+				throw new HubIdNotFoundException("Hub id " + request.getHubId() + " not found");
+			}
+		}
+
 		target.preUpdate();
 		return shippingAgentRepository.save(target.toBuilder()
 			.shippingManagerId(request.getId())
@@ -170,6 +161,7 @@ public class ShippingAgentService {
 			.toResponse();
 	}
 
+	// TODO: 삭제도 User feign client 호출로 처리(deleteReq 변경)
 	// TODO: 권한 확인 - MASTER, 담당HUB
 	public void deleteShippingAgent(UUID id) {
 		ShippingAgent target = shippingAgentRepository.findByIdAndDeletedAtIsNull(id)
