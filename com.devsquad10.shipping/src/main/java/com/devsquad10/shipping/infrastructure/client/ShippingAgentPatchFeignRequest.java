@@ -11,7 +11,7 @@ import lombok.Setter;
 public class ShippingAgentPatchFeignRequest {
 
 	// 유저:기본키(id) = 배송담당자 ID(shipping_manager_id)
-	private UUID id;
+	private UUID shippingManagerId;
 
 	private String slackId;
 

@@ -81,7 +81,6 @@ public class ShippingAgentController {
 	// 1.유저 feign client 호출하여 넘겨받은 정보 변경
 	@PatchMapping("/info-update")
 	public ResponseEntity<ShippingAgentResponse<ShippingAgentResDto>> infoUpdateShippingAgent(
-		// @PathVariable(name = "id") UUID id,
 		@RequestBody ShippingAgentPatchFeignRequest request) throws Exception {
 
 		try {
