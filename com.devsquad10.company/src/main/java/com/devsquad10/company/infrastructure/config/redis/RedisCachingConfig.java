@@ -1,4 +1,4 @@
-package com.devsquad10.product.infrastructure.config.redis;
+package com.devsquad10.company.infrastructure.config.redis;
 
 import java.time.Duration;
 
@@ -13,25 +13,26 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
-import com.devsquad10.product.application.dto.ProductResDto;
+import com.devsquad10.company.application.dto.CompanyResDto;
 
 @Configuration
 @EnableCaching
 public class RedisCachingConfig {
 
-	public static final String PRODUCT_CACHE = "productCache";
-	public static final String PRODUCT_SEARCH_CACHE = "productSearchCache";
+	public static final String COMPANY_CACHE = "companyCache";
+	public static final String COMPANY_SEARCH_CACHE = "companySearchCache";
 
 	private static final Duration DEFAULT_TTL = Duration.ofSeconds(120);
-	private static final Duration PRODUCT_TTL = Duration.ofMinutes(10);
-	private static final Duration PRODUCT_SEARCH_TTL = Duration.ofHours(1);
+	private static final Duration COMPANY_TTL = Duration.ofMinutes(10);
+	private static final Duration COMPANY_SEARCH_TTL = Duration.ofHours(1);
 
 	@Bean
 	public RedisCacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
+		// 이진 직렬화 방식 적용
 
-		Jackson2JsonRedisSerializer<ProductResDto> companySerializer = new Jackson2JsonRedisSerializer<>(
-			ProductResDto.class);
-
+		Jackson2JsonRedisSerializer<CompanyResDto> companySerializer = new Jackson2JsonRedisSerializer<>(
+			CompanyResDto.class);
+		
 		// 기본값 캐시 설정 (2분 TTL, JSON 직렬화 방식)
 		RedisCacheConfiguration defaultConfiguration = RedisCacheConfiguration
 			.defaultCacheConfig()
@@ -41,20 +42,20 @@ public class RedisCachingConfig {
 			.serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
 			.serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(companySerializer));
 
-		// productCache 에 대한 캐시 설정 (10분 TTL, JSON 직렬화 방식)
-		RedisCacheConfiguration productConfiguration = RedisCacheConfiguration
+		// companyCache 에 대한 캐시 설정 (10분 TTL, JSON 직렬화 방식)
+		RedisCacheConfiguration companyConfiguration = RedisCacheConfiguration
 			.defaultCacheConfig()
 			.disableCachingNullValues()
-			.entryTtl(PRODUCT_TTL)
+			.entryTtl(COMPANY_TTL)
 			.computePrefixWith(CacheKeyPrefix.simple())
 			.serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
 			.serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(companySerializer));
 
-		// productSearchCache 에 대한 캐시 설정 (1시간 TTL, JSON 직렬화 방식)
-		RedisCacheConfiguration productSearchConfiguration = RedisCacheConfiguration
+		// companySearchCache 에 대한 캐시 설정 (1시간 TTL, JSON 직렬화 방식)
+		RedisCacheConfiguration companySearchConfiguration = RedisCacheConfiguration
 			.defaultCacheConfig()
 			.disableCachingNullValues()
-			.entryTtl(PRODUCT_SEARCH_TTL)
+			.entryTtl(COMPANY_SEARCH_TTL)
 			.computePrefixWith(CacheKeyPrefix.simple())
 			.serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
 			.serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(companySerializer));
@@ -62,8 +63,8 @@ public class RedisCachingConfig {
 		return RedisCacheManager
 			.builder(redisConnectionFactory)
 			.cacheDefaults(defaultConfiguration)
-			.withCacheConfiguration(PRODUCT_CACHE, productConfiguration)
-			.withCacheConfiguration(PRODUCT_SEARCH_CACHE, productSearchConfiguration)
+			.withCacheConfiguration(COMPANY_CACHE, companyConfiguration)
+			.withCacheConfiguration(COMPANY_SEARCH_CACHE, companySearchConfiguration)
 			.build();
 	}
 }

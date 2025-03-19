@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.devsquad10.product.application.client.CompanyClient;
 import com.devsquad10.product.application.dto.ProductReqDto;
 import com.devsquad10.product.application.dto.ProductResDto;
 import com.devsquad10.product.application.dto.message.StockDecrementMessage;
@@ -21,6 +22,7 @@ import com.devsquad10.product.domain.enums.ProductStatus;
 import com.devsquad10.product.domain.model.Product;
 import com.devsquad10.product.domain.repository.ProductRepository;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -33,12 +35,17 @@ public class ProductService {
 
 	private final ProductRepository productRepository;
 	private final RabbitTemplate rabbitTemplate;
+	private final CompanyClient companyClient;
 
 	@CachePut(cacheNames = "productCache", key = "#result.id")
 	public ProductResDto createProduct(ProductReqDto productReqDto) {
 
 		// 특정 업체 존재 유무 확인
+		// feign client
+		UUID hubId = companyClient.getHubIdIfCompanyExists(productReqDto.getSupplierId());
 
+		if (hubId == null)
+			throw new EntityNotFoundException("Supplier Fot Found By Id : " + productReqDto.getSupplierId());
 		// 업체가 존재하면 그 업체가 소속한 허브 id 등록
 
 		return productRepository.save(Product.builder()
@@ -47,7 +54,7 @@ public class ProductService {
 			.price(productReqDto.getPrice())
 			.quantity(productReqDto.getQuantity())
 			.supplierId(productReqDto.getSupplierId())
-			.hubId(productReqDto.getHubId())
+			.hubId(hubId)
 			.status(ProductStatus.AVAILABLE)
 			.build()).toResponseDto();
 	}
@@ -60,7 +67,7 @@ public class ProductService {
 			.toResponseDto();
 	}
 
-	@Cacheable(cacheNames = "productSearch", key = "#q + '-' + #category + '-' + #page + '-' + #size")
+	@Cacheable(cacheNames = "productSearchCache", key = "#q + '-' + #category + '-' + #page + '-' + #size")
 	public Page<ProductResDto> searchProducts(String q, String category, int page, int size, String sort,
 		String order) {
 
@@ -71,7 +78,7 @@ public class ProductService {
 
 	@CachePut(cacheNames = "productCache", key = "#id")
 	@Caching(evict = {
-		@CacheEvict(cacheNames = "productSearch", allEntries = true)
+		@CacheEvict(cacheNames = "productSearchCache", allEntries = true)
 	})
 	public ProductResDto updateProduct(UUID id, ProductReqDto productReqDto) {
 		Product targetProduct = productRepository.findByIdAndDeletedAtIsNull(id)
@@ -91,7 +98,7 @@ public class ProductService {
 
 	@Caching(evict = {
 		@CacheEvict(cacheNames = "productCache", key = "#id"),
-		@CacheEvict(cacheNames = "productSearch", key = "#id")
+		@CacheEvict(cacheNames = "productSearchCache", key = "#id")
 	})
 	public void deleteProduct(UUID id) {
 		Product targetProduct = productRepository.findByIdAndDeletedAtIsNull(id)

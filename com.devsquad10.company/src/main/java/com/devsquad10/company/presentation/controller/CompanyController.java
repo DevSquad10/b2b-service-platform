@@ -71,4 +71,14 @@ public class CompanyController {
 		return ResponseEntity.status(HttpStatus.OK)
 			.body(CompanyResponse.success(HttpStatus.OK.value(), "Company Deleted successfully"));
 	}
+
+	@GetMapping("/exists/{uuid}")
+	public UUID getHubIdIfCompanyExists(@PathVariable UUID uuid) {
+		return companyService.getHubIdIfCompanyExists(uuid);  // 존재하면 hubId, 없으면 null
+	}
+
+	@GetMapping("/address/{id}")
+	String getCompanyAddress(@PathVariable UUID id) {
+		return companyService.getCompanyAddress(id);
+	}
 }
