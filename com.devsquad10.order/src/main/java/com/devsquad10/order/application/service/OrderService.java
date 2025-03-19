@@ -1,5 +1,6 @@
 package com.devsquad10.order.application.service;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -123,4 +124,18 @@ public class OrderService {
 		return order.toResponseDto();
 	}
 
+	public void deleteOrder(UUID id) {
+		Order order = orderRepository.findByIdAndDeletedAtIsNull(id)
+			.orElseThrow(() -> new OrderNotFoundException("Order Not Found By Id : " + id));
+
+		StockReversalMessage stockReversalMessage = new StockReversalMessage(order.getProductId(),
+			order.getQuantity());
+
+		orderMessageService.sendStockReversalMessage(stockReversalMessage);
+
+		orderRepository.save(order.toBuilder()
+			.deletedAt(LocalDateTime.now())
+			.deletedBy("사용자")
+			.build());
+	}
 }
