@@ -34,13 +34,12 @@ public class CompanyService {
 
 		UUID hubId = companyReqDto.getHubId();
 
-		//1. 허브가 존재 유무 확인
+		//1. 허브 존재 유무 확인
 		if (!hubClient.isHubExists(hubId)) {
 			throw new EntityNotFoundException("Hub Not Found By Id : " + hubId);
 		}
 
-		//2. 구현
-		// 매니저 id 는 게이트웨이에서 받아서 적용
+		// 담당자 id는 유저 완성 시 등록
 		return companyRepository.save(Company.builder()
 			.name(companyReqDto.getName())
 			.hubId(hubId)
@@ -76,10 +75,16 @@ public class CompanyService {
 		Company targetCompany = companyRepository.findByIdAndDeletedAtIsNull(id)
 			.orElseThrow(() -> new CompanyNotFoundException("Company Not Found By  Id : " + id));
 
+		UUID hubId = companyReqDto.getHubId();
+
+		//1. 허브 존재 유무 확인
+		if (!hubClient.isHubExists(hubId)) {
+			throw new EntityNotFoundException("Hub Not Found By Id : " + hubId);
+		}
+
 		return companyRepository.save(targetCompany.toBuilder()
 			.name(companyReqDto.getName())
-			.venderId(companyReqDto.getVenderId())
-			.hubId(companyReqDto.getHubId())
+			.hubId(hubId)
 			.address(companyReqDto.getAddress())
 			.type(companyReqDto.getType())
 			.updatedAt(LocalDateTime.now())
