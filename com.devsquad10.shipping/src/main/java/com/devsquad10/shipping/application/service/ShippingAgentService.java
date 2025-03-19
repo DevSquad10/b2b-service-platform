@@ -6,10 +6,10 @@ import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.devsquad10.shipping.application.dto.response.ShippingAgentResDto;
 import com.devsquad10.shipping.application.exception.shippingAgent.HubIdNotFoundException;
 import com.devsquad10.shipping.application.exception.shippingAgent.ShippingAgentNotFoundException;
+import com.devsquad10.shipping.application.exception.shippingAgent.ShippingAgentNotUpdateException;
 import com.devsquad10.shipping.application.exception.shippingAgent.ShippingAgentTypeNotFoundException;
 import com.devsquad10.shipping.domain.enums.ShippingAgentType;
 import com.devsquad10.shipping.domain.model.ShippingAgent;
@@ -104,8 +104,67 @@ public class ShippingAgentService {
 			.toResponse();
 	}
 
+	// TODO: 권한 확인 - MASTER, 담당 HUB, 담당 DLV_AGENT
+	// @Transactional(readOnly = true)
+	// public Page<ShippingAgentResDto> searchShippingAgents(
+	// 	String query, String category,
+	// 	Pageable pageable
+	// 	// int page, int size, String sortBy, String orderBy
+	// ) {
+	//
+	// 	// pageable.getSort().stream().forEach(sort -> {
+	// 	// 	String property = sort.getProperty();
+	// 	// 	Sort.Order order = sort.isAscending() ? Sort.Order.asc(property) : Sort.Order.desc(property);
+	// 	//
+	// 	// 	Path<Object> target = Expressions.path(Object.class, QShippingAgent.shippingAgent, property);
+	// 	// 	OrderSpecifier<?> orderSpecifier = new OrderSpecifier(sort, target);
+	// 	// 	query.orderBy(orderSpecifier);
+	// 	// });
+	// 	// return null;
+	//
+	// 	Page<ShippingAgent> shippingAgentPage = shippingAgentRepository
+	// 		.findAll(query, category, pageable);
+	// 	// Page<ShippingAgentResDto> shippingAgentResDtoPage = shippingAgentPage
+	// 	// 	.map(ShippingAgentResDto::toResponse);
+	// 	return shippingAgentPage
+	// 		.map(ShippingAgentResDto::toResponse);
+	// }
 
+	//TODO: 권한 확인 - MASTER, 담당HUB
+	// 1.유저 feign client 호출하여 넘겨받은 정보 변경
+	public ShippingAgentResDto infoUpdateShippingAgent(
+		UUID id,
+		ShippingAgentPostFeignRequest request) {
 
+		ShippingAgent target = shippingAgentRepository.findById(id)
+			.orElseThrow(() -> new ShippingAgentNotFoundException(id + ": 배송 관리자 ID가 존재하지 않습니다."));
+
+		target.preUpdate();
+		return shippingAgentRepository.save(target.toBuilder()
+			.hubId(request.getHubId())
+			.shippingManagerSlackId(request.getSlackId())
+			.build())
+			.toResponse();
+	}
+
+	// TODO: 권한 확인 - MASTER, 담당HUB
+	// 2.배송 여부 확인 변경
+	public ShippingAgentResDto transitUpdateShippingAgent(
+		UUID id,
+		Boolean isTransit
+	) {
+		log.info("isTransit: {}", isTransit);
+		ShippingAgent target = shippingAgentRepository.findById(id)
+			.orElseThrow(() -> new ShippingAgentNotFoundException(id + ": 배송 관리자 ID가 존재하지 않습니다."));
+		if(isTransit == target.getIsTransit()) {
+			throw new ShippingAgentNotUpdateException(isTransit + ": 배송여부가 동일하므로 수정되지 않았습니다.");
+		}
+		target.preUpdate();
+		return shippingAgentRepository.save(target.toBuilder()
+				.isTransit(isTransit)
+				.build())
+			.toResponse();
+	}
 
 	// TODO: 담당자 배정 로직 구현은 새로운 서비스 생성하고
 	//  더미데이터 180명 query 만들어서 구현!

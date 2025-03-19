@@ -18,6 +18,6 @@ public class ShippingAgentPostFeignRequest {
 
 	@NotNull
 	private UUID hubId;
-	@NotNull
+
 	private ShippingAgentType type;
 }

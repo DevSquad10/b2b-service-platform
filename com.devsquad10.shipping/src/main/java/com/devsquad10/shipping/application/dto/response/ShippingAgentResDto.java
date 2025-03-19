@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.UUID;
 
 import com.devsquad10.shipping.domain.enums.ShippingAgentType;
+import com.devsquad10.shipping.domain.model.ShippingAgent;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,4 +31,16 @@ public class ShippingAgentResDto implements Serializable {
 	private Integer shippingSequence;
 
 	private Boolean isTransit;
+
+	public static ShippingAgentResDto toResponse(ShippingAgent shippingAgent) {
+		return ShippingAgentResDto.builder()
+			.id(shippingAgent.getId())
+			.hubId(shippingAgent.getHubId())
+			.shippingManagerId(shippingAgent.getShippingManagerId())
+			.shippingManagerSlackId(shippingAgent.getShippingManagerSlackId())
+			.shippingSequence(shippingAgent.getShippingSequence())
+			.type(shippingAgent.getType())
+			.isTransit(shippingAgent.getIsTransit())
+			.build();
+	}
 }
