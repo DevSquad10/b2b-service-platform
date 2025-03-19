@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.devsquad10.order.application.dto.OrderReqDto;
 import com.devsquad10.order.application.dto.OrderResDto;
+import com.devsquad10.order.application.dto.OrderUpdateReqDto;
 import com.devsquad10.order.application.dto.response.OrderResponse;
 import com.devsquad10.order.application.service.OrderService;
 
@@ -54,6 +56,13 @@ public class OrderController {
 		return ResponseEntity.status(HttpStatus.OK)
 			.body(OrderResponse.success(HttpStatus.OK.value(),
 				orderService.searchOrders(q, category, page, size, sort, order)));
+	}
+
+	@PatchMapping("/{id}")
+	public ResponseEntity<OrderResponse<OrderResDto>> updateOrder(@PathVariable("id") UUID id,
+		@RequestBody OrderUpdateReqDto orderUpdateReqDto) {
+		return ResponseEntity.status(HttpStatus.OK)
+			.body(OrderResponse.success(HttpStatus.OK.value(), orderService.updateOrder(id, orderUpdateReqDto)));
 	}
 
 }
