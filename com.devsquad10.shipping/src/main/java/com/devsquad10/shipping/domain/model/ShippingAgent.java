@@ -64,6 +64,9 @@ public class ShippingAgent {
 	@Column
 	private Boolean isTransit;
 
+	@Column
+	private Integer assignmentCount;
+
 	@CreatedDate
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(updatable = false, nullable = false)
@@ -120,5 +123,16 @@ public class ShippingAgent {
 			.shippingSequence(shippingSequence)
 			.isTransit(isTransit)
 			.build();
+	}
+
+	public Integer increaseAssignmentCount() {
+		if (assignmentCount == null) {
+			assignmentCount = 0;
+		}
+		return ++assignmentCount;
+	}
+
+	public void updateIsTransit() {
+		this.isTransit = true;
 	}
 }

@@ -1,5 +1,6 @@
 package com.devsquad10.shipping.domain.repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -15,6 +16,8 @@ public interface ShippingAgentRepository {
 
 	// 배송담당자 사용자ID 조회
 	Optional<ShippingAgent> findByShippingManagerIdAndDeletedAtIsNull(UUID shippingManagerId);
+
+	List<ShippingAgent> findAllByDeletedAtIsNull();
 
 	// Page<ShippingAgent> findAll(String query, String category, Pageable pageable);
 }
