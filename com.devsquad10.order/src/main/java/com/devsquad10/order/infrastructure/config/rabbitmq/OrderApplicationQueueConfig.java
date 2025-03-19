@@ -19,11 +19,17 @@ public class OrderApplicationQueueConfig {
 	@Value("${stockMessage.exchange.stock.response}")
 	private String stockResponseExchange;
 
+	@Value("${stockMessage.exchange.stockRecovery.request}")
+	private String stockRecoveryExchange;
+
 	@Value("${stockMessage.queue.stock.request}")
 	private String queueRequestStock;
 
 	@Value("${stockMessage.queue.stock.response}")
 	private String queueResponseStock;
+
+	@Value("${stockMessage.queue.stockRecovery.request}")
+	private String queueStockRecovery;
 
 	/**
 	 * exchange
@@ -36,6 +42,11 @@ public class OrderApplicationQueueConfig {
 	@Bean
 	public TopicExchange stockResponseExchange() {
 		return new TopicExchange(stockResponseExchange);
+	}
+
+	@Bean
+	public TopicExchange stockRecoveryExchange() {
+		return new TopicExchange(stockRecoveryExchange);
 	}
 
 	/**
@@ -51,6 +62,11 @@ public class OrderApplicationQueueConfig {
 		return new Queue(queueResponseStock);
 	}
 
+	@Bean
+	public Queue queueStockRecovery() {
+		return new Queue(queueStockRecovery);
+	}
+
 	/**
 	 * binding
 	 */
@@ -62,6 +78,11 @@ public class OrderApplicationQueueConfig {
 	@Bean
 	public Binding bindingResponseStock() {
 		return BindingBuilder.bind(queueResponseStock()).to(stockResponseExchange()).with(queueResponseStock);
+	}
+
+	@Bean
+	public Binding bindingRecoveryStock() {
+		return BindingBuilder.bind(queueStockRecovery()).to(stockRecoveryExchange()).with(queueStockRecovery);
 	}
 
 	@Bean

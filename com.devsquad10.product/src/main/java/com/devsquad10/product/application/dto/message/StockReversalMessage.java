@@ -1,4 +1,4 @@
-package com.devsquad10.order.application.dto.message;
+package com.devsquad10.product.application.dto.message;
 
 import java.util.UUID;
 
@@ -13,18 +13,7 @@ import lombok.ToString;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class StockDecrementMessage {
-	private UUID orderId;
-
+public class StockReversalMessage {
 	private UUID productId;
-
-	private UUID supplierId;
-
-	private String productName;
-
-	private Integer quantity;
-
-	private String status;
-
-	private Integer price;
+	private int quantity;
 }
