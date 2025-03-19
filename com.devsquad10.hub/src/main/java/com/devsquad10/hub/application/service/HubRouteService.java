@@ -56,7 +56,7 @@ public class HubRouteService {
 			return HubRouteCreateResponseDto.toResponseDto(existingRoute.get());
 		}
 		RouteCalculationResult calculationResult =
-			// hubRouteCalculateService.calculateRoute(departureHub, destinationHub);
+			// hubRouteCalculateStrategy.calculateRoute(departureHub, destinationHub);
 			hubRouteCalculateStrategy.calculateRouteWithApi(departureHub, destinationHub);
 
 		HubRoute newHubRoute = HubRoute.builder()

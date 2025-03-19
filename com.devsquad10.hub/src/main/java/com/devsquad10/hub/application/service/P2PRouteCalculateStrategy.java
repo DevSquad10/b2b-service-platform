@@ -25,8 +25,11 @@ public class P2PRouteCalculateStrategy implements HubRouteCalculateStrategy {
 			destinationHub.getLatitude(), destinationHub.getLongitude()
 		);
 
-		// 평균 50km/h로 이동 한다 가정 할 경우 예상 시간(밀리 초)
-		int durationInMillis = (int)(distance / 50.0 * 3600);
+		// 평균 50km/h로 이동 한다 가정
+		final double SPEED_KMH = 50.0;
+
+		// 이동 예상 시간 (밀리 초)
+		int durationInMillis = (int)((distance * 0.001) / SPEED_KMH * (3600 * 1000));
 
 		return RouteCalculationResult.builder()
 			.distance(distance)
