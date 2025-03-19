@@ -33,7 +33,6 @@ public class OrderService {
 		Order order = Order.builder()
 			.recipientsId(orderReqDto.getRecipientsId())
 			.productId(orderReqDto.getProductId())
-			.productName(orderReqDto.getProductName())
 			.quantity(orderReqDto.getQuantity())
 			.requestDetails(orderReqDto.getRequestDetails())
 			.deadLine(orderReqDto.getDeadLine())

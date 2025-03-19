@@ -51,6 +51,7 @@ public class OrderEventService {
 		OrderStatus newStatus) {
 		orderRepository.save(targetOrder.toBuilder()
 			.shippingId(stockDecrementMessage.getSupplierId())
+			.productName(stockDecrementMessage.getProductName())
 			.totalAmount(stockDecrementMessage.getPrice() * targetOrder.getQuantity())
 			.status(newStatus)
 			.build());
