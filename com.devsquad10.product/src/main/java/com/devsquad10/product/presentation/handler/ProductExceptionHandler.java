@@ -14,6 +14,13 @@ import jakarta.persistence.EntityNotFoundException;
 @RestControllerAdvice
 public class ProductExceptionHandler {
 
+	@ExceptionHandler(IllegalArgumentException.class)
+	@ResponseStatus(HttpStatus.CONFLICT)
+	public ResponseEntity<ProductResponse<String>> illegalArgumentException(IllegalArgumentException ex) {
+		return ResponseEntity.status(HttpStatus.CONFLICT)
+			.body(ProductResponse.failure(HttpStatus.CONFLICT.value(), ex.getMessage()));
+	}
+
 	@ExceptionHandler(ProductNotFoundException.class)
 	@ResponseStatus(HttpStatus.NOT_FOUND)
 	public ResponseEntity<ProductResponse<String>> productNotFoundException(ProductNotFoundException ex) {

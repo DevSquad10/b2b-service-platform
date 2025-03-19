@@ -35,39 +35,39 @@ public class ProductEventService {
 		UUID targetProductId = stockDecrementMessage.getProductId();
 		int orderQuantity = stockDecrementMessage.getQuantity();
 
-		// 1. 재고 차감 시도 (쿼리로 처리)
+		// 1. 재고 차감 시도
 		int updatedRow = productRepository.decreaseStock(targetProductId, orderQuantity);
+
+		Product product = productRepository.findByIdAndDeletedAtIsNull(targetProductId)
+			.orElseThrow(() -> new ProductNotFoundException("Product Not Found By Id :" + targetProductId));
 
 		// 2. 재고 부족 처리
 		if (updatedRow == 0) {
-			StockDecrementMessage errorMessage = stockDecrementMessage.toBuilder()
-				.status("OUT_OF_STOCK")
-				.build();
-			rabbitTemplate.convertAndSend(queueResponseStock, errorMessage);
+			sendStockUpdateMessage(stockDecrementMessage, product, "OUT_OF_STOCK");
 			return;
 		}
-
-		// 3. 정상 처리 메시지 발송
-		Product product = productRepository.findByIdAndDeletedAtIsNull(targetProductId)
-			.orElseThrow(() -> new ProductNotFoundException("Product Not Found By Id :" + targetProductId));
 
 		if (product.getQuantity() == 0) {
 			product.statusSoldOut();
 			productRepository.save(product);
-
-			// company에 보내줘야할 것 ( 상품 id , 재고 소진 일자)
+			
 			StockSoldOutMessage stockSoldOutMessage = new StockSoldOutMessage(product.getSupplierId(), product.getId(),
 				new Date());
 			rabbitTemplate.convertAndSend(queueStockSoldOut, stockSoldOutMessage);
 		}
 
-		StockDecrementMessage successMessage = stockDecrementMessage.toBuilder()
-			.status("SUCCESS")
+		sendStockUpdateMessage(stockDecrementMessage, product, "SUCCESS");
+	}
+
+	private void sendStockUpdateMessage(StockDecrementMessage message, Product product, String status) {
+		StockDecrementMessage updatedMessage = message.toBuilder()
+			.productName(product.getName())
 			.supplierId(product.getSupplierId())
 			.price(product.getPrice())
+			.status(status)
 			.build();
 
-		rabbitTemplate.convertAndSend(queueResponseStock, successMessage);
+		rabbitTemplate.convertAndSend(queueResponseStock, updatedMessage);
 	}
 
 	public void recoveryStock(StockReversalMessage stockReversalMessage) {
