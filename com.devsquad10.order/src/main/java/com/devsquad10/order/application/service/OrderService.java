@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.devsquad10.order.application.client.CompanyClient;
 import com.devsquad10.order.application.dto.OrderReqDto;
 import com.devsquad10.order.application.dto.OrderResDto;
 import com.devsquad10.order.application.dto.message.StockDecrementMessage;
@@ -28,6 +29,7 @@ public class OrderService {
 
 	private final OrderRepository orderRepository;
 	private final RabbitTemplate rabbitTemplate;
+	private final CompanyClient companyClient;
 
 	public void createOrder(OrderReqDto orderReqDto) {
 		Order order = Order.builder()
@@ -77,13 +79,27 @@ public class OrderService {
 			.orElseThrow(
 				() -> new OrderNotFoundException("Order Not Found By Id : " + stockDecrementMessage.getOrderId()));
 
-		orderRepository.save(targetOrder.toBuilder()
-			.shippingId(stockDecrementMessage.getSupplierId())
-			.totalAmount(stockDecrementMessage.getPrice() * targetOrder.getQuantity())
-			.status(OrderStatus.PREPARING_SHIPMENT)
-			.build());
+		String recipientsAddress = companyClient.getCompanyAddress(targetOrder.getRecipientsId());
+		if (recipientsAddress != null) {
+			orderRepository.save(targetOrder.toBuilder()
+				.shippingId(stockDecrementMessage.getSupplierId())
+				.totalAmount(stockDecrementMessage.getPrice() * targetOrder.getQuantity())
+				.status(OrderStatus.PREPARING_SHIPMENT)
+				.build());
 
-		// rabbitTemplate.convertAndSend();
+			//배송에 보낼 메시지 생성
+			// 공급업체, 수량업체,  업체 주소, orderid, 요청 사항
+			// rabbitTemplate.convertAndSend();
+		} else {
+			orderRepository.save(targetOrder.toBuilder()
+				.shippingId(stockDecrementMessage.getSupplierId())
+				.totalAmount(stockDecrementMessage.getPrice() * targetOrder.getQuantity())
+				.status(OrderStatus.INVALID_RECIPIENT)
+				.build());
+
+			// 재고 감소 복구 요청
+		}
+
 	}
 
 	public void updateOrderStatus(StockDecrementMessage stockDecrementMessage) {
