@@ -1,5 +1,6 @@
 package com.devsquad10.hub.application.service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.cache.annotation.CacheEvict;
@@ -47,20 +48,27 @@ public class HubRouteService {
 		Hub destinationHub = hubRepository.findById(request.getDestinationHubId())
 			.orElseThrow(() -> new HubNotFoundException("도착 허브를 찾을 수 없습니다. ID: " + request.getDestinationHubId()));
 
+		Optional<HubRoute> existingRoute = hubRouteRepository.findByDepartureHubAndDestinationHub(
+			departureHub, destinationHub);
+
+		// TODO: 경유지 설정/이동 경로 전략 설정 후 변경
+		if (existingRoute.isPresent()) {
+			return HubRouteCreateResponseDto.toResponseDto(existingRoute.get());
+		}
 		RouteCalculationResult calculationResult =
 			// hubRouteCalculateService.calculateRoute(departureHub, destinationHub);
 			hubRouteCalculateStrategy.calculateRouteWithApi(departureHub, destinationHub);
 
-		HubRoute hubRoute = HubRoute.builder()
+		HubRoute newHubRoute = HubRoute.builder()
 			.departureHub(departureHub)
 			.destinationHub(destinationHub)
 			.distance(calculationResult.getDistance())
 			.duration(calculationResult.getDuration())
 			.build();
 
-		HubRoute savedRoute = hubRouteRepository.save(hubRoute);
+		HubRoute savedRoute = hubRouteRepository.save(newHubRoute);
 
-		return HubRouteCreateResponseDto.toResponseDto(savedRoute, calculationResult.getWaypoints());
+		return HubRouteCreateResponseDto.toResponseDto(savedRoute);
 	}
 
 	@Transactional(readOnly = true)
