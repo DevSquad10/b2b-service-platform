@@ -130,6 +130,12 @@ public class ProductService {
 		Product updatedProduct = productRepository.findByIdAndDeletedAtIsNull(targetProductId)
 			.orElseThrow(() -> new ProductNotFoundException("Product Not Found By Id :" + targetProductId));
 
+		if (updatedProduct.getQuantity() == 0) {
+			updatedProduct.statusSoldOut();
+			productRepository.save(updatedProduct);
+			// Sold out 메시지 전송
+		}
+
 		StockDecrementMessage successMessage = stockDecrementMessage.toBuilder()
 			.status("SUCCESS")
 			.supplierId(updatedProduct.getSupplierId())

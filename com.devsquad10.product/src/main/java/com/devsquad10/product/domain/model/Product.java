@@ -108,4 +108,7 @@ public class Product {
 		);
 	}
 
+	public void statusSoldOut() {
+		this.status = ProductStatus.SOLD_OUT;
+	}
 }
