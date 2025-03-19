@@ -1,7 +1,5 @@
 package com.devsquad10.hub.application.service;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.cache.annotation.CacheEvict;
@@ -37,7 +35,7 @@ public class HubRouteService {
 
 	private final HubRepository hubRepository;
 	private final HubRouteRepository hubRouteRepository;
-	private final HubRouteCalculateService hubRouteCalculateService;
+	private final HubRouteCalculateStrategy hubRouteCalculateStrategy;
 
 	@Caching(evict = {
 		@CacheEvict(value = "hubRouteSearchCache", allEntries = true)
@@ -50,7 +48,8 @@ public class HubRouteService {
 			.orElseThrow(() -> new HubNotFoundException("도착 허브를 찾을 수 없습니다. ID: " + request.getDestinationHubId()));
 
 		RouteCalculationResult calculationResult =
-			hubRouteCalculateService.calculateRoute(departureHub, destinationHub);
+			// hubRouteCalculateService.calculateRoute(departureHub, destinationHub);
+			hubRouteCalculateStrategy.calculateRouteWithApi(departureHub, destinationHub);
 
 		HubRoute hubRoute = HubRoute.builder()
 			.departureHub(departureHub)
@@ -81,27 +80,14 @@ public class HubRouteService {
 		HubRoute hubRoute = hubRouteRepository.findById(id)
 			.orElseThrow(() -> new HubRouteNotFoundException("허브 경로를 찾을 수 없습니다."));
 
-		RouteCalculationResult calculationResult =
-			hubRouteCalculateService.calculateRoute(hubRoute.getDepartureHub(), hubRoute.getDestinationHub());
-
 		hubRoute.update(
-			// TODO: 임시 값 설정
-			// calculationResult.getDistance(),
-			// calculationResult.getDuration()
-			(Math.random() * 10000),
-			((int)(Math.random() * 1000000))
+			request.getDistance(),
+			request.getDuration()
 		);
-
-		// TODO: 임시 값 설정
-		List<UUID> dummyList = new ArrayList<>();
-		dummyList.add(UUID.fromString("11111111-1111-1111-1111-111111111101"));
-		dummyList.add(UUID.fromString("11111111-1111-1111-1111-111111111102"));
-		dummyList.add(UUID.fromString("11111111-1111-1111-1111-111111111103"));
 
 		HubRoute updatedRoute = hubRouteRepository.save(hubRoute);
 
-		// return HubRouteUpdateResponseDto.toResponseDto(updatedRoute, calculationResult.getWaypoints());
-		return HubRouteUpdateResponseDto.toResponseDto(updatedRoute, dummyList);
+		return HubRouteUpdateResponseDto.toResponseDto(updatedRoute);
 	}
 
 	@Caching(evict = {
