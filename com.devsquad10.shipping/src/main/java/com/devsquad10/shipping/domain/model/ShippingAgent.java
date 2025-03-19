@@ -1,8 +1,6 @@
 package com.devsquad10.shipping.domain.model;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.annotation.CreatedBy;
@@ -11,20 +9,17 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import com.devsquad10.shipping.application.dto.response.ShippingResDto;
-import com.devsquad10.shipping.domain.enums.ShippingStatus;
+import com.devsquad10.shipping.application.dto.response.ShippingAgentResDto;
+import com.devsquad10.shipping.domain.enums.ShippingAgentType;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -33,53 +28,41 @@ import jakarta.persistence.TemporalType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "p_shipping")
+@Table(name = "p_shipping_agent")
 @Getter
 @Builder(toBuilder = true)
 @AllArgsConstructor
-public class Shipping {
-
-	public Shipping() {
-		this.historyList = new ArrayList<>();
-	}
+@NoArgsConstructor
+public class ShippingAgent {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)
 	private UUID id;
 
+	@Column
+	private UUID hubId;
+
+	@Column
+	private UUID shippingManagerId;
+
+	@Column
+	private String shippingManagerSlackId;
+
+	// 허브담당(HUB_DVL), 업체담당(COM_DVL)
+	@Column
 	@Enumerated(EnumType.STRING)
+	private ShippingAgentType type;
+
+	@Column(unique = true)
+	private Integer shippingSequence;
+
+	// 배송 진행 여부 : True(배송중), False(대기중)
 	@Column
-	private ShippingStatus status;
-
-	@Column(nullable = false)
-	private UUID departureHubId;
-
-	@Column(nullable = false)
-	private UUID destinationHubId;
-
-	@Column
-	private UUID orderId;
-
-	@Column(nullable = false)
-	private String address;
-
-	@Column(nullable = false)
-	private String recipientName;
-
-	@Column(nullable = false)
-	private String recipientPhone;
-
-	@Column
-	private String requestDetails;
-
-	@Column(nullable = true)
-	private UUID companyShippingManagerId;
-
-	@OneToMany(mappedBy = "shipping", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	private List<ShippingHistory> historyList = new ArrayList<>();
+	private Boolean isTransit;
 
 	@CreatedDate
 	@Temporal(TemporalType.TIMESTAMP)
@@ -92,11 +75,11 @@ public class Shipping {
 
 	@LastModifiedDate
 	@Temporal(TemporalType.TIMESTAMP)
-	@Column(updatable = true, insertable = false)
+	@Column(insertable = false)
 	private LocalDateTime updatedAt;
 
 	@LastModifiedBy
-	@Column(updatable = true, insertable = false)
+	@Column(insertable = false)
 	private String updatedBy;
 
 	@Column
@@ -108,8 +91,8 @@ public class Shipping {
 	// TODO: user 설정
 	@PrePersist
 	public void prePersist() {
-		this.createdAt = LocalDateTime.now();
-		this.createdBy = "defaultUser"; // (예: SecurityContext에서 사용자 정보)
+		this.createdAt = LocalDateTime.now(); // 현재 시간으로 설정
+		this.createdBy = "defaultUser"; // 현재 사용자로 설정
 	}
 
 	// TODO: user 설정
@@ -119,25 +102,23 @@ public class Shipping {
 		this.updatedBy = "updateUser";
 	}
 
-	// TODO: 삭제유저 구현 예정
+	// TODO: user 설정
 	// 소프트 삭제 처리
-	public Shipping softDelete() {
+	public ShippingAgent softDelete() {
 		this.deletedAt = LocalDateTime.now();
-		this.deletedBy = "deleteUser";
-
+		this.deletedBy = "deleteByUser";
 		return this;
 	}
 
-	public ShippingResDto toResponseDto() {
-		return new ShippingResDto(
-			this.id,
-			this.status,
-			this.orderId
-		);
+	public ShippingAgentResDto toResponse() {
+		return ShippingAgentResDto.builder()
+			.id(id)
+			.hubId(hubId)
+			.shippingManagerId(shippingManagerId)
+			.shippingManagerSlackId(shippingManagerSlackId)
+			.type(type)
+			.shippingSequence(shippingSequence)
+			.isTransit(isTransit)
+			.build();
 	}
-
-	// public void addShippingHistory(ShippingHistory shippingHistory) {
-	// 	shippingHistory.setShipping(this); // 양방향 관계 설정
-	// 	this.historyList.add(shippingHistory);
-	// }
 }
