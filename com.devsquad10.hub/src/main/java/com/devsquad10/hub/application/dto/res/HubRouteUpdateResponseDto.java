@@ -1,7 +1,6 @@
 package com.devsquad10.hub.application.dto.res;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 import com.devsquad10.hub.domain.model.HubRoute;
@@ -23,9 +22,8 @@ public class HubRouteUpdateResponseDto {
 	private Integer duration;
 	private LocalDateTime updatedAt;
 	private UUID updatedBy;
-	private List<UUID> waypoints;  // 경유지 정보
 
-	public static HubRouteUpdateResponseDto toResponseDto(HubRoute hubRoute, List<UUID> waypoints) {
+	public static HubRouteUpdateResponseDto toResponseDto(HubRoute hubRoute) {
 		return HubRouteUpdateResponseDto.builder()
 			.id(hubRoute.getId())
 			.departureHubId(hubRoute.getDepartureHub().getId())
@@ -36,7 +34,6 @@ public class HubRouteUpdateResponseDto {
 			.duration(hubRoute.getDuration())
 			.updatedAt(hubRoute.getUpdatedAt())
 			.updatedBy(hubRoute.getUpdatedBy())
-			.waypoints(waypoints)
 			.build();
 	}
 }

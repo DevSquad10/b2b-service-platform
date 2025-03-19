@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 
 import com.devsquad10.hub.application.dto.req.HubRouteSearchRequestDto;
+import com.devsquad10.hub.domain.model.Hub;
 import com.devsquad10.hub.domain.model.HubRoute;
 
 public interface HubRouteRepository {
@@ -14,4 +15,6 @@ public interface HubRouteRepository {
 	Optional<HubRoute> findById(UUID id);
 
 	Page<HubRoute> findAll(HubRouteSearchRequestDto request);
+
+	Optional<HubRoute> findByDepartureHubAndDestinationHub(Hub departureHub, Hub destinationHub);
 }
