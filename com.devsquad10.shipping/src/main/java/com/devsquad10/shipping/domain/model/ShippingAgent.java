@@ -88,16 +88,26 @@ public class ShippingAgent {
 	@Column
 	private String deletedBy;
 
+	// TODO: user 설정
 	@PrePersist
 	public void prePersist() {
 		this.createdAt = LocalDateTime.now(); // 현재 시간으로 설정
 		this.createdBy = "defaultUser"; // 현재 사용자로 설정
 	}
 
+	// TODO: user 설정
 	@PreUpdate
 	public void preUpdate() {
 		this.updatedAt = LocalDateTime.now();
 		this.updatedBy = "updateUser";
+	}
+
+	// TODO: user 설정
+	// 소프트 삭제 처리
+	public ShippingAgent softDelete() {
+		this.deletedAt = LocalDateTime.now();
+		this.deletedBy = "deleteByUser";
+		return this;
 	}
 
 	public ShippingAgentResDto toResponse() {

@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.devsquad10.shipping.application.dto.ShippingAgentResponse;
 import com.devsquad10.shipping.application.dto.response.ShippingAgentResDto;
 import com.devsquad10.shipping.application.service.ShippingAgentService;
+import com.devsquad10.shipping.infrastructure.client.ShippingAgentPatchFeignRequest;
 import com.devsquad10.shipping.infrastructure.client.ShippingAgentPostFeignRequest;
 
 import jakarta.validation.Valid;
@@ -32,7 +34,7 @@ public class ShippingAgentController {
 	// 권한 확인 - MASTER, 담당 HUB
 	@PostMapping
 	public void createShippingAgent(
-		@Valid @RequestBody ShippingAgentPostFeignRequest request) {
+		@RequestBody ShippingAgentPostFeignRequest request) {
 		shippingAgentService.createShippingAgent(request);
 	}
 
@@ -77,15 +79,15 @@ public class ShippingAgentController {
 
 	//TODO: 권한 확인 - MASTER, 담당HUB
 	// 1.유저 feign client 호출하여 넘겨받은 정보 변경
-	@PatchMapping("/info-update/{id}")
+	@PatchMapping("/info-update")
 	public ResponseEntity<ShippingAgentResponse<ShippingAgentResDto>> infoUpdateShippingAgent(
-		@PathVariable(name = "id") UUID id,
-		@Valid @RequestBody ShippingAgentPostFeignRequest request) throws Exception {
+		// @PathVariable(name = "id") UUID id,
+		@RequestBody ShippingAgentPatchFeignRequest request) throws Exception {
 
 		try {
 			return ResponseEntity.ok(ShippingAgentResponse.success(
 				HttpStatus.OK.value(),
-				shippingAgentService.infoUpdateShippingAgent(id, request))
+				shippingAgentService.infoUpdateShippingAgent(request))
 			);
 		} catch (Exception e) {
 			throw new Exception("e.getMessage()");
@@ -105,4 +107,18 @@ public class ShippingAgentController {
 			shippingAgentService.transitUpdateShippingAgent(id, isTransit))
 		);
 	}
+
+	// TODO: 권한 확인 - MASTER, 담당HUB
+	@DeleteMapping("{id}")
+	public ResponseEntity<ShippingAgentResponse<String>> deleteShippingAgent(
+		@PathVariable(name = "id") UUID id
+	) {
+		shippingAgentService.deleteShippingAgent(id);
+		return ResponseEntity.ok(ShippingAgentResponse.success(
+			HttpStatus.OK.value(),
+			"배송 관리자 정보가 성공적으로 삭제 되었습니다.")
+		);
+	}
+
+	// TODO: 배송담당자ID로 배송담당자 단일 조회 - User 삭제 시, feign client 호출 요청용
 }

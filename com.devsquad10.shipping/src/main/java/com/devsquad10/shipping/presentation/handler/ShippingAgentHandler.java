@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.devsquad10.shipping.application.dto.ShippingAgentResponse;
 import com.devsquad10.shipping.application.exception.shippingAgent.HubIdNotFoundException;
+import com.devsquad10.shipping.application.exception.shippingAgent.ShippingAgentNotFoundException;
 import com.devsquad10.shipping.application.exception.shippingAgent.ShippingAgentTypeNotFoundException;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -16,6 +17,14 @@ import jakarta.persistence.EntityNotFoundException;
 public class ShippingAgentHandler {
 
 	// 배송 담당자 - 커스텀 예외 처리
+	// 담당자 타입 존재X
+	@ExceptionHandler(ShippingAgentNotFoundException.class)
+	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+	public ResponseEntity<ShippingAgentResponse<String>> handlerShippingAgentNotFoundException(ShippingAgentNotFoundException e) {
+		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+			.body(ShippingAgentResponse.failure(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
+	}
+
 	// 담당자 타입 존재X
 	@ExceptionHandler(ShippingAgentTypeNotFoundException.class)
 	@ResponseStatus(HttpStatus.NOT_FOUND)

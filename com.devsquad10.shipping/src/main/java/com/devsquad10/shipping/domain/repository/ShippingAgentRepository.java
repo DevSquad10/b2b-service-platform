@@ -10,7 +10,7 @@ public interface ShippingAgentRepository {
 
 	Optional<Integer> findMaxShippingSequence();
 
-	Optional<ShippingAgent> findById(UUID id);
+	Optional<ShippingAgent> findByIdAndDeletedAtIsNull(UUID id);
 
 	// Page<ShippingAgent> findAll(String query, String category, Pageable pageable);
 }

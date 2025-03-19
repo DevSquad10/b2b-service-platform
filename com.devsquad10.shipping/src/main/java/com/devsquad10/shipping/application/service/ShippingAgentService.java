@@ -15,6 +15,7 @@ import com.devsquad10.shipping.domain.enums.ShippingAgentType;
 import com.devsquad10.shipping.domain.model.ShippingAgent;
 import com.devsquad10.shipping.domain.repository.ShippingAgentRepository;
 import com.devsquad10.shipping.infrastructure.client.HubServiceClient;
+import com.devsquad10.shipping.infrastructure.client.ShippingAgentPatchFeignRequest;
 import com.devsquad10.shipping.infrastructure.client.ShippingAgentPostFeignRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -89,7 +90,7 @@ public class ShippingAgentService {
 	@Transactional(readOnly = true)
 	public ShippingAgentResDto getShippingAgentById(UUID id) {
 
-		ShippingAgent targetshippingAgent = shippingAgentRepository.findById(id)
+		ShippingAgent targetshippingAgent = shippingAgentRepository.findByIdAndDeletedAtIsNull(id)
 			.orElseThrow(() -> new ShippingAgentNotFoundException(id + ": 배송 관리자 ID가 존재하지 않습니다."));
 
 		return ShippingAgent.builder()
@@ -133,14 +134,17 @@ public class ShippingAgentService {
 	//TODO: 권한 확인 - MASTER, 담당HUB
 	// 1.유저 feign client 호출하여 넘겨받은 정보 변경
 	public ShippingAgentResDto infoUpdateShippingAgent(
-		UUID id,
-		ShippingAgentPostFeignRequest request) {
+		// UUID id,
+		ShippingAgentPatchFeignRequest request) {
 
-		ShippingAgent target = shippingAgentRepository.findById(id)
-			.orElseThrow(() -> new ShippingAgentNotFoundException(id + ": 배송 관리자 ID가 존재하지 않습니다."));
+		log.info("id: {}", request.getId());
+		ShippingAgent target = shippingAgentRepository.findByIdAndDeletedAtIsNull(request.getId())
+			.orElseThrow(() -> new ShippingAgentNotFoundException(request.getId() + ": 배송 관리자 ID가 존재하지 않습니다."));
 
+		log.info("id: {}", request.getId());
 		target.preUpdate();
 		return shippingAgentRepository.save(target.toBuilder()
+			.shippingManagerId(request.getId())
 			.hubId(request.getHubId())
 			.shippingManagerSlackId(request.getSlackId())
 			.build())
@@ -154,7 +158,7 @@ public class ShippingAgentService {
 		Boolean isTransit
 	) {
 		log.info("isTransit: {}", isTransit);
-		ShippingAgent target = shippingAgentRepository.findById(id)
+		ShippingAgent target = shippingAgentRepository.findByIdAndDeletedAtIsNull(id)
 			.orElseThrow(() -> new ShippingAgentNotFoundException(id + ": 배송 관리자 ID가 존재하지 않습니다."));
 		if(isTransit == target.getIsTransit()) {
 			throw new ShippingAgentNotUpdateException(isTransit + ": 배송여부가 동일하므로 수정되지 않았습니다.");
@@ -164,6 +168,14 @@ public class ShippingAgentService {
 				.isTransit(isTransit)
 				.build())
 			.toResponse();
+	}
+
+	// TODO: 권한 확인 - MASTER, 담당HUB
+	public void deleteShippingAgent(UUID id) {
+		ShippingAgent target = shippingAgentRepository.findByIdAndDeletedAtIsNull(id)
+			.orElseThrow(() -> new ShippingAgentNotFoundException(id + ": 배송 관리자 ID가 존재하지 않습니다."));
+
+		shippingAgentRepository.save(target.softDelete());
 	}
 
 	// TODO: 담당자 배정 로직 구현은 새로운 서비스 생성하고
