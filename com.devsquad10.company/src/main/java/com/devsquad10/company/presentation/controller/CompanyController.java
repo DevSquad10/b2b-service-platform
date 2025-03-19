@@ -76,4 +76,9 @@ public class CompanyController {
 	public UUID getHubIdIfCompanyExists(@PathVariable UUID uuid) {
 		return companyService.getHubIdIfCompanyExists(uuid);  // 존재하면 hubId, 없으면 null
 	}
+
+	@GetMapping("/address/{id}")
+	String getCompanyAddress(@PathVariable UUID id) {
+		return companyService.getCompanyAddress(id);
+	}
 }

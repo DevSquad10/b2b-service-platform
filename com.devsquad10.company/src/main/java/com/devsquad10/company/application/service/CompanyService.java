@@ -111,4 +111,10 @@ public class CompanyService {
 			.orElse(null);
 		return (company != null) ? company.getHubId() : null;
 	}
+
+	public String getCompanyAddress(UUID id) {
+		Company company = companyRepository.findByIdAndDeletedAtIsNull(id)
+			.orElse(null);
+		return (company != null) ? company.getAddress() : null;
+	}
 }
