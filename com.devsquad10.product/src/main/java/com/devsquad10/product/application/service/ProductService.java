@@ -3,8 +3,6 @@ package com.devsquad10.product.application.service;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -16,8 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.devsquad10.product.application.client.CompanyClient;
 import com.devsquad10.product.application.dto.ProductReqDto;
 import com.devsquad10.product.application.dto.ProductResDto;
-import com.devsquad10.product.application.dto.message.StockDecrementMessage;
-import com.devsquad10.product.application.dto.message.StockReversalMessage;
 import com.devsquad10.product.application.exception.ProductNotFoundException;
 import com.devsquad10.product.domain.enums.ProductStatus;
 import com.devsquad10.product.domain.model.Product;
@@ -31,11 +27,7 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 public class ProductService {
 
-	@Value("${stockMessage.queue.stock.response}")
-	public String queueResponseStock;
-
 	private final ProductRepository productRepository;
-	private final RabbitTemplate rabbitTemplate;
 	private final CompanyClient companyClient;
 
 	@CachePut(cacheNames = "productCache", key = "#result.id")
@@ -111,52 +103,4 @@ public class ProductService {
 			.build());
 	}
 
-	public void decreaseStock(StockDecrementMessage stockDecrementMessage) {
-		UUID targetProductId = stockDecrementMessage.getProductId();
-		int orderQuantity = stockDecrementMessage.getQuantity();
-
-		// 1. 재고 차감 시도 (쿼리로 처리)
-		int updatedRow = productRepository.decreaseStock(targetProductId, orderQuantity);
-
-		// 2. 재고 부족 처리
-		if (updatedRow == 0) {
-			StockDecrementMessage errorMessage = stockDecrementMessage.toBuilder()
-				.status("OUT_OF_STOCK")
-				.build();
-			rabbitTemplate.convertAndSend(queueResponseStock, errorMessage);
-			return;
-		}
-
-		// 3. 정상 처리 메시지 발송
-		Product updatedProduct = productRepository.findByIdAndDeletedAtIsNull(targetProductId)
-			.orElseThrow(() -> new ProductNotFoundException("Product Not Found By Id :" + targetProductId));
-
-		if (updatedProduct.getQuantity() == 0) {
-			updatedProduct.statusSoldOut();
-			productRepository.save(updatedProduct);
-			// Sold out 메시지 전송
-		}
-
-		StockDecrementMessage successMessage = stockDecrementMessage.toBuilder()
-			.status("SUCCESS")
-			.supplierId(updatedProduct.getSupplierId())
-			.price(updatedProduct.getPrice())
-			.build();
-
-		rabbitTemplate.convertAndSend(queueResponseStock, successMessage);
-	}
-
-	public void recoveryStock(StockReversalMessage stockReversalMessage) {
-
-		UUID productId = stockReversalMessage.getProductId();
-		int recoveryQuantity = stockReversalMessage.getQuantity();
-
-		Product recoveryProduct = productRepository.findByIdAndDeletedAtIsNull(productId)
-			.orElseThrow(
-				() -> new ProductNotFoundException("Product Not Found By Id :" + productId));
-
-		productRepository.save(recoveryProduct.toBuilder()
-			.quantity(recoveryProduct.getQuantity() + recoveryQuantity)
-			.build());
-	}
 }

@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 
 import com.devsquad10.product.application.dto.message.StockDecrementMessage;
 import com.devsquad10.product.application.dto.message.StockReversalMessage;
-import com.devsquad10.product.application.service.ProductService;
+import com.devsquad10.product.application.service.ProductEventService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,15 +15,15 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class ProductEndPoint {
 
-	private final ProductService productService;
+	private final ProductEventService productEventService;
 
 	@RabbitListener(queues = "${stockMessage.queue.stock.request}")
 	public void handleStockDecrementRequest(StockDecrementMessage stockDecrementMessage) {
-		productService.decreaseStock(stockDecrementMessage);
+		productEventService.decreaseStock(stockDecrementMessage);
 	}
 
 	@RabbitListener(queues = "${stockMessage.queue.stockRecovery.request}")
 	public void handlerStockRecoveryRequest(StockReversalMessage stockReversalMessage) {
-		productService.recoveryStock(stockReversalMessage);
+		productEventService.recoveryStock(stockReversalMessage);
 	}
 }
