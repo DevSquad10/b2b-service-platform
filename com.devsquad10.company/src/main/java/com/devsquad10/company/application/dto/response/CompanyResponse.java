@@ -1,4 +1,4 @@
-package com.devsquad10.company.application.dto;
+package com.devsquad10.company.application.dto.response;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
