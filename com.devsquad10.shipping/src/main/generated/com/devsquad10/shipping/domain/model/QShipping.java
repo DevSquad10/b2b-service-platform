@@ -44,7 +44,7 @@ public class QShipping extends EntityPathBase<Shipping> {
 
     public final StringPath recipientName = createString("recipientName");
 
-    public final StringPath recipientPhone = createString("recipientPhone");
+    public final StringPath recipientSlackId = createString("recipientSlackId");
 
     public final StringPath requestDetails = createString("requestDetails");
 
