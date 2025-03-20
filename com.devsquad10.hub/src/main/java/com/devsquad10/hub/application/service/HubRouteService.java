@@ -1,5 +1,6 @@
 package com.devsquad10.hub.application.service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -28,6 +29,7 @@ import com.devsquad10.hub.domain.model.Hub;
 import com.devsquad10.hub.domain.model.HubRoute;
 import com.devsquad10.hub.domain.repository.HubRepository;
 import com.devsquad10.hub.domain.repository.HubRouteRepository;
+import com.devsquad10.hub.infrastructure.client.dto.HubFeignClientGetRequest;
 
 import lombok.RequiredArgsConstructor;
 
@@ -138,5 +140,34 @@ public class HubRouteService {
 
 			default -> throw new RouteStrategySelectionException("유효하지 않은 전략 선택입니다.");
 		};
+	}
+
+	public List<HubFeignClientGetRequest> getHubRouteInfo(UUID departureHubId, UUID destinationHubId) {
+		Hub departureHub = hubRepository.findById(departureHubId)
+			.orElseThrow(() -> new HubNotFoundException("출발 허브를 찾을 수 없습니다: " + departureHubId));
+
+		Hub destinationHub = hubRepository.findById(destinationHubId)
+			.orElseThrow(() -> new HubNotFoundException("도착 허브를 찾을 수 없습니다: " + destinationHubId));
+
+		Optional<HubRoute> existingRoute = hubRouteRepository.findByDepartureHubAndDestinationHub(
+			departureHub, destinationHub);
+
+		if (existingRoute.isPresent()) {
+			return HubFeignClientGetRequest.from(existingRoute.get());
+		}
+
+		RouteCalculationResult calculationResult = executeSelectedStrategy(departureHub, destinationHub,
+			HubRouteStrategyType.HUB_TO_HUB_RELAY);
+
+		HubRoute newHubRoute = HubRoute.builder()
+			.departureHub(departureHub)
+			.destinationHub(destinationHub)
+			.distance(calculationResult.getDistance())
+			.duration(calculationResult.getDuration())
+			.build();
+
+		HubRoute savedRoute = hubRouteRepository.save(newHubRoute);
+
+		return HubFeignClientGetRequest.from(savedRoute);
 	}
 }

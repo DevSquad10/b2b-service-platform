@@ -3,6 +3,7 @@ package com.devsquad10.order.application.service;
 import org.springframework.stereotype.Service;
 
 import com.devsquad10.order.application.client.CompanyClient;
+import com.devsquad10.order.application.dto.message.ShippingCreateRequest;
 import com.devsquad10.order.application.dto.message.StockDecrementMessage;
 import com.devsquad10.order.application.dto.message.StockReversalMessage;
 import com.devsquad10.order.application.exception.OrderNotFoundException;
@@ -31,8 +32,11 @@ public class OrderEventService {
 			// 배송 준비 중 상태
 			updateOrderStatusAndShippingDetails(targetOrder, stockDecrementMessage, OrderStatus.PREPARING_SHIPMENT);
 
-			//배송에 보낼 메시지 생생 (공급업체, 수량업체,  업체 주소, orderId, 요청 사항)
-			// rabbitTemplate.convertAndSend(...);
+			ShippingCreateRequest shippingCreateRequest = new ShippingCreateRequest(targetOrder.getId(),
+				targetOrder.getSupplierId(), targetOrder.getRecipientsId(), recipientsAddress,
+				targetOrder.getRequestDetails(), targetOrder.getDeadLine());
+
+			orderMessageService.sendShippingCreateMessage(shippingCreateRequest);
 		} else {
 			updateOrderStatusAndShippingDetails(targetOrder, stockDecrementMessage, OrderStatus.INVALID_RECIPIENT);
 
@@ -46,7 +50,7 @@ public class OrderEventService {
 	private void updateOrderStatusAndShippingDetails(Order targetOrder, StockDecrementMessage stockDecrementMessage,
 		OrderStatus newStatus) {
 		orderRepository.save(targetOrder.toBuilder()
-			.shippingId(stockDecrementMessage.getSupplierId())
+			.supplierId(stockDecrementMessage.getSupplierId())
 			.productName(stockDecrementMessage.getProductName())
 			.totalAmount(stockDecrementMessage.getPrice() * targetOrder.getQuantity())
 			.status(newStatus)
