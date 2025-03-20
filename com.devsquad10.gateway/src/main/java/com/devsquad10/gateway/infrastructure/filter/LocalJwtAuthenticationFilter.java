@@ -5,6 +5,7 @@ import java.util.Objects;
 
 import javax.crypto.SecretKey;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.http.HttpHeaders;
@@ -24,8 +25,8 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class LocalJwtAuthenticationFilter implements GlobalFilter {
 
-	//@Value("${service.jwt.secret-key}")
-	private String secretKey = "80371f9129bc1ce5cf56a280623c6045411446332c45fb90dd85c2b5d85175a2cWxhbGZxanNnaGVrIUAjISFkamFmcG5mKEAjQEhGbmlqZm9AJA==";
+	@Value("${service.jwt.secret-key}")
+	private String secretKey;
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
