@@ -1,24 +1,16 @@
 package com.devsquad10.hub.domain.model;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
-import org.hibernate.annotations.SQLRestriction;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -30,37 +22,29 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /**
- * 허브 이동 경로
+ * 경유지
  */
 @Entity
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "p_hub_route")
-@SQLRestriction("deleted_at IS NULL")
-// TODO: Audit Fields 분리
-@EntityListeners(AuditingEntityListener.class)
-public class HubRoute {
+@Table(name = "p_hub_route_waypoint")
+public class HubRouteWaypoint {
 	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)
 	private UUID id;
 
-	private Double distance;
-
-	private Integer duration;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "hub_route_id", nullable = false)
+	private HubRoute hubRoute;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "departure_hub_id", nullable = false)
-	private Hub departureHub;
+	@JoinColumn(name = "waypoint_hub_id")
+	private Hub waypointHub;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "destination_hub_id", nullable = false)
-	private Hub destinationHub;
-
-	@OneToMany(mappedBy = "hubRoute", cascade = CascadeType.ALL, orphanRemoval = true)
-	@Builder.Default
-	private List<HubRouteWaypoint> waypoints = new ArrayList<>();
+	// 경유지 순서
+	private Integer sequence;
 
 	// TODO: Audit Fields 분리
 	@Column(name = "created_at", nullable = false, updatable = false)
@@ -99,15 +83,4 @@ public class HubRoute {
 
 		// TODO: updated_by
 	}
-
-	public void update(Double distance, Integer duration) {
-		this.distance = distance;
-		this.duration = duration;
-	}
-
-	public void delete(UUID deletedBy) {
-		this.deletedAt = LocalDateTime.now();
-		this.deletedBy = deletedBy;
-	}
 }
-
