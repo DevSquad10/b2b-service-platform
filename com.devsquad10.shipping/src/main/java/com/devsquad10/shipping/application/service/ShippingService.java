@@ -17,6 +17,7 @@ import com.devsquad10.shipping.application.dto.request.ShippingUpdateReqDto;
 import com.devsquad10.shipping.application.dto.response.ShippingResDto;
 import com.devsquad10.shipping.application.exception.shipping.ShippingNotFoundException;
 import com.devsquad10.shipping.application.exception.shippingAgent.ShippingAgentNotAllocatedException;
+import com.devsquad10.shipping.application.service.allocation.ShippingAgentAllocationMethod;
 import com.devsquad10.shipping.domain.enums.ShippingHistoryStatus;
 import com.devsquad10.shipping.domain.enums.ShippingStatus;
 import com.devsquad10.shipping.domain.model.Shipping;

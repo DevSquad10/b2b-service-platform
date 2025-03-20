@@ -1,4 +1,4 @@
-package com.devsquad10.shipping.application.service;
+package com.devsquad10.shipping.application.service.allocation;
 
 import java.util.UUID;
 

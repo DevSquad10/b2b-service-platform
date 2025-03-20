@@ -1,10 +1,8 @@
-package com.devsquad10.shipping.application.service;
+package com.devsquad10.shipping.application.service.allocation;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
