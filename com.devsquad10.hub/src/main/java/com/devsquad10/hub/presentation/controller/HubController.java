@@ -1,5 +1,6 @@
 package com.devsquad10.hub.presentation.controller;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -22,7 +23,9 @@ import com.devsquad10.hub.application.dto.res.HubCreateResponseDto;
 import com.devsquad10.hub.application.dto.res.HubGetOneResponseDto;
 import com.devsquad10.hub.application.dto.res.HubUpdateResponseDto;
 import com.devsquad10.hub.application.dto.res.PagedHubResponseDto;
+import com.devsquad10.hub.application.service.HubRouteService;
 import com.devsquad10.hub.application.service.HubService;
+import com.devsquad10.hub.infrastructure.client.dto.HubFeignClientGetRequest;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +36,7 @@ import lombok.RequiredArgsConstructor;
 public class HubController {
 
 	private final HubService hubService;
+	private final HubRouteService hubRouteService;
 
 	@PostMapping
 	public ResponseEntity<ApiResponse<HubCreateResponseDto>> createHub(
@@ -103,5 +107,15 @@ public class HubController {
 	@GetMapping("/exists/{uuid}")
 	public Boolean isHubExists(@PathVariable(name = "uuid") UUID uuid) {
 		return hubService.existById(uuid);
+	}
+
+	@GetMapping("/info/{departureHubId}/{destinationHubId}")
+	public List<HubFeignClientGetRequest> getHubRouteInfo(
+		@PathVariable UUID departureHubId,
+		@PathVariable UUID destinationHubId
+	) {
+
+		return hubRouteService.getHubRouteInfo(
+			departureHubId, destinationHubId);
 	}
 }
