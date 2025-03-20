@@ -78,7 +78,7 @@ public class CompanyController {
 	}
 
 	@GetMapping("/address/{id}")
-	String getCompanyAddress(@PathVariable UUID id) {
+	public String getCompanyAddress(@PathVariable UUID id) {
 		return companyService.getCompanyAddress(id);
 	}
 }

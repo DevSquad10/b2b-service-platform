@@ -2,6 +2,8 @@ package com.devsquad10.hub.application.dto.req;
 
 import java.util.UUID;
 
+import com.devsquad10.hub.application.dto.enums.HubRouteStrategyType;
+
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,4 +22,7 @@ public class HubRouteCreateRequestDto {
 
 	@NotNull
 	private UUID destinationHubId;
+
+	@Builder.Default
+	private HubRouteStrategyType strategyType = HubRouteStrategyType.P2P_API;
 }
