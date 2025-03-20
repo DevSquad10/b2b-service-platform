@@ -1,5 +1,7 @@
 package com.devsquad10.user.domain.model;
 
+import java.util.UUID;
+
 import com.devsquad10.user.application.dto.UserRequestDto;
 
 import jakarta.persistence.Column;
@@ -20,9 +22,9 @@ import lombok.NoArgsConstructor;
 public class User {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "user_id")
-	private Long id;
+	@GeneratedValue(strategy = GenerationType.UUID)
+	@Column(name = "user_id", updatable = false, nullable = false)
+	private UUID id;
 
 	@Column(nullable = false, unique = true)
 	private String username;

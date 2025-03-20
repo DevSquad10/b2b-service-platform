@@ -68,7 +68,7 @@ public class AuthConfig {
 		List<RequestMatcher> matchers = List.of(
 			// 회원가입, 로그인
 			new AntPathRequestMatcher("/api/user/signup/**", POST),
-			new AntPathRequestMatcher("/api/user/signin", POST)
+			new AntPathRequestMatcher("/api/user/signIn", POST)
 		);
 		return new OrRequestMatcher(matchers);
 	}
