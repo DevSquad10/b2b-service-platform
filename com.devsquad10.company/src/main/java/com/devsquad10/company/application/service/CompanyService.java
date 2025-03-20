@@ -15,6 +15,7 @@ import com.devsquad10.company.application.client.HubClient;
 import com.devsquad10.company.application.dto.CompanyReqDto;
 import com.devsquad10.company.application.dto.CompanyResDto;
 import com.devsquad10.company.application.exception.CompanyNotFoundException;
+import com.devsquad10.company.domain.enums.CompanyTypes;
 import com.devsquad10.company.domain.model.Company;
 import com.devsquad10.company.domain.repository.CompanyRepository;
 
@@ -109,7 +110,7 @@ public class CompanyService {
 	public UUID getHubIdIfCompanyExists(UUID id) {
 		Company company = companyRepository.findByIdAndDeletedAtIsNull(id)
 			.orElse(null);
-		return (company != null) ? company.getHubId() : null;
+		return (company != null && company.getType().equals(CompanyTypes.SUPPLIER)) ? company.getHubId() : null;
 	}
 
 	public String getCompanyAddress(UUID id) {
