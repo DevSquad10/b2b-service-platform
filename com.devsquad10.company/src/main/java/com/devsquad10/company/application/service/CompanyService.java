@@ -116,6 +116,6 @@ public class CompanyService {
 	public String getCompanyAddress(UUID id) {
 		Company company = companyRepository.findByIdAndDeletedAtIsNull(id)
 			.orElse(null);
-		return (company != null) ? company.getAddress() : null;
+		return (company != null && company.getType().equals(CompanyTypes.RECIPIENTS)) ? company.getAddress() : null;
 	}
 }
