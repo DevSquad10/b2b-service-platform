@@ -11,6 +11,7 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.devsquad10.shipping.application.dto.message.ShippingCreateResponse;
 import com.devsquad10.shipping.application.dto.response.ShippingResDto;
 import com.devsquad10.shipping.domain.enums.ShippingStatus;
 
@@ -60,7 +61,7 @@ public class Shipping {
 	@Column(nullable = false)
 	private UUID destinationHubId;
 
-	@Column
+	@Column(nullable = false)
 	private UUID orderId;
 
 	@Column(nullable = false)
@@ -70,7 +71,7 @@ public class Shipping {
 	private String recipientName;
 
 	@Column(nullable = false)
-	private String recipientPhone;
+	private String recipientSlackId;
 
 	@Column
 	private String requestDetails;
@@ -134,6 +135,14 @@ public class Shipping {
 			this.status,
 			this.orderId
 		);
+	}
+
+	public ShippingCreateResponse toShippingCreateMessage() {
+		return ShippingCreateResponse.builder()
+			.shippingId(this.id)
+			.orderId(this.orderId)
+			.status("SUCCESS")
+			.build();
 	}
 
 	// public void addShippingHistory(ShippingHistory shippingHistory) {

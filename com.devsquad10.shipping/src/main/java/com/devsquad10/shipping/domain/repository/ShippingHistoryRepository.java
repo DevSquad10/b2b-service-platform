@@ -16,4 +16,7 @@ public interface ShippingHistoryRepository {
 	List<ShippingHistory> findByShippingIdAndDeletedAtIsNull(UUID id);
 
 	ShippingHistory findByIdAndDeletedAtIsNull(UUID historyId);
+
+	ShippingHistory saveAll(List<ShippingHistory> shippingHistories);
+
 }
