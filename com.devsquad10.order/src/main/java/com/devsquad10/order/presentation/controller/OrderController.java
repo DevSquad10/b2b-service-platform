@@ -31,12 +31,10 @@ public class OrderController {
 	private final OrderService orderService;
 
 	@PostMapping
-	public ResponseEntity<OrderResponse<String>> createOrder(@RequestBody OrderReqDto orderReqDto) {
-
-		orderService.createOrder(orderReqDto);
-
+	public ResponseEntity<OrderResponse<OrderResDto>> createOrder(@RequestBody OrderReqDto orderReqDto) {
+		
 		return ResponseEntity.status(HttpStatus.OK)
-			.body(OrderResponse.success(HttpStatus.OK.value(), "Order received successfully"));
+			.body(OrderResponse.success(HttpStatus.OK.value(), orderService.createOrder(orderReqDto)));
 	}
 
 	@GetMapping("/{id}")

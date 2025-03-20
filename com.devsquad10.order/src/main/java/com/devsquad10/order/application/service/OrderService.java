@@ -3,6 +3,10 @@ package com.devsquad10.order.application.service;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +34,8 @@ public class OrderService {
 	private final OrderMessageService orderMessageService;
 	private final CompanyClient companyClient;
 
-	public void createOrder(OrderReqDto orderReqDto) {
+	@CachePut(cacheNames = "orderCache", key = "#result.id")
+	public OrderResDto createOrder(OrderReqDto orderReqDto) {
 		Order order = Order.builder()
 			.recipientsId(orderReqDto.getRecipientsId())
 			.productId(orderReqDto.getProductId())
@@ -45,8 +50,10 @@ public class OrderService {
 
 		orderMessageService.sendStockDecrementMessage(order.toStockDecrementMessage());
 
+		return order.toResponseDto();
 	}
 
+	@CachePut(cacheNames = "orderCache", key = "#id")
 	@Transactional(readOnly = true)
 	public OrderResDto getOrderById(UUID id) {
 		return orderRepository.findByIdAndDeletedAtIsNull(id)
@@ -54,6 +61,7 @@ public class OrderService {
 			.toResponseDto();
 	}
 
+	@Cacheable(cacheNames = "orderSearchCache", key = "#q + '-' + #category + '-' + #page + '-' + #size")
 	@Transactional(readOnly = true)
 	public Page<OrderResDto> searchOrders(String q, String category, int page, int size, String sort, String order) {
 
@@ -63,6 +71,10 @@ public class OrderService {
 
 	}
 
+	@CachePut(cacheNames = "orderCache", key = "#id")
+	@Caching(evict = {
+		@CacheEvict(cacheNames = "orderSearchCache", allEntries = true)
+	})
 	public OrderResDto updateOrder(UUID id, OrderUpdateReqDto orderUpdateReqDto) {
 
 		Order order = orderRepository.findByIdAndDeletedAtIsNull(id)
@@ -124,6 +136,10 @@ public class OrderService {
 		return order.toResponseDto();
 	}
 
+	@Caching(evict = {
+		@CacheEvict(cacheNames = "orderCache", key = "#id"),
+		@CacheEvict(cacheNames = "orderSearchCache", key = "#id")
+	})
 	public void deleteOrder(UUID id) {
 		Order order = orderRepository.findByIdAndDeletedAtIsNull(id)
 			.orElseThrow(() -> new OrderNotFoundException("Order Not Found By Id : " + id));
