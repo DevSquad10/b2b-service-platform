@@ -125,8 +125,8 @@ public class ShippingEventService {
 				.historyStatus(ShippingHistoryStatus.HUB_WAIT)
 				.build();
 			shippingHistories.add(shippingHistory);
+			shippingHistoryRepository.save(shippingHistory);
 		}
-		shippingHistoryRepository.saveAll(shippingHistories);
 
 		// 배송/배송경로기록 생성 완료 -> 주문에 전달할 response
 		try {
