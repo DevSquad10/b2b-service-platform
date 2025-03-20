@@ -21,6 +21,7 @@ import com.devsquad10.order.application.exception.OrderNotFoundException;
 import com.devsquad10.order.application.messaging.OrderMessageService;
 import com.devsquad10.order.domain.enums.OrderStatus;
 import com.devsquad10.order.domain.model.Order;
+import com.devsquad10.order.domain.repository.OrderQuerydslRepository;
 import com.devsquad10.order.domain.repository.OrderRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 public class OrderService {
 
 	private final OrderRepository orderRepository;
+	private final OrderQuerydslRepository orderQuerydslRepository;
 	private final OrderMessageService orderMessageService;
 	private final CompanyClient companyClient;
 
@@ -65,7 +67,7 @@ public class OrderService {
 	@Transactional(readOnly = true)
 	public Page<OrderResDto> searchOrders(String q, String category, int page, int size, String sort, String order) {
 
-		Page<Order> orderPages = orderRepository.findAll(q, category, page, size, sort, order);
+		Page<Order> orderPages = orderQuerydslRepository.findAll(q, category, page, size, sort, order);
 
 		return orderPages.map(Order::toResponseDto);
 

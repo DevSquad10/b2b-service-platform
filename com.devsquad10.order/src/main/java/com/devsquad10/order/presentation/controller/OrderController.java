@@ -32,7 +32,7 @@ public class OrderController {
 
 	@PostMapping
 	public ResponseEntity<OrderResponse<OrderResDto>> createOrder(@RequestBody OrderReqDto orderReqDto) {
-		
+
 		return ResponseEntity.status(HttpStatus.OK)
 			.body(OrderResponse.success(HttpStatus.OK.value(), orderService.createOrder(orderReqDto)));
 	}
