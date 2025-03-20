@@ -22,6 +22,12 @@ public class OrderApplicationQueueConfig {
 	@Value("${stockMessage.exchange.stockRecovery.request}")
 	private String stockRecoveryExchange;
 
+	@Value("${shippingMessage.exchange.shipping.request}")
+	private String shippingCreateRequestExchange;
+
+	@Value("${shippingMessage.exchange.shipping.response}")
+	private String shippingCreateResponseExchange;
+
 	@Value("${stockMessage.queue.stock.request}")
 	private String queueRequestStock;
 
@@ -30,6 +36,12 @@ public class OrderApplicationQueueConfig {
 
 	@Value("${stockMessage.queue.stockRecovery.request}")
 	private String queueStockRecovery;
+
+	@Value("${shippingMessage.queue.shipping.request}")
+	private String queueShippingCreateRequest;
+
+	@Value("${shippingMessage.queue.shipping.response}")
+	private String queueShippingCreateResponse;
 
 	/**
 	 * exchange
@@ -47,6 +59,16 @@ public class OrderApplicationQueueConfig {
 	@Bean
 	public TopicExchange stockRecoveryExchange() {
 		return new TopicExchange(stockRecoveryExchange);
+	}
+
+	@Bean
+	public TopicExchange shippingCreateRequestExchange() {
+		return new TopicExchange(shippingCreateRequestExchange);
+	}
+
+	@Bean
+	public TopicExchange shippingCreateResponseExchange() {
+		return new TopicExchange(shippingCreateResponseExchange);
 	}
 
 	/**
@@ -67,6 +89,16 @@ public class OrderApplicationQueueConfig {
 		return new Queue(queueStockRecovery);
 	}
 
+	@Bean
+	public Queue queueShippingCreateRequest() {
+		return new Queue(queueShippingCreateRequest);
+	}
+
+	@Bean
+	public Queue queueShippingCreateResponse() {
+		return new Queue(queueShippingCreateResponse);
+	}
+
 	/**
 	 * binding
 	 */
@@ -83,6 +115,20 @@ public class OrderApplicationQueueConfig {
 	@Bean
 	public Binding bindingRecoveryStock() {
 		return BindingBuilder.bind(queueStockRecovery()).to(stockRecoveryExchange()).with(queueStockRecovery);
+	}
+
+	@Bean
+	public Binding bindingRequestShipping() {
+		return BindingBuilder.bind(queueShippingCreateRequest())
+			.to(shippingCreateRequestExchange())
+			.with(queueShippingCreateRequest);
+	}
+
+	@Bean
+	public Binding bindingResponseShipping() {
+		return BindingBuilder.bind(queueShippingCreateResponse())
+			.to(shippingCreateResponseExchange())
+			.with(queueShippingCreateResponse);
 	}
 
 	@Bean
