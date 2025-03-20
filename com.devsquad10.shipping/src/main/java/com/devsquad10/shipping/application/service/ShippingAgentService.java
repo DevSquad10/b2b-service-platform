@@ -14,10 +14,9 @@ import com.devsquad10.shipping.application.exception.shippingAgent.ShippingAgent
 import com.devsquad10.shipping.domain.enums.ShippingAgentType;
 import com.devsquad10.shipping.domain.model.ShippingAgent;
 import com.devsquad10.shipping.domain.repository.ShippingAgentRepository;
-import com.devsquad10.shipping.infrastructure.client.HubServiceClient;
-import com.devsquad10.shipping.infrastructure.client.ShippingAgentPatchFeignRequest;
-import com.devsquad10.shipping.infrastructure.client.ShippingAgentPostFeignRequest;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.devsquad10.shipping.infrastructure.client.HubClient;
+import com.devsquad10.shipping.infrastructure.client.ShippingAgentFeignClientPatchRequest;
+import com.devsquad10.shipping.infrastructure.client.ShippingAgentFeignClientPostRequest;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,11 +28,10 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 public class ShippingAgentService {
 
-	private final HubServiceClient hubServiceClient;
+	private final HubClient hubClient;
 	private final ShippingAgentRepository shippingAgentRepository;
-	private final ObjectMapper objectMapper;
 
-	public void createShippingAgent(@Valid ShippingAgentPostFeignRequest request) {
+	public void createShippingAgent(@Valid ShippingAgentFeignClientPostRequest request) {
 
 		//TODO: User 정보 feign client 로 받기
 		// 권한 확인 - MASTER, 담당 HUB
@@ -51,7 +49,7 @@ public class ShippingAgentService {
 		UUID reqHubId = request.getHubId();
 		if(reqType == ShippingAgentType.COM_DVL) {
 			// HubId 존재 유무 feign client 호출
-			if(!hubServiceClient.isHubExists(reqHubId)) {
+			if(!hubClient.isHubExists(reqHubId)) {
 				throw new HubIdNotFoundException("Hub id " + reqHubId + " not found");
 			}
 		}
@@ -121,8 +119,7 @@ public class ShippingAgentService {
 	// 1.유저 feign client 호출하여 넘겨받은 정보 변경
 	// 삭제된 배송담당자ID 경우, internal server error 발생
 	public ShippingAgentResDto infoUpdateShippingAgent(
-		// UUID id,
-		ShippingAgentPatchFeignRequest request) {
+		ShippingAgentFeignClientPatchRequest request) {
 
 		// shippingId 유효성 검사
 		ShippingAgent target = shippingAgentRepository
@@ -134,7 +131,7 @@ public class ShippingAgentService {
 
 		// hubId 유효성 검사
 		if(request.getHubId() != null) {
-			if(!hubServiceClient.isHubExists(request.getHubId())) {
+			if(!hubClient.isHubExists(request.getHubId())) {
 				throw new HubIdNotFoundException("Hub id " + request.getHubId() + " not found");
 			}
 		}
