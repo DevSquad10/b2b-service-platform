@@ -5,8 +5,13 @@ import java.util.UUID;
 
 import javax.crypto.SecretKey;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +33,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserService {
 
+	private static final Logger log = LoggerFactory.getLogger(UserService.class);
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 	public static final String AUTHORIZATION_HEADER = "Authorization";
@@ -78,40 +84,25 @@ public class UserService {
 		return createAccessToken(user);
 	}
 
-	public String createAccessToken(User user) {
-		SecretKey deSecretKey = Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(secretKey));
-
-		return BEARER_PREFIX + Jwts.builder()
-			// 사용자 ID를 클레임으로 설정
-			.subject(user.getId().toString())
-			.claim("slack_id", user.getSlackId())
-			.claim("role", user.getRole())// JWT 발행자를 설정
-			.issuer(issuer)// JWT 발행 시간을 현재 시간으로 설정.
-			.issuedAt(new Date(System.currentTimeMillis()))// JWT 만료 시간을 설정
-			.expiration(new Date(System.currentTimeMillis() + accessExpiration))// SecretKey를 사용하여 HMAC-SHA512 알고리즘으로 서명
-			.signWith(deSecretKey, io.jsonwebtoken.SignatureAlgorithm.HS512)// JWT 문자열로 컴팩트하게 변환
-			.compact();
-	}
-
-	public void addJwtToHeader(String token, HttpServletResponse res) {
-		res.setHeader(AUTHORIZATION_HEADER, token);
-	}
-
 	@Transactional(readOnly = true)
 	public UserResponseDto getUserInfo(UUID id) {
-
+		log.info("유저 정보 조회 서비스 실행");
 		User user = (User)userRepository.findByIdAndDeletedAtIsNull(id)
 			.orElseThrow(() -> new IllegalArgumentException("가입되지 않은 사용자입니다."));
-
+		log.info("유저 정보 조회 서비스 실행 완료");
 		return new UserResponseDto(user);
 	}
 
-	public Page<UserResponseDto> searchUser(UserRoleEnum userRoleEnum, String category, int page, int size, String sort,
+	@Transactional(readOnly = true)
+	public Page<UserResponseDto> searchUser(String query, UserRoleEnum userRoleEnum, int page, int size, String sort,
 		String order) {
-		Page<UserResponseDto> userInfo = userRepository.searchUser(userRoleEnum, category, page, size, sort, order)
-			.map(UserResponseDto::new);
+		// 🔹 정렬 방향 설정
+		Sort.Direction direction = order.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+		Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sort));
 
-		return userInfo;
+		// 🔹 Repository 호출 (QueryDSL 사용)
+		return userRepository.findByUsernameContainingAndRole(query, userRoleEnum, pageable)
+			.map(UserResponseDto::new);
 	}
 
 	public void updateUserInfo(UUID id, UserRequestDto requestDto) {
@@ -133,5 +124,24 @@ public class UserService {
 
 		user.delete(id);
 		userRepository.save(user);
+	}
+
+	public String createAccessToken(User user) {
+		SecretKey deSecretKey = Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(secretKey));
+
+		return BEARER_PREFIX + Jwts.builder()
+			// 사용자 ID를 클레임으로 설정
+			.subject(user.getId().toString())
+			.claim("slack_id", user.getSlackId())
+			.claim("role", user.getRole())// JWT 발행자를 설정
+			.issuer(issuer)// JWT 발행 시간을 현재 시간으로 설정.
+			.issuedAt(new Date(System.currentTimeMillis()))// JWT 만료 시간을 설정
+			.expiration(new Date(System.currentTimeMillis() + accessExpiration))// SecretKey를 사용하여 HMAC-SHA512 알고리즘으로 서명
+			.signWith(deSecretKey, io.jsonwebtoken.SignatureAlgorithm.HS512)// JWT 문자열로 컴팩트하게 변환
+			.compact();
+	}
+
+	public void addJwtToHeader(String token, HttpServletResponse res) {
+		res.setHeader(AUTHORIZATION_HEADER, token);
 	}
 }

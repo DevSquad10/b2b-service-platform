@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import com.devsquad10.user.domain.model.User;
 import com.devsquad10.user.domain.model.UserRoleEnum;
@@ -15,7 +16,7 @@ public interface UserRepository {
 
 	Optional<Object> findByIdAndDeletedAtIsNull(UUID id);
 
-	Page<User> searchUser(UserRoleEnum userRoleEnum, String category, int page, int size, String sort, String order);
+	Page<User> findByUsernameContainingAndRole(String query, UserRoleEnum userRoleEnum, Pageable pageable);
 
 	Optional<Object> findByEmail(String email);
 

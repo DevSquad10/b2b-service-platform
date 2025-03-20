@@ -66,9 +66,7 @@ public class AuthConfig {
 	// 공개 엔드포인트를 정의합니다.
 	private RequestMatcher publicEndPoints() {
 		List<RequestMatcher> matchers = List.of(
-			// 회원가입, 로그인
-			new AntPathRequestMatcher("/api/user/signup/**", POST),
-			new AntPathRequestMatcher("/api/user/signIn", POST)
+			new AntPathRequestMatcher("/api/user/**")
 		);
 		return new OrRequestMatcher(matchers);
 	}

@@ -2,6 +2,8 @@ package com.devsquad10.user.presentation.controller;
 
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserController {
 
+	private static final Logger log = LoggerFactory.getLogger(UserController.class);
 	private final UserService userService;
 
 	@PostMapping("/signup")
@@ -46,21 +49,26 @@ public class UserController {
 			.body("로그인 성공");
 	}
 
-	@GetMapping("{id}")
+	@GetMapping("/{id}")
 	public ResponseEntity<?> getUserInfo(@PathVariable UUID id) {
+		log.info("유저 정보 조회");
 		UserResponseDto userInfo = userService.getUserInfo(id);
+		if (userInfo == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND)
+				.body("유저를 찾을 수 없습니다.");
+		}
 		return ResponseEntity.status(HttpStatus.OK)
-			.body("유저 정보");
+			.body(userInfo);
 	}
 
 	@GetMapping("/search")
-	public ResponseEntity<?> searchUser(@RequestParam(required = false) UserRoleEnum userRole,
-		@RequestParam(required = false) String category,
+	public ResponseEntity<?> searchUser(@RequestParam(required = false) String q,
+		@RequestParam(required = false) UserRoleEnum userRole,
 		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "10") int size,
 		@RequestParam(defaultValue = "createdAt") String sort,
 		@RequestParam(defaultValue = "desc") String order) {
-		Page<UserResponseDto> userInfo = userService.searchUser(userRole, category, page - 1, size, sort, order);
+		Page<UserResponseDto> userInfo = userService.searchUser(q, userRole, page - 1, size, sort, order);
 		return ResponseEntity.status(HttpStatus.OK)
 			.body(userInfo);
 	}
