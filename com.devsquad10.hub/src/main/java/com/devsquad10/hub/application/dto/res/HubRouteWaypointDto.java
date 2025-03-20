@@ -1,6 +1,5 @@
 package com.devsquad10.hub.application.dto.res;
 
-import java.io.Serializable;
 import java.util.UUID;
 
 import com.devsquad10.hub.domain.model.HubRouteWaypoint;
@@ -14,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class HubRouteWaypointDto implements Serializable {
+public class HubRouteWaypointDto {
 	private UUID id;
 	private Integer sequence;
 	private UUID departureHubId;

@@ -29,11 +29,12 @@ public class HubRouteGetOneResponseDto {
 	private UUID createdBy;
 	private LocalDateTime updatedAt;
 	private UUID updatedBy;
-	private List<HubRouteWaypoint> waypoints;
+	private List<HubRouteWaypointDto> waypoints;
 
 	public static HubRouteGetOneResponseDto toResponseDto(HubRoute hubRoute) {
-		List<HubRouteWaypoint> waypoints = hubRoute.getWaypoints().stream()
+		List<HubRouteWaypointDto> waypointDtos = hubRoute.getWaypoints().stream()
 			.sorted(Comparator.comparing(HubRouteWaypoint::getSequence))
+			.map(HubRouteWaypointDto::fromEntity)
 			.toList();
 
 		return HubRouteGetOneResponseDto.builder()
@@ -48,7 +49,7 @@ public class HubRouteGetOneResponseDto {
 			.createdBy(hubRoute.getCreatedBy())
 			.updatedAt(hubRoute.getUpdatedAt())
 			.updatedBy(hubRoute.getUpdatedBy())
-			.waypoints(waypoints)
+			.waypoints(waypointDtos)
 			.build();
 	}
 }
