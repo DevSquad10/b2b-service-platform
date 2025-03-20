@@ -11,10 +11,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.devsquad10.shipping.application.dto.MinimumCountAllocationResult;
 import com.devsquad10.shipping.application.dto.request.ShippingPostReqDto;
 import com.devsquad10.shipping.application.dto.request.ShippingUpdateReqDto;
 import com.devsquad10.shipping.application.dto.response.ShippingResDto;
 import com.devsquad10.shipping.application.exception.shipping.ShippingNotFoundException;
+import com.devsquad10.shipping.application.exception.shippingAgent.ShippingAgentNotAllocatedException;
 import com.devsquad10.shipping.domain.enums.ShippingHistoryStatus;
 import com.devsquad10.shipping.domain.enums.ShippingStatus;
 import com.devsquad10.shipping.domain.model.Shipping;
@@ -32,8 +34,8 @@ import lombok.extern.slf4j.Slf4j;
 public class ShippingService {
 
 	private final ShippingRepository shippingRepository;
-
 	private final ShippingHistoryRepository shippingHistoryRepository;
+	private final ShippingAgentAllocationMethod shippingAgentAllocationMethod;
 
 	// TODO: 권한 확인 - MASTER
 	@CachePut(cacheNames = "shippingCache", key = "#result.id")
@@ -105,7 +107,6 @@ public class ShippingService {
 			.recipientPhone((shippingUpdateReqDto.getRecipientPhone() == null) ? shipping.getRecipientPhone() : shippingUpdateReqDto.getRecipientPhone())
 			.build()).toResponseDto();
 	}
-
 	// 변경2. 배송 추적에 따른 현재상태(HUB_ARV) update
 	@CachePut(cacheNames = "shippingCache", key = "#result.id", condition = "#id != null")
 	@Caching(evict = {
@@ -120,26 +121,7 @@ public class ShippingService {
 			.status(shippingUpdateReqDto.getStatus())
 			.build()).toResponseDto();
 	}
-
-	// 변경3. 배정 로직 구현 후, 업체배송담당자 ID update
-	@CachePut(cacheNames = "shippingCache", key = "#result.id", condition = "#id != null")
-	@Caching(evict = {
-		@CacheEvict(cacheNames = "shippingSearchCache", allEntries = true)
-	})
-	//TODO: 배송 담당자 배정 처리(주문 생성 전송시간 기준으로 허브간 이동이 시작되었다고 가정)
-	// 전송시간+예상소요시간 기준
-	// 배송 경로기록 마지막 순번의 현재상태가 "목적지 허브 도착:HUB_ARV"일 때만 배정 가능
-	// 배송 진행여부 확인해서 "대기 중:False"일 때만 라운드 로빈 배정
-	public ShippingResDto managerIdUpdateShipping(UUID id, ShippingUpdateReqDto shippingUpdateReqDto) {
-		Shipping shipping = shippingRepository.findByIdAndDeletedAtIsNull(id)
-			.orElseThrow(() -> new ShippingNotFoundException("ID " + id + "에 해당하는 배송 데이터를 찾을 수 없습니다."));
-
-		shipping.preUpdate();
-		return shippingRepository.save(shipping.toBuilder()
-			.companyShippingManagerId(shippingUpdateReqDto.getCompanyShippingManagerId())
-			.build()).toResponseDto();
-	}
-	// 변경4. 주문정보(배송 주소지, 요청사항) update
+	// 변경3. 주문정보(배송 주소지, 요청사항) update
 	@CachePut(cacheNames = "shippingCache", key = "#result.id", condition = "#id != null")
 	@Caching(evict = {
 		@CacheEvict(cacheNames = "shippingSearchCache",
@@ -155,6 +137,36 @@ public class ShippingService {
 		return shippingRepository.save(shipping.toBuilder()
 			.address((shippingUpdateReqDto.getAddress() == null) ? shipping.getAddress() : shippingUpdateReqDto.getAddress())
 			.requestDetails(shippingUpdateReqDto.getRequestDetails())
+			.build()).toResponseDto();
+	}
+
+	// 배정 로직 구현 후, 업체배송담당자 ID update
+	@CachePut(cacheNames = "shippingCache", key = "#result.id", condition = "#id != null")
+	@Caching(evict = {
+		@CacheEvict(cacheNames = "shippingSearchCache", allEntries = true)
+	})
+	//TODO: 배송 담당자 배정 처리(주문 생성 전송시간 기준으로 허브간 이동이 시작되었다고 가정)
+	// 전송시간+예상소요시간 기준
+	// 배송 경로기록 마지막 순번의 현재상태가 "목적지 허브 도착:HUB_ARV"일 때만 배정 가능
+	// 배송 진행여부 확인해서 "대기 중:False"일 때만 라운드 로빈 배정
+	public ShippingResDto allocationShipping(UUID id) {
+		// 동시성 처리로 인해 비관적 락 적용하여 동시성 제어
+		Shipping shipping = shippingRepository.findByIdWithPessimisticLock(id)
+			.orElseThrow(() -> new ShippingNotFoundException("ID " + id + "에 해당하는 배송 데이터를 찾을 수 없습니다."));
+
+		// 배정 횟수 컬럼 추가하여 배정 시 횟수 업데이트 구현 -> 최소 배정 건수인 배송담당자 선택
+		MinimumCountAllocationResult allocationResult = shippingAgentAllocationMethod.allocationResult(
+			shipping.getCompanyShippingManagerId(),
+			shipping.getDestinationHubId(),
+			shipping.getStatus()
+		);
+		if(allocationResult == null) {
+			throw new ShippingAgentNotAllocatedException("배송 담당자 배정이 불가능합니다.");
+		}
+
+		shipping.preUpdate();
+		return shippingRepository.save(shipping.toBuilder()
+			.companyShippingManagerId(allocationResult.getShippingManagerId())
 			.build()).toResponseDto();
 	}
 

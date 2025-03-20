@@ -55,12 +55,6 @@ public class ShippingController {
 						HttpStatus.OK.value(),
 						shippingService.statusUpdateShipping(id, shippingUpdateReqDto))
 					);
-			} else if(shippingUpdateReqDto.getCompanyShippingManagerId() != null) {
-				return ResponseEntity.status(HttpStatus.OK)
-					.body(ShippingResponse.success(
-						HttpStatus.OK.value(),
-						shippingService.managerIdUpdateShipping(id, shippingUpdateReqDto))
-					);
 			} else if(shippingUpdateReqDto.getAddress() != null
 				|| shippingUpdateReqDto.getRequestDetails() != null) {
 				return ResponseEntity.status(HttpStatus.OK)
@@ -82,6 +76,15 @@ public class ShippingController {
 					"배송 수정 불가능: " + e.getMessage())
 				);
 		}
+	}
+
+	// 배송담당자 할당
+	@PatchMapping("/allocation/{id}")
+	public ResponseEntity<ShippingResponse<?>> allocationShipping(@PathVariable(name = "id") UUID id) {
+		return ResponseEntity.status(HttpStatus.OK)
+			.body(ShippingResponse.success(
+				HttpStatus.OK.value(),
+				shippingService.allocationShipping(id)));
 	}
 
 	// TODO: 권한 확인 - ALL + 담당 HUB, DVL_AGENT
