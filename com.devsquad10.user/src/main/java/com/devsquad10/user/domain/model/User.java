@@ -1,6 +1,10 @@
 package com.devsquad10.user.domain.model;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
+
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import com.devsquad10.user.application.dto.UserRequestDto;
 
@@ -11,7 +15,10 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -42,9 +49,52 @@ public class User {
 	@Enumerated(value = EnumType.STRING)
 	private UserRoleEnum role;
 
+	// 레코드 생성 일시
+	@CreatedDate
+	@Column(updatable = false, nullable = false)
+	@Temporal(TemporalType.TIMESTAMP)
+	private LocalDateTime createdAt;
+
+	// 레코드 생성자
+	@Column(updatable = false, nullable = false)
+	private String createdBy;
+
+	// 레코드 수정 일시
+	@LastModifiedDate
+	@Column(nullable = false)
+	@Temporal(TemporalType.TIMESTAMP)
+	private LocalDateTime updatedAt;
+
+	// 레코드 수정자
+	@Column
+	private String updatedBy;
+
+	// 레코드 삭제 일시
+	@Column
+	private LocalDateTime deletedAt;
+
+	// 레코드 삭제 사용자
+	@Column
+	private String deletedBy;
+
+	@PrePersist
+	protected void onCreate() {
+		LocalDateTime time = LocalDateTime.now();
+		this.createdAt = time;
+		this.updatedAt = time;
+		this.createdBy = "사용자";
+	}
+
 	public User(UserRequestDto requestDto, String password) {
 		this.username = requestDto.getUsername();
 		this.password = password;
+		this.email = requestDto.getEmail();
+		this.slackId = requestDto.getSlackId();
+		this.role = requestDto.getRole();
+	}
+
+	public void update(UserRequestDto requestDto) {
+		this.username = requestDto.getUsername();
 		this.email = requestDto.getEmail();
 		this.slackId = requestDto.getSlackId();
 		this.role = requestDto.getRole();

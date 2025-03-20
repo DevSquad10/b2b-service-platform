@@ -113,4 +113,17 @@ public class UserService {
 
 		return userInfo;
 	}
+
+	public void updateUserInfo(UUID id, UserRequestDto requestDto) {
+		User user = (User)userRepository.findByIdAndDeletedAtIsNull(id)
+			.orElseThrow(() -> new IllegalArgumentException("가입되지 않은 사용자입니다."));
+
+		if (userRepository.findByEmail(requestDto.getEmail()).isPresent()) {
+			throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
+		}
+		if (userRepository.findBySlackId(requestDto.getSlackId()).isPresent()) {
+			throw new IllegalArgumentException("이미 존재하는 슬랙 ID입니다.");
+		}
+		user.update(requestDto);
+	}
 }

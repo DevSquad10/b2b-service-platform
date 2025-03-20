@@ -16,4 +16,8 @@ public interface UserRepository {
 	Optional<Object> findByIdAndDeletedAtIsNull(UUID id);
 
 	Page<User> searchUser(UserRoleEnum userRoleEnum, String category, int page, int size, String sort, String order);
+
+	Optional<Object> findByEmail(String email);
+
+	Optional<Object> findBySlackId(String slackId);
 }

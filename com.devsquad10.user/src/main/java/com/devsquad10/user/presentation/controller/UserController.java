@@ -6,11 +6,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.devsquad10.user.application.dto.UserLoginRequestDto;
@@ -45,7 +46,7 @@ public class UserController {
 	}
 
 	@GetMapping("{id}")
-	public ResponseEntity<?> getUserInfo(@RequestPart UUID id) {
+	public ResponseEntity<?> getUserInfo(@PathVariable UUID id) {
 		UserResponseDto userInfo = userService.getUserInfo(id);
 		return ResponseEntity.status(HttpStatus.OK)
 			.body("유저 정보");
@@ -61,5 +62,12 @@ public class UserController {
 		Page<UserResponseDto> userInfo = userService.searchUser(userRole, category, page - 1, size, sort, order);
 		return ResponseEntity.status(HttpStatus.OK)
 			.body(userInfo);
+	}
+
+	@PatchMapping("/{id}")
+	public ResponseEntity<?> updateUserInfo(@PathVariable UUID id, @RequestBody UserRequestDto requestDto) {
+		userService.updateUserInfo(id, requestDto);
+		return ResponseEntity.status(HttpStatus.OK)
+			.body("유저 정보 수정 완료");
 	}
 }
