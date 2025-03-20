@@ -1,5 +1,7 @@
 package com.devsquad10.order.application.service;
 
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 
 import com.devsquad10.order.application.client.CompanyClient;
@@ -27,24 +29,40 @@ public class OrderEventService {
 			.orElseThrow(
 				() -> new OrderNotFoundException("Order Not Found By Id : " + stockDecrementMessage.getOrderId()));
 
-		String recipientsAddress = companyClient.getCompanyAddress(targetOrder.getRecipientsId());
-		if (recipientsAddress != null) {
-			// 배송 준비 중 상태
-			updateOrderStatusAndShippingDetails(targetOrder, stockDecrementMessage, OrderStatus.PREPARING_SHIPMENT);
+		Optional<String> recipientsAddress = Optional.ofNullable(
+			companyClient.getCompanyAddress(targetOrder.getRecipientsId()));
 
-			ShippingCreateRequest shippingCreateRequest = new ShippingCreateRequest(targetOrder.getId(),
-				targetOrder.getSupplierId(), targetOrder.getRecipientsId(), recipientsAddress,
-				targetOrder.getRequestDetails(), targetOrder.getDeadLine());
+		recipientsAddress.ifPresentOrElse(
+			address -> processValidRecipient(targetOrder, stockDecrementMessage, address),
+			() -> processInvalidRecipient(targetOrder, stockDecrementMessage)
 
-			orderMessageService.sendShippingCreateMessage(shippingCreateRequest);
-		} else {
-			updateOrderStatusAndShippingDetails(targetOrder, stockDecrementMessage, OrderStatus.INVALID_RECIPIENT);
+		);
+	}
 
-			StockReversalMessage stockReversalMessage = new StockReversalMessage(targetOrder.getProductId(),
-				targetOrder.getQuantity());
-			// 재고 감소 복구 요청
-			orderMessageService.sendStockReversalMessage(stockReversalMessage);
-		}
+	public void updateOrderStatus(StockDecrementMessage stockDecrementMessage) {
+		Order targetOrder = orderRepository.findByIdAndDeletedAtIsNull(stockDecrementMessage.getOrderId())
+			.orElseThrow(
+				() -> new OrderNotFoundException("Order Not Found By Id : " + stockDecrementMessage.getOrderId()));
+
+		orderRepository.save(targetOrder.toBuilder()
+			.status(OrderStatus.fromString(stockDecrementMessage.getStatus()))
+			.build());
+	}
+
+	private void processValidRecipient(Order targetOrder, StockDecrementMessage stockDecrementMessage, String address) {
+		updateOrderStatusAndShippingDetails(targetOrder, stockDecrementMessage, OrderStatus.PREPARING_SHIPMENT);
+
+		ShippingCreateRequest shippingCreateRequest = createShippingRequest(targetOrder, stockDecrementMessage,
+			address);
+		orderMessageService.sendShippingCreateMessage(shippingCreateRequest);
+	}
+
+	private void processInvalidRecipient(Order targetOrder, StockDecrementMessage stockDecrementMessage) {
+		updateOrderStatusAndShippingDetails(targetOrder, stockDecrementMessage, OrderStatus.INVALID_RECIPIENT);
+
+		StockReversalMessage stockReversalMessage = new StockReversalMessage(targetOrder.getProductId(),
+			targetOrder.getQuantity());
+		orderMessageService.sendStockReversalMessage(stockReversalMessage);
 	}
 
 	private void updateOrderStatusAndShippingDetails(Order targetOrder, StockDecrementMessage stockDecrementMessage,
@@ -57,13 +75,14 @@ public class OrderEventService {
 			.build());
 	}
 
-	public void updateOrderStatus(StockDecrementMessage stockDecrementMessage) {
-		Order targetOrder = orderRepository.findByIdAndDeletedAtIsNull(stockDecrementMessage.getOrderId())
-			.orElseThrow(
-				() -> new OrderNotFoundException("Order Not Found By Id : " + stockDecrementMessage.getOrderId()));
-
-		orderRepository.save(targetOrder.toBuilder()
-			.status(OrderStatus.fromString(stockDecrementMessage.getStatus()))
-			.build());
+	private ShippingCreateRequest createShippingRequest(Order order, StockDecrementMessage message, String address) {
+		return new ShippingCreateRequest(
+			order.getId(),
+			message.getSupplierId(),
+			order.getRecipientsId(),
+			address,
+			order.getRequestDetails(),
+			order.getDeadLine()
+		);
 	}
 }
