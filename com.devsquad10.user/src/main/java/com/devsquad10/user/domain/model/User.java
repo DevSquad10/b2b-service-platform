@@ -99,4 +99,9 @@ public class User {
 		this.slackId = requestDto.getSlackId();
 		this.role = requestDto.getRole();
 	}
+
+	public void delete(UUID id) {
+		this.deletedAt = LocalDateTime.now();
+		this.deletedBy = String.valueOf(id);
+	}
 }
