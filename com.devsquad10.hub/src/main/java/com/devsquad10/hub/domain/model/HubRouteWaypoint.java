@@ -40,11 +40,20 @@ public class HubRouteWaypoint {
 	private HubRoute hubRoute;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "waypoint_hub_id")
-	private Hub waypointHub;
+	@JoinColumn(name = "departure_hub_id", nullable = false)
+	private Hub departureHub;
+
+	// 도착 허브
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "destination_hub_id", nullable = false)
+	private Hub destinationHub;
 
 	// 경유지 순서
 	private Integer sequence;
+
+	private Double distance;
+
+	private Integer duration;
 
 	// TODO: Audit Fields 분리
 	@Column(name = "created_at", nullable = false, updatable = false)
