@@ -8,9 +8,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.devsquad10.shipping.application.dto.ShippingAgentResponse;
 import com.devsquad10.shipping.application.exception.shippingAgent.HubIdNotFoundException;
+import com.devsquad10.shipping.application.exception.shippingAgent.ShippingAgentAlreadyAllocatedException;
 import com.devsquad10.shipping.application.exception.shippingAgent.ShippingAgentNotAllocatedException;
 import com.devsquad10.shipping.application.exception.shippingAgent.ShippingAgentNotFoundException;
 import com.devsquad10.shipping.application.exception.shippingAgent.ShippingAgentTypeNotFoundException;
+import com.devsquad10.shipping.application.exception.shippingAgent.ShippingAssignmentCountException;
 import com.devsquad10.shipping.application.exception.shippingAgent.ShippingStatusIsNotAllocatedException;
 import com.devsquad10.shipping.application.exception.shippingAgent.SlackMessageSendToDesHubManagerIdException;
 
@@ -67,6 +69,24 @@ public class ShippingAgentHandler {
 		SlackMessageSendToDesHubManagerIdException e) {
 		return ResponseEntity.status(HttpStatus.NOT_FOUND)
 			.body(ShippingAgentResponse.failure(HttpStatus.NOT_FOUND.value(), e.getMessage()));
+	}
+
+	// 업체 배송담당자ID를 이미 배정받은 상태
+	@ExceptionHandler(ShippingAgentAlreadyAllocatedException.class)
+	@ResponseStatus(HttpStatus.CONFLICT)
+	public ResponseEntity<ShippingAgentResponse<String>> handlerShippingAgentAlreadyAllocatedException(
+		ShippingAgentAlreadyAllocatedException e) {
+		return ResponseEntity.status(HttpStatus.CONFLICT)
+			.body(ShippingAgentResponse.failure(HttpStatus.CONFLICT.value(), e.getMessage()));
+	}
+
+	// 배정 횟수 증가 시, 변경에 문제 발생
+	@ExceptionHandler(ShippingAssignmentCountException.class)
+	@ResponseStatus(HttpStatus.CONFLICT)
+	public ResponseEntity<ShippingAgentResponse<String>> handlerShippingAssignmentCountException(
+		ShippingAssignmentCountException e) {
+		return ResponseEntity.status(HttpStatus.CONFLICT)
+			.body(ShippingAgentResponse.failure(HttpStatus.CONFLICT.value(), e.getMessage()));
 	}
 
 	// 허브 응답 받은 json null
