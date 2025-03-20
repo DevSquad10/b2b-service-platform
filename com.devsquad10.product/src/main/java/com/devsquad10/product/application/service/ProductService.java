@@ -37,7 +37,7 @@ public class ProductService {
 
 		// 특정 업체 존재 유무 확인
 		// feign client
-		UUID hubId = companyClient.getHubIdIfCompanyExists(productReqDto.getSupplierId());
+		UUID hubId = companyClient.findSupplierHubIdByCompanyId(productReqDto.getSupplierId());
 
 		if (hubId == null)
 			throw new EntityNotFoundException("Supplier Fot Found By Id : " + productReqDto.getSupplierId());

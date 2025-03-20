@@ -10,5 +10,5 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface CompanyClient {
 
 	@GetMapping("/address/{id}")
-	String getCompanyAddress(@PathVariable UUID id);
+	String findRecipientAddressByCompanyId(@PathVariable UUID id);
 }

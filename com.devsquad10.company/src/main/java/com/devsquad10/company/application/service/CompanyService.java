@@ -109,13 +109,19 @@ public class CompanyService {
 			.build());
 	}
 
-	public UUID getHubIdIfCompanyExists(UUID id) {
+	// 상품 등록 시 사용
+	//findSupplierHubIdByCompanyId
+	// getHubIdIfCompanyExists
+	public UUID findSupplierHubIdByCompanyId(UUID id) {
 		Company company = companyRepository.findByIdAndDeletedAtIsNull(id)
 			.orElse(null);
 		return (company != null && company.getType().equals(CompanyTypes.SUPPLIER)) ? company.getHubId() : null;
 	}
 
-	public String getCompanyAddress(UUID id) {
+	// 주문 배송 메시지 생성 시 사용
+	//findRecipientAddressByCompanyId
+	// 원본 명 : getCompanyAddress
+	public String findRecipientAddressByCompanyId(UUID id) {
 		Company company = companyRepository.findByIdAndDeletedAtIsNull(id)
 			.orElse(null);
 		return (company != null && company.getType().equals(CompanyTypes.RECIPIENTS)) ? company.getAddress() : null;

@@ -30,7 +30,7 @@ public class OrderEventService {
 				() -> new OrderNotFoundException("Order Not Found By Id : " + stockDecrementMessage.getOrderId()));
 
 		Optional<String> recipientsAddress = Optional.ofNullable(
-			companyClient.getCompanyAddress(targetOrder.getRecipientsId()));
+			companyClient.findRecipientAddressByCompanyId(targetOrder.getRecipientsId()));
 
 		recipientsAddress.ifPresentOrElse(
 			address -> processValidRecipient(targetOrder, stockDecrementMessage, address),

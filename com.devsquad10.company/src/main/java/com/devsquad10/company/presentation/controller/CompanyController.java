@@ -73,12 +73,12 @@ public class CompanyController {
 	}
 
 	@GetMapping("/exists/{uuid}")
-	public UUID getHubIdIfCompanyExists(@PathVariable UUID uuid) {
-		return companyService.getHubIdIfCompanyExists(uuid);  // 존재하면 hubId, 없으면 null
+	public UUID findSupplierHubIdByCompanyId(@PathVariable UUID uuid) {
+		return companyService.findSupplierHubIdByCompanyId(uuid);  // 존재하면 hubId, 없으면 null
 	}
 
 	@GetMapping("/address/{id}")
-	public String getCompanyAddress(@PathVariable UUID id) {
-		return companyService.getCompanyAddress(id);
+	public String findRecipientAddressByCompanyId(@PathVariable UUID id) {
+		return companyService.findRecipientAddressByCompanyId(id);
 	}
 }
