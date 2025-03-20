@@ -17,6 +17,7 @@ import com.devsquad10.company.application.dto.CompanyResDto;
 import com.devsquad10.company.application.exception.CompanyNotFoundException;
 import com.devsquad10.company.domain.enums.CompanyTypes;
 import com.devsquad10.company.domain.model.Company;
+import com.devsquad10.company.domain.repository.CompanyQuerydslRepository;
 import com.devsquad10.company.domain.repository.CompanyRepository;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -28,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 public class CompanyService {
 
 	private final CompanyRepository companyRepository;
+	private final CompanyQuerydslRepository companyQuerydslRepository;
 	private final HubClient hubClient;
 
 	@CachePut(cacheNames = "companyCache", key = "#result.id")
@@ -62,7 +64,7 @@ public class CompanyService {
 	public Page<CompanyResDto> searchCompanies(String q, String category, int page, int size, String sort,
 		String order) {
 
-		Page<Company> companyPages = companyRepository.findAll(q, category, page, size, sort, order);
+		Page<Company> companyPages = companyQuerydslRepository.findAll(q, category, page, size, sort, order);
 
 		return companyPages.map(Company::toResponseDto);
 
