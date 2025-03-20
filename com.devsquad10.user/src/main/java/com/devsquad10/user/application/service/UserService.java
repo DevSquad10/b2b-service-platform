@@ -1,6 +1,7 @@
 package com.devsquad10.user.application.service;
 
 import java.util.Date;
+import java.util.UUID;
 
 import javax.crypto.SecretKey;
 
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.devsquad10.user.application.dto.UserLoginRequestDto;
 import com.devsquad10.user.application.dto.UserRequestDto;
+import com.devsquad10.user.application.dto.UserResponseDto;
 import com.devsquad10.user.domain.model.User;
 import com.devsquad10.user.domain.model.UserRoleEnum;
 import com.devsquad10.user.domain.repository.UserRepository;
@@ -91,5 +93,13 @@ public class UserService {
 
 	public void addJwtToHeader(String token, HttpServletResponse res) {
 		res.setHeader(AUTHORIZATION_HEADER, token);
+	}
+
+	public UserResponseDto getUserInfo(UUID id) {
+
+		User user = (User)userRepository.findByIdAndDeletedAtIsNull(id)
+			.orElseThrow(() -> new IllegalArgumentException("가입되지 않은 사용자입니다."));
+
+		return new UserResponseDto(user);
 	}
 }
