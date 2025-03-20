@@ -3,8 +3,6 @@ package com.devsquad10.product.application.service;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -19,6 +17,7 @@ import com.devsquad10.product.application.dto.ProductResDto;
 import com.devsquad10.product.application.exception.ProductNotFoundException;
 import com.devsquad10.product.domain.enums.ProductStatus;
 import com.devsquad10.product.domain.model.Product;
+import com.devsquad10.product.domain.repository.ProductQuerydslRepository;
 import com.devsquad10.product.domain.repository.ProductRepository;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -29,11 +28,8 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 public class ProductService {
 
-	@Value("${stockMessage.queue.stock.response}")
-	public String queueResponseStock;
-
 	private final ProductRepository productRepository;
-	private final RabbitTemplate rabbitTemplate;
+	private final ProductQuerydslRepository productQuerydslRepository;
 	private final CompanyClient companyClient;
 
 	@CachePut(cacheNames = "productCache", key = "#result.id")
@@ -70,7 +66,7 @@ public class ProductService {
 	public Page<ProductResDto> searchProducts(String q, String category, int page, int size, String sort,
 		String order) {
 
-		Page<Product> productPages = productRepository.findAll(q, category, page, size, sort, order);
+		Page<Product> productPages = productQuerydslRepository.findAll(q, category, page, size, sort, order);
 
 		return productPages.map(Product::toResponseDto);
 	}
