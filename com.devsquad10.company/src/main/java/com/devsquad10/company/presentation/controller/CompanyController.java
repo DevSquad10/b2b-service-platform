@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,10 +32,11 @@ public class CompanyController {
 	private final CompanyService companyService;
 
 	@PostMapping
-	public ResponseEntity<CompanyResponse<CompanyResDto>> createCompany(@RequestBody CompanyReqDto companyReqDto) {
+	public ResponseEntity<CompanyResponse<CompanyResDto>> createCompany(
+		@RequestBody CompanyReqDto companyReqDto, @RequestHeader("X-User-Id") String userId) {
 
 		return ResponseEntity.status(HttpStatus.OK)
-			.body(CompanyResponse.success(HttpStatus.OK.value(), companyService.createCompany(companyReqDto)));
+			.body(CompanyResponse.success(HttpStatus.OK.value(), companyService.createCompany(companyReqDto, userId)));
 
 	}
 

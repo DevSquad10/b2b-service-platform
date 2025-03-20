@@ -34,8 +34,9 @@ public class CompanyService {
 	private final HubClient hubClient;
 
 	@CachePut(cacheNames = "companyCache", key = "#result.id")
-	public CompanyResDto createCompany(CompanyReqDto companyReqDto) {
+	public CompanyResDto createCompany(CompanyReqDto companyReqDto, String userId) {
 
+		UUID venderId = UUID.fromString(userId);
 		UUID hubId = companyReqDto.getHubId();
 
 		//1. 허브 존재 유무 확인
@@ -46,6 +47,7 @@ public class CompanyService {
 		// 담당자 id는 유저 완성 시 등록
 		return companyRepository.save(Company.builder()
 			.name(companyReqDto.getName())
+			.venderId(venderId)
 			.hubId(hubId)
 			.address(companyReqDto.getAddress())
 			.type(companyReqDto.getType())
