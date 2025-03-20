@@ -1,13 +1,12 @@
 package com.devsquad10.order.application.service;
 
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.devsquad10.order.application.client.CompanyClient;
 import com.devsquad10.order.application.dto.message.StockDecrementMessage;
 import com.devsquad10.order.application.dto.message.StockReversalMessage;
 import com.devsquad10.order.application.exception.OrderNotFoundException;
+import com.devsquad10.order.application.messaging.OrderMessageService;
 import com.devsquad10.order.domain.enums.OrderStatus;
 import com.devsquad10.order.domain.model.Order;
 import com.devsquad10.order.domain.repository.OrderRepository;
@@ -18,12 +17,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class OrderEventService {
 
-	@Value("${stockMessage.queue.stockRecovery.request}")
-	private String queueStockRecovery;
-
-	private final RabbitTemplate rabbitTemplate;
 	private final OrderRepository orderRepository;
 	private final CompanyClient companyClient;
+	private final OrderMessageService orderMessageService;
 
 	public void handlerShippingRequest(StockDecrementMessage stockDecrementMessage) {
 		Order targetOrder = orderRepository.findByIdAndDeletedAtIsNull(stockDecrementMessage.getOrderId())
@@ -43,7 +39,7 @@ public class OrderEventService {
 			StockReversalMessage stockReversalMessage = new StockReversalMessage(targetOrder.getProductId(),
 				targetOrder.getQuantity());
 			// 재고 감소 복구 요청
-			rabbitTemplate.convertAndSend(queueStockRecovery, stockReversalMessage);
+			orderMessageService.sendStockReversalMessage(stockReversalMessage);
 		}
 	}
 
