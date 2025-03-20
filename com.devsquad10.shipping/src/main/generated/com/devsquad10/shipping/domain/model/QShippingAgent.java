@@ -19,6 +19,8 @@ public class QShippingAgent extends EntityPathBase<ShippingAgent> {
 
     public static final QShippingAgent shippingAgent = new QShippingAgent("shippingAgent");
 
+    public final NumberPath<Integer> assignmentCount = createNumber("assignmentCount", Integer.class);
+
     public final DateTimePath<java.time.LocalDateTime> createdAt = createDateTime("createdAt", java.time.LocalDateTime.class);
 
     public final StringPath createdBy = createString("createdBy");

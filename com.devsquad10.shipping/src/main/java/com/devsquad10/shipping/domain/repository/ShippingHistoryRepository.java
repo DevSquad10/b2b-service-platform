@@ -11,7 +11,7 @@ public interface ShippingHistoryRepository {
 
 	ShippingHistory save(ShippingHistory shippingHistory);
 
-	Page<ShippingHistory> findAll(String q, String category, int page, int size, String sort, String order);
+	// Page<ShippingHistory> findAll(String q, String category, int page, int size, String sort, String order);
 
 	List<ShippingHistory> findByShippingIdAndDeletedAtIsNull(UUID id);
 

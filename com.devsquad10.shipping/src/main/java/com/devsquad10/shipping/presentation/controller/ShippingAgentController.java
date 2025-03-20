@@ -17,10 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.devsquad10.shipping.application.dto.ShippingAgentResponse;
 import com.devsquad10.shipping.application.dto.response.ShippingAgentResDto;
 import com.devsquad10.shipping.application.service.ShippingAgentService;
-import com.devsquad10.shipping.infrastructure.client.ShippingAgentPatchFeignRequest;
-import com.devsquad10.shipping.infrastructure.client.ShippingAgentPostFeignRequest;
+import com.devsquad10.shipping.infrastructure.client.ShippingAgentFeignClientPatchRequest;
+import com.devsquad10.shipping.infrastructure.client.ShippingAgentFeignClientPostRequest;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -34,7 +33,7 @@ public class ShippingAgentController {
 	// 권한 확인 - MASTER, 담당 HUB
 	@PostMapping
 	public void createShippingAgent(
-		@RequestBody ShippingAgentPostFeignRequest request) {
+		@RequestBody ShippingAgentFeignClientPostRequest request) {
 		shippingAgentService.createShippingAgent(request);
 	}
 
@@ -81,8 +80,7 @@ public class ShippingAgentController {
 	// 1.유저 feign client 호출하여 넘겨받은 정보 변경
 	@PatchMapping("/info-update")
 	public ResponseEntity<ShippingAgentResponse<ShippingAgentResDto>> infoUpdateShippingAgent(
-		// @PathVariable(name = "id") UUID id,
-		@RequestBody ShippingAgentPatchFeignRequest request) throws Exception {
+		@RequestBody ShippingAgentFeignClientPatchRequest request) throws Exception {
 
 		try {
 			return ResponseEntity.ok(ShippingAgentResponse.success(
@@ -92,7 +90,6 @@ public class ShippingAgentController {
 		} catch (Exception e) {
 			throw new Exception("e.getMessage()");
 		}
-
 	}
 
 	// TODO: 권한 확인 - MASTER, 담당HUB
