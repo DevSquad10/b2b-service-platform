@@ -6,8 +6,10 @@ import java.util.UUID;
 import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.devsquad10.user.application.dto.UserLoginRequestDto;
 import com.devsquad10.user.application.dto.UserRequestDto;
@@ -95,11 +97,20 @@ public class UserService {
 		res.setHeader(AUTHORIZATION_HEADER, token);
 	}
 
+	@Transactional(readOnly = true)
 	public UserResponseDto getUserInfo(UUID id) {
 
 		User user = (User)userRepository.findByIdAndDeletedAtIsNull(id)
 			.orElseThrow(() -> new IllegalArgumentException("가입되지 않은 사용자입니다."));
 
 		return new UserResponseDto(user);
+	}
+
+	public Page<UserResponseDto> searchUser(UserRoleEnum userRoleEnum, String category, int page, int size, String sort,
+		String order) {
+		Page<UserResponseDto> userInfo = userRepository.searchUser(userRoleEnum, category, page, size, sort, order)
+			.map(UserResponseDto::new);
+
+		return userInfo;
 	}
 }
