@@ -38,4 +38,9 @@ public class HubRouteRepositoryImpl implements HubRouteRepository {
 	public Optional<HubRoute> findByDepartureHubAndDestinationHub(Hub departureHub, Hub destinationHub) {
 		return jpaHubRouteRepository.findByDepartureHubAndDestinationHub(departureHub, destinationHub);
 	}
+
+	@Override
+	public Optional<HubRoute> findByIdWithWaypoints(UUID id) {
+		return jpaHubRouteRepository.findByIdWithWaypoints(id);
+	}
 }

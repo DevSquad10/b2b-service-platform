@@ -1,17 +1,21 @@
 package com.devsquad10.hub.application.dto.res;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import com.devsquad10.hub.domain.model.HubRoute;
+import com.devsquad10.hub.domain.model.HubRouteWaypoint;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class HubRouteGetOneResponseDto {
 	private UUID id;
 	private UUID departureHubId;
@@ -24,11 +28,10 @@ public class HubRouteGetOneResponseDto {
 	private UUID createdBy;
 	private LocalDateTime updatedAt;
 	private UUID updatedBy;
-
-	// TODO: 경유지 추후 구현
-	// private List<UUID> waypoints;
+	private List<HubRouteWaypoint> waypoints;
 
 	public static HubRouteGetOneResponseDto toResponseDto(HubRoute hubRoute) {
+
 		return HubRouteGetOneResponseDto.builder()
 			.id(hubRoute.getId())
 			.departureHubId(hubRoute.getDepartureHub().getId())
@@ -41,6 +44,7 @@ public class HubRouteGetOneResponseDto {
 			.createdBy(hubRoute.getCreatedBy())
 			.updatedAt(hubRoute.getUpdatedAt())
 			.updatedBy(hubRoute.getUpdatedBy())
+			.waypoints(hubRoute.getWaypoints())
 			.build();
 	}
 }

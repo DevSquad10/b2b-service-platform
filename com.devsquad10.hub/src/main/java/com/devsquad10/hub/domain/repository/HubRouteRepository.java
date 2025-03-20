@@ -17,4 +17,6 @@ public interface HubRouteRepository {
 	Page<HubRoute> findAll(HubRouteSearchRequestDto request);
 
 	Optional<HubRoute> findByDepartureHubAndDestinationHub(Hub departureHub, Hub destinationHub);
+
+	Optional<HubRoute> findByIdWithWaypoints(UUID id);
 }
