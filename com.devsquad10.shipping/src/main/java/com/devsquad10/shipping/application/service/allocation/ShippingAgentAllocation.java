@@ -40,7 +40,7 @@ public class ShippingAgentAllocation implements ShippingAgentAllocationMethod {
 
 	@Override
 	@Transactional
-	public MinimumCountAllocationResult allocateHubAgent(UUID destinationHubId, ShippingStatus shippingStatus) {
+	public MinimumCountAllocationResult allocateHubAgent(UUID destinationHubId) {
 		return allocateAgent(destinationHubId, ShippingAgentType.HUB_DVL);
 	}
 
