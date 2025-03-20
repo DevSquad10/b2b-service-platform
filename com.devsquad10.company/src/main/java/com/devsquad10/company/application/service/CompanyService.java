@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.devsquad10.company.application.client.HubClient;
 import com.devsquad10.company.application.dto.CompanyReqDto;
 import com.devsquad10.company.application.dto.CompanyResDto;
+import com.devsquad10.company.application.dto.ShippingCompanyInfoDto;
 import com.devsquad10.company.application.exception.CompanyNotFoundException;
 import com.devsquad10.company.domain.enums.CompanyTypes;
 import com.devsquad10.company.domain.model.Company;
@@ -125,5 +126,11 @@ public class CompanyService {
 		Company company = companyRepository.findByIdAndDeletedAtIsNull(id)
 			.orElse(null);
 		return (company != null && company.getType().equals(CompanyTypes.RECIPIENTS)) ? company.getAddress() : null;
+	}
+
+	public ShippingCompanyInfoDto findShippingCompanyInfo(UUID id) {
+		return companyRepository.findByIdAndDeletedAtIsNull(id)
+			.map(company -> new ShippingCompanyInfoDto(company.getVenderId(), company.getHubId()))
+			.orElse(null); // 없을 경우 null 반환
 	}
 }

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.devsquad10.company.application.dto.CompanyReqDto;
 import com.devsquad10.company.application.dto.CompanyResDto;
+import com.devsquad10.company.application.dto.ShippingCompanyInfoDto;
 import com.devsquad10.company.application.dto.response.CompanyResponse;
 import com.devsquad10.company.application.service.CompanyService;
 
@@ -80,5 +81,10 @@ public class CompanyController {
 	@GetMapping("/address/{id}")
 	public String findRecipientAddressByCompanyId(@PathVariable UUID id) {
 		return companyService.findRecipientAddressByCompanyId(id);
+	}
+
+	@GetMapping("/info/{id}")
+	public ShippingCompanyInfoDto findShippingCompanyInfo(@PathVariable UUID id) {
+		return companyService.findShippingCompanyInfo(id);
 	}
 }
