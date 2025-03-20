@@ -10,5 +10,5 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface CompanyClient {
 
 	@GetMapping("/exists/{uuid}")
-	UUID getHubIdIfCompanyExists(@PathVariable UUID uuid);
+	UUID findSupplierHubIdByCompanyId(@PathVariable UUID uuid);
 }

@@ -83,7 +83,8 @@ public class OrderService {
 			.orElseThrow(() -> new OrderNotFoundException("Order Not Found By Id : " + id));
 		//1. 배송지 변경 여부 확인
 		if (!order.getRecipientsId().equals(orderUpdateReqDto.getRecipientsId())) {
-			String newRecipientsAddress = companyClient.getCompanyAddress(orderUpdateReqDto.getRecipientsId());
+			String newRecipientsAddress =
+				companyClient.findRecipientAddressByCompanyId(orderUpdateReqDto.getRecipientsId());
 			if (newRecipientsAddress == null) {
 				throw new IllegalArgumentException(
 					"Invalid recipient address for recipientsId: " + orderUpdateReqDto.getRecipientsId());
