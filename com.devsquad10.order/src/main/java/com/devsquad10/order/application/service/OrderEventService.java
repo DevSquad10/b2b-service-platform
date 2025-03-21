@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.devsquad10.order.application.client.CompanyClient;
 import com.devsquad10.order.application.dto.message.ShippingCreateRequest;
-import com.devsquad10.order.application.dto.message.ShippingCreateResponse;
+import com.devsquad10.order.application.dto.message.ShippingResponseMessage;
 import com.devsquad10.order.application.dto.message.StockDecrementMessage;
 import com.devsquad10.order.application.dto.message.StockReversalMessage;
 import com.devsquad10.order.application.exception.OrderNotFoundException;
@@ -53,20 +53,20 @@ public class OrderEventService {
 	/**
 	 * 배송 생성이 성공하면  "WAITING_FOR_SHIPMENT" (배송 대기) 상태로 변경한다.
 	 *
-	 * @param shippingCreateResponse 배송 생성 응답 메시지
+	 * @param shippingResponseMessage 배송 생성 응답 메시지
 	 */
-	public void updateOrderStatusToWaitingForShipment(ShippingCreateResponse shippingCreateResponse) {
-		Order targetOrder = findOrderById(shippingCreateResponse.getOrderId());
+	public void updateOrderStatusToWaitingForShipment(ShippingResponseMessage shippingResponseMessage) {
+		Order targetOrder = findOrderById(shippingResponseMessage.getOrderId());
 		updateOrderStatus(targetOrder, OrderStatus.WAITING_FOR_SHIPMENT);
 	}
 
 	/**
 	 * 배송 생성 실패 시 재시도 요청을 한다.
 	 *
-	 * @param shippingCreateResponse 배송 생성 응답 메시지
+	 * @param shippingResponseMessage 배송 생성 응답 메시지
 	 */
-	public void retryCreateShipping(ShippingCreateResponse shippingCreateResponse) {
-		Order targetOrder = findOrderById(shippingCreateResponse.getOrderId());
+	public void retryCreateShipping(ShippingResponseMessage shippingResponseMessage) {
+		Order targetOrder = findOrderById(shippingResponseMessage.getOrderId());
 		Optional<String> recipientsAddress = findRecipientAddress(targetOrder.getRecipientsId());
 
 		StockDecrementMessage stockDecrementMessage = StockDecrementMessage.builder()
