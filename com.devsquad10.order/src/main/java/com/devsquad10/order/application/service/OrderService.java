@@ -24,6 +24,7 @@ import com.devsquad10.order.domain.model.Order;
 import com.devsquad10.order.domain.repository.OrderQuerydslRepository;
 import com.devsquad10.order.domain.repository.OrderRepository;
 import com.devsquad10.order.infrastructure.client.CompanyClient;
+import com.devsquad10.order.infrastructure.client.ShippingClient;
 
 import lombok.RequiredArgsConstructor;
 
@@ -36,6 +37,7 @@ public class OrderService {
 	private final OrderQuerydslRepository orderQuerydslRepository;
 	private final OrderMessageService orderMessageService;
 	private final CompanyClient companyClient;
+	private final ShippingClient shippingClient;
 
 	@CachePut(cacheNames = "orderCache", key = "#result.id")
 	public OrderResDto createOrder(OrderReqDto orderReqDto) {
@@ -163,6 +165,7 @@ public class OrderService {
 			order.getQuantity());
 
 		orderMessageService.sendStockReversalMessage(stockReversalMessage);
+		shippingClient.deleteShippingForOrder(id);
 
 		orderRepository.save(order.toBuilder()
 			.deletedAt(LocalDateTime.now())
