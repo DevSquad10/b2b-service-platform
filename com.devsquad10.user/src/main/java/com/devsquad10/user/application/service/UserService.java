@@ -16,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.devsquad10.user.application.dto.ShippingAgentFeignClientPatchRequest;
 import com.devsquad10.user.application.dto.ShippingAgentFeignClientPostRequest;
 import com.devsquad10.user.application.dto.UserInfoFeignClientResponse;
 import com.devsquad10.user.application.dto.UserLoginRequestDto;
@@ -118,6 +119,7 @@ public class UserService {
 			.map(UserResponseDto::new);
 	}
 
+	@Transactional
 	public void updateUserInfo(UUID id, UserRequestDto requestDto) {
 		User user = (User)userRepository.findByIdAndDeletedAtIsNull(id)
 			.orElseThrow(() -> new IllegalArgumentException("가입되지 않은 사용자입니다."));
@@ -128,6 +130,13 @@ public class UserService {
 		if (userRepository.findBySlackId(requestDto.getSlackId()).isPresent()) {
 			throw new IllegalArgumentException("이미 존재하는 슬랙 ID입니다.");
 		}
+		if (user.getRole() == UserRoleEnum.DVL_OFFICER) {
+			ShippingAgentFeignClientPatchRequest shippingRequest = new ShippingAgentFeignClientPatchRequest(
+				user.getId(), requestDto.getSlackId());
+
+			shippingClient.infoUpdateShippingAgent(shippingRequest);
+		}
+
 		user.update(requestDto);
 	}
 
