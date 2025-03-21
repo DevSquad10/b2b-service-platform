@@ -5,7 +5,6 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
-import com.devsquad10.order.application.client.CompanyClient;
 import com.devsquad10.order.application.dto.message.ShippingCreateRequest;
 import com.devsquad10.order.application.dto.message.ShippingResponseMessage;
 import com.devsquad10.order.application.dto.message.StockDecrementMessage;
@@ -15,6 +14,7 @@ import com.devsquad10.order.application.messaging.OrderMessageService;
 import com.devsquad10.order.domain.enums.OrderStatus;
 import com.devsquad10.order.domain.model.Order;
 import com.devsquad10.order.domain.repository.OrderRepository;
+import com.devsquad10.order.infrastructure.client.CompanyClient;
 
 import lombok.RequiredArgsConstructor;
 

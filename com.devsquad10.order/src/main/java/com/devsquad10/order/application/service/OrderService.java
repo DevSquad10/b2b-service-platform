@@ -11,7 +11,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.devsquad10.order.application.client.CompanyClient;
 import com.devsquad10.order.application.dto.OrderReqDto;
 import com.devsquad10.order.application.dto.OrderResDto;
 import com.devsquad10.order.application.dto.OrderUpdateReqDto;
@@ -24,6 +23,7 @@ import com.devsquad10.order.domain.enums.OrderStatus;
 import com.devsquad10.order.domain.model.Order;
 import com.devsquad10.order.domain.repository.OrderQuerydslRepository;
 import com.devsquad10.order.domain.repository.OrderRepository;
+import com.devsquad10.order.infrastructure.client.CompanyClient;
 
 import lombok.RequiredArgsConstructor;
 
