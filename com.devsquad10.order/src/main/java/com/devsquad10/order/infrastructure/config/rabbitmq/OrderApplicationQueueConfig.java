@@ -28,10 +28,10 @@ public class OrderApplicationQueueConfig {
 	@Value("${shippingMessage.exchange.shipping.response}")
 	private String shippingCreateResponseExchange;
 
-	@Value("${shippingMessage.exchange.shipping.request}")
+	@Value("${shippingMessage.exchange.shipping_update.request}")
 	private String shippingUpdateRequestExchange;
 
-	@Value("${shippingMessage.exchange.shipping.response}")
+	@Value("${shippingMessage.exchange.shipping_update.response}")
 	private String shippingUpdateResponseExchange;
 
 	//queue
@@ -50,11 +50,11 @@ public class OrderApplicationQueueConfig {
 	@Value("${shippingMessage.queue.shipping.response}")
 	private String queueShippingCreateResponse;
 
-	@Value("${shippingMessage.queue.shipping.request}")
+	@Value("${shippingMessage.queue.shipping_update.request}")
 	private String queueShippingUpdateRequest;
 
-	@Value("${shippingMessage.queue.shipping.response}")
-	private String getQueueShippingUpdateResponse;
+	@Value("${shippingMessage.queue.shipping_update.response}")
+	private String queueShippingUpdateResponse;
 
 	/**
 	 * exchange
@@ -128,8 +128,8 @@ public class OrderApplicationQueueConfig {
 	}
 
 	@Bean
-	public Queue getQueueShippingUpdateResponse() {
-		return new Queue(getQueueShippingUpdateResponse);
+	public Queue queueShippingUpdateResponse() {
+		return new Queue(queueShippingUpdateResponse);
 	}
 
 	/**
@@ -173,9 +173,9 @@ public class OrderApplicationQueueConfig {
 
 	@Bean
 	public Binding bindingResponseShippingUpdate() {
-		return BindingBuilder.bind(getQueueShippingUpdateResponse())
+		return BindingBuilder.bind(queueShippingUpdateResponse())
 			.to(shippingUpdateResponseExchange())
-			.with(getQueueShippingUpdateResponse);
+			.with(queueShippingUpdateResponse);
 	}
 
 	@Bean
