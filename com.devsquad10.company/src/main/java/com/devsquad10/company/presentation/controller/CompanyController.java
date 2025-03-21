@@ -11,12 +11,14 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.devsquad10.company.application.dto.CompanyReqDto;
 import com.devsquad10.company.application.dto.CompanyResDto;
+import com.devsquad10.company.application.dto.ShippingCompanyInfoDto;
 import com.devsquad10.company.application.dto.response.CompanyResponse;
 import com.devsquad10.company.application.service.CompanyService;
 
@@ -30,10 +32,11 @@ public class CompanyController {
 	private final CompanyService companyService;
 
 	@PostMapping
-	public ResponseEntity<CompanyResponse<CompanyResDto>> createCompany(@RequestBody CompanyReqDto companyReqDto) {
+	public ResponseEntity<CompanyResponse<CompanyResDto>> createCompany(
+		@RequestBody CompanyReqDto companyReqDto, @RequestHeader("X-User-Id") String userId) {
 
 		return ResponseEntity.status(HttpStatus.OK)
-			.body(CompanyResponse.success(HttpStatus.OK.value(), companyService.createCompany(companyReqDto)));
+			.body(CompanyResponse.success(HttpStatus.OK.value(), companyService.createCompany(companyReqDto, userId)));
 
 	}
 
@@ -73,12 +76,17 @@ public class CompanyController {
 	}
 
 	@GetMapping("/exists/{uuid}")
-	public UUID getHubIdIfCompanyExists(@PathVariable UUID uuid) {
-		return companyService.getHubIdIfCompanyExists(uuid);  // 존재하면 hubId, 없으면 null
+	public UUID findSupplierHubIdByCompanyId(@PathVariable("uuid") UUID uuid) {
+		return companyService.findSupplierHubIdByCompanyId(uuid);  // 존재하면 hubId, 없으면 null
 	}
 
 	@GetMapping("/address/{id}")
-	public String getCompanyAddress(@PathVariable UUID id) {
-		return companyService.getCompanyAddress(id);
+	public String findRecipientAddressByCompanyId(@PathVariable("id") UUID id) {
+		return companyService.findRecipientAddressByCompanyId(id);
+	}
+
+	@GetMapping("/info/{id}")
+	public ShippingCompanyInfoDto findShippingCompanyInfo(@PathVariable("id") UUID id) {
+		return companyService.findShippingCompanyInfo(id);
 	}
 }

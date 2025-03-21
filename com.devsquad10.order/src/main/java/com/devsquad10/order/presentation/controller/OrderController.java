@@ -5,7 +5,9 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.devsquad10.order.application.dto.OrderReqDto;
 import com.devsquad10.order.application.dto.OrderResDto;
+import com.devsquad10.order.application.dto.OrderUpdateReqDto;
 import com.devsquad10.order.application.dto.response.OrderResponse;
 import com.devsquad10.order.application.service.OrderService;
 
@@ -28,12 +31,10 @@ public class OrderController {
 	private final OrderService orderService;
 
 	@PostMapping
-	public ResponseEntity<OrderResponse<String>> createOrder(@RequestBody OrderReqDto orderReqDto) {
-
-		orderService.createOrder(orderReqDto);
+	public ResponseEntity<OrderResponse<OrderResDto>> createOrder(@RequestBody OrderReqDto orderReqDto) {
 
 		return ResponseEntity.status(HttpStatus.OK)
-			.body(OrderResponse.success(HttpStatus.OK.value(), "Order received successfully"));
+			.body(OrderResponse.success(HttpStatus.OK.value(), orderService.createOrder(orderReqDto)));
 	}
 
 	@GetMapping("/{id}")
@@ -54,6 +55,20 @@ public class OrderController {
 		return ResponseEntity.status(HttpStatus.OK)
 			.body(OrderResponse.success(HttpStatus.OK.value(),
 				orderService.searchOrders(q, category, page, size, sort, order)));
+	}
+
+	@PatchMapping("/{id}")
+	public ResponseEntity<OrderResponse<OrderResDto>> updateOrder(@PathVariable("id") UUID id,
+		@RequestBody OrderUpdateReqDto orderUpdateReqDto) {
+		return ResponseEntity.status(HttpStatus.OK)
+			.body(OrderResponse.success(HttpStatus.OK.value(), orderService.updateOrder(id, orderUpdateReqDto)));
+	}
+
+	@DeleteMapping("/{id}")
+	public ResponseEntity<OrderResponse<String>> deleteOrder(@PathVariable("id") UUID id) {
+		orderService.deleteOrder(id);
+		return ResponseEntity.status(HttpStatus.OK)
+			.body(OrderResponse.success(HttpStatus.OK.value(), "Order Deleted successfully"));
 	}
 
 }

@@ -43,8 +43,8 @@ public class HubConnection {
 	@JoinColumn(name = "connected_hub_id", nullable = false)
 	private Hub connectedHub;
 
-	// 연결 가중치 (이동 시간 또는 거리)
-	private Double weight;
+	// 연결 가중치 (이동 시간)
+	private Integer weight;
 
 	// 연결 상태
 	private Boolean active;

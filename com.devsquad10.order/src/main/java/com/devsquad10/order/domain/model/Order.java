@@ -20,6 +20,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -52,7 +53,7 @@ public class Order implements Serializable {
 
 	@Column
 	private UUID shippingId; // 배송 ID;
-	
+
 	private String productName; // 상품명
 
 	@Column(nullable = false)
@@ -104,6 +105,12 @@ public class Order implements Serializable {
 		this.createdAt = time;
 		this.updatedAt = time;
 		this.createdBy = "사용자";
+	}
+
+	@PreUpdate
+	protected void onUpdate() {
+		this.updatedAt = LocalDateTime.now();
+		this.updatedBy = "사용자";
 	}
 
 	public OrderResDto toResponseDto() {
