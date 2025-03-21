@@ -45,7 +45,6 @@ public class ShippingEventService {
 	private final HubClient hubClient;
 	private final CompanyClient companyClient;
 	private final UserClient userClient;
-	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
 	// TODO: 권한 확인 - MASTER
 	public void handlerShippingCreateRequest(ShippingCreateRequest shippingCreateRequest) throws
@@ -56,11 +55,12 @@ public class ShippingEventService {
 		UUID recipientsId = shippingCreateRequest.getRecipientsId();
 		String address = shippingCreateRequest.getAddress();
 		String requestDetails = shippingCreateRequest.getRequestDetails();
-		Date deadLine = shippingCreateRequest.getDeadLine(); // Fri Mar 21 09:00:00 KST 2025
-		// String deadLine = shippingCreateRequest.getDeadLine(); //
+		// Date deadLine = shippingCreateRequest.getDeadLine(); // Fri Mar 21 09:00:00 KST 2025
+		// String deadLine = shippingCreateRequest.getDeadLine(); // 2025-03-21
 		// String deadLineToString = DATE_FORMAT.format(deadLine);
 		log.info("orderId: {}, supplierId: {}, recipientsId: {}", orderId, supplierId, recipientsId);
-		log.info("address: {}, requestDetails: {}, deadLine: {}", address, requestDetails, deadLine);
+		// log.info("address: {}, requestDetails: {}, deadLine: {}", address, requestDetails, deadLine);
+		log.info("address: {}, requestDetails: {}", address, requestDetails);
 		// if(orderId != null
 		// 	&& supplierId != null
 		// 	&& recipientsId != null
@@ -107,7 +107,7 @@ public class ShippingEventService {
 			.recipientSlackId(slackId)
 			// TODO: shipping의 status가 HUB_ARV 될때 event 발생하여 업체 배송담당자 배정처리
 			.companyShippingManagerId(null)
-			.deadLine(deadLine)
+			// .deadLine(deadLine)
 			.build();
 
 		Shipping savedShipping = shippingRepository.save(shipping);

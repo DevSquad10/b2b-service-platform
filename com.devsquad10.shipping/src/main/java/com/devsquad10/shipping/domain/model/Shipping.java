@@ -82,8 +82,6 @@ public class Shipping {
 
 	@Column
 	private Date deadLine;
-	// @Column
-	// private String deadLine;
 
 	@OneToMany(mappedBy = "shipping", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<ShippingHistory> historyList = new ArrayList<>();

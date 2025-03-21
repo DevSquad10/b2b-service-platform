@@ -27,5 +27,4 @@ public class ShippingCreateRequest {
 	private String requestDetails; // 요청사항
 
 	private Date deadLine; // 납품기한일자
-	// private String deadLine; // 납품기한일자
 }
