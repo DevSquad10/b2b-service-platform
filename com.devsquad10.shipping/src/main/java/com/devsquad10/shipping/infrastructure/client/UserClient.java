@@ -9,6 +9,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 @FeignClient(name = "user", url = "http://localhost:19099/api/user")
 public interface UserClient {
-	@GetMapping("/{id}")
-	ResponseEntity<?> getUserInfo(@PathVariable("id") UUID id);
+	@GetMapping("/info/{id}")
+	UserInfoFeignClientRequest getUserInfoRequest(@PathVariable("id") UUID id);
 }
