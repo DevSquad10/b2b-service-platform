@@ -15,6 +15,7 @@ import com.devsquad10.order.application.client.CompanyClient;
 import com.devsquad10.order.application.dto.OrderReqDto;
 import com.devsquad10.order.application.dto.OrderResDto;
 import com.devsquad10.order.application.dto.OrderUpdateReqDto;
+import com.devsquad10.order.application.dto.message.ShippingUpdateRequest;
 import com.devsquad10.order.application.dto.message.StockDecrementMessage;
 import com.devsquad10.order.application.dto.message.StockReversalMessage;
 import com.devsquad10.order.application.exception.OrderNotFoundException;
@@ -81,9 +82,12 @@ public class OrderService {
 
 		Order order = orderRepository.findByIdAndDeletedAtIsNull(id)
 			.orElseThrow(() -> new OrderNotFoundException("Order Not Found By Id : " + id));
+
+		String newRecipientsAddress = companyClient.findRecipientAddressByCompanyId(order.getRecipientsId());
+
 		//1. 배송지 변경 여부 확인
 		if (!order.getRecipientsId().equals(orderUpdateReqDto.getRecipientsId())) {
-			String newRecipientsAddress =
+			newRecipientsAddress =
 				companyClient.findRecipientAddressByCompanyId(orderUpdateReqDto.getRecipientsId());
 			if (newRecipientsAddress == null) {
 				throw new IllegalArgumentException(
@@ -93,8 +97,6 @@ public class OrderService {
 			order = order.toBuilder()
 				.recipientsId(orderUpdateReqDto.getRecipientsId())
 				.build();
-
-			// 배송지에도 업데이트 된 주소 전달 newRecipientsAddress;
 		}
 
 		//2. 수량도 변경되면 원래 재고 와 비교하여 감소되면 감소 줄어들면 재고 회복 메시지 전달
@@ -131,6 +133,16 @@ public class OrderService {
 			.requestDetails(orderUpdateReqDto.getRequestDetails())  // 요청 사항 업데이트
 			.deadLine(orderUpdateReqDto.getDeadLine())              // 납품 기한일자 업데이트
 			.build();
+
+		ShippingUpdateRequest shippingUpdateRequest = ShippingUpdateRequest.builder()
+			.orderId(order.getId())
+			.recipientsId(order.getRecipientsId())
+			.address(newRecipientsAddress)
+			.requestDetails(orderUpdateReqDto.getRequestDetails())
+			.deadLine(orderUpdateReqDto.getDeadLine())
+			.build();
+
+		orderMessageService.sendShippingUpdateMessage(shippingUpdateRequest);
 
 		// 5. 업데이트된 주문 정보 저장
 		orderRepository.save(order);
