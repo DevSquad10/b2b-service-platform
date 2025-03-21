@@ -50,7 +50,7 @@ public class ProductEventService {
 		if (product.getQuantity() == 0) {
 			product.statusSoldOut();
 			productRepository.save(product);
-			
+
 			StockSoldOutMessage stockSoldOutMessage = new StockSoldOutMessage(product.getSupplierId(), product.getId(),
 				new Date());
 			rabbitTemplate.convertAndSend(queueStockSoldOut, stockSoldOutMessage);
