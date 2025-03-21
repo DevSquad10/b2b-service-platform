@@ -11,7 +11,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.devsquad10.company.application.client.HubClient;
 import com.devsquad10.company.application.dto.CompanyReqDto;
 import com.devsquad10.company.application.dto.CompanyResDto;
 import com.devsquad10.company.application.dto.ShippingCompanyInfoDto;
@@ -20,6 +19,7 @@ import com.devsquad10.company.domain.enums.CompanyTypes;
 import com.devsquad10.company.domain.model.Company;
 import com.devsquad10.company.domain.repository.CompanyQuerydslRepository;
 import com.devsquad10.company.domain.repository.CompanyRepository;
+import com.devsquad10.company.infrastructure.client.HubClient;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
