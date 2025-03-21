@@ -1,6 +1,5 @@
 package com.devsquad10.shipping.application.dto.message;
 
-import java.util.Date;
 import java.util.UUID;
 
 import lombok.AllArgsConstructor;
@@ -26,5 +25,5 @@ public class ShippingCreateRequest {
 
 	private String requestDetails; // 요청사항
 
-	private Date deadLine; // 납품기한일자
+	private String deadLine; // 납품기한일자
 }

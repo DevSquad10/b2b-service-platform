@@ -79,6 +79,9 @@ public class Shipping {
 	@Column(nullable = true)
 	private UUID companyShippingManagerId;
 
+	@Column
+	private String deadLine;
+
 	@OneToMany(mappedBy = "shipping", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<ShippingHistory> historyList = new ArrayList<>();
 

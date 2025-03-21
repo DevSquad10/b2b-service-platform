@@ -1,12 +1,11 @@
 package com.devsquad10.shipping.application.service;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,9 +24,8 @@ import com.devsquad10.shipping.infrastructure.client.HubClient;
 import com.devsquad10.shipping.infrastructure.client.HubFeignClientGetRequest;
 import com.devsquad10.shipping.infrastructure.client.ShippingCompanyInfoDto;
 import com.devsquad10.shipping.infrastructure.client.UserClient;
+import com.devsquad10.shipping.infrastructure.client.UserInfoFeignClientRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +44,7 @@ public class ShippingEventService {
 	private final HubClient hubClient;
 	private final CompanyClient companyClient;
 	private final UserClient userClient;
+	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
 	// TODO: 권한 확인 - MASTER
 	public void handlerShippingCreateRequest(ShippingCreateRequest shippingCreateRequest) throws
@@ -56,17 +55,19 @@ public class ShippingEventService {
 		UUID recipientsId = shippingCreateRequest.getRecipientsId();
 		String address = shippingCreateRequest.getAddress();
 		String requestDetails = shippingCreateRequest.getRequestDetails();
-		Date deadLine = shippingCreateRequest.getDeadLine();
-
-		if(orderId != null
-			&& supplierId != null
-			&& recipientsId != null
-			&& address != null
-			&& deadLine != null
-		) {
-			log.warn("배송에 필요한 필수 정보 일부가 누락되었습니다.");
-			throw new IllegalArgumentException("배송에 필요한 정보 일부가 누락됐습니다.");
-		}
+		String deadLine = shippingCreateRequest.getDeadLine();
+		// String deadLineToString = DATE_FORMAT.format(deadLine);
+		log.info("orderId: {}, supplierId: {}, recipientsId: {}", orderId, supplierId, recipientsId);
+		log.info("address: {}, requestDetails: {}, deadLine: {}", address, requestDetails, deadLine);
+		// if(orderId != null
+		// 	&& supplierId != null
+		// 	&& recipientsId != null
+		// 	&& (address != null && !address.trim().isEmpty())
+		// 	&& (deadLine != null && !deadLine.trim().isEmpty())
+		// ) {
+		// 	log.warn("배송에 필요한 필수 정보 일부가 누락되었습니다.");
+		// 	throw new IllegalArgumentException("배송에 필요한 정보 일부가 누락됐습니다.");
+		// }
 
 		// 업체: 각각 매개변수(공급업체ID, 수령업체ID) 조회(Feign Client 통신) -> 허브ID + 업체담당자ID 추출
 		// TODO: feign Client는 try-catch로 RuntimeException 예외 처리
@@ -77,12 +78,16 @@ public class ShippingEventService {
 		UUID recipientId = recipientsInfo.getVenderId();
 
 		// TODO 값 확인: 도착허브에서 수령업체의 담당자ID로 User feign client 이름 조회하여 수령인 이름 사용
-		ResponseEntity<?> userInfo = userClient.getUserInfo(recipientId);
-		ObjectMapper objectMapper = new ObjectMapper();
-		JsonNode jsonNode = objectMapper.readTree(objectMapper.writeValueAsString(userInfo.getBody()));
-		String name = jsonNode.get("name").asText();
-		String slackId = jsonNode.get("slackId").asText();
-		log.info("name: {}, slackId: {}", name, slackId);
+		UserInfoFeignClientRequest userInfo = userClient.getUserInfoRequest(recipientId);
+		// String username = userInfo.getUsername();
+		// String slackId = userInfo.getSlackId();
+		String username = "더미데이터 이름";
+		String slackId = "더미데이터 슬랙아이디";
+		// ObjectMapper objectMapper = new ObjectMapper();
+		// JsonNode jsonNode = objectMapper.readTree(objectMapper.writeValueAsString(userInfo.getBody()));
+		// String name = jsonNode.get("name").asText();
+		// String slackId = jsonNode.get("slackId").asText();
+		// log.info("name: {}, slackId: {}", name, slackId);
 
 		// TODO: 수령인, 수령인 슬랙id
 		Shipping shipping = Shipping.builder()
@@ -93,10 +98,11 @@ public class ShippingEventService {
 			.address(address)
 			.requestDetails(requestDetails.equals("null") ? shippingCreateRequest.getRequestDetails() : "")
 			// TODO: User feign client 사용자ID로 조회하여 이름&슬랙ID 추출
-			.recipientName(name)
+			.recipientName(username)
 			.recipientSlackId(slackId)
 			// TODO: shipping의 status가 HUB_ARV 될때 event 발생하여 업체 배송담당자 배정처리
 			.companyShippingManagerId(null)
+			.deadLine(deadLine)
 			.build();
 
 		Shipping savedShipping = shippingRepository.save(shipping);
@@ -163,4 +169,8 @@ public class ShippingEventService {
 			throw new RuntimeException("배송 생성 실패 후, 보상 트랜잭션 메시지 발행 실패:" + e.getMessage(), e);
 		}
 	}
+
+	// public void handlerOrderUpdateMessage(ShippingCreateRequest shippingCreateRequest) {
+	// 	shippingMessageService.updateOrderStatusAndShippingDetails(shippingCreateRequest);
+	// }
 }
