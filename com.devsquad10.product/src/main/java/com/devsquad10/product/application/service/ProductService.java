@@ -11,7 +11,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.devsquad10.product.application.client.CompanyClient;
 import com.devsquad10.product.application.dto.ProductReqDto;
 import com.devsquad10.product.application.dto.ProductResDto;
 import com.devsquad10.product.application.exception.ProductNotFoundException;
@@ -19,6 +18,7 @@ import com.devsquad10.product.domain.enums.ProductStatus;
 import com.devsquad10.product.domain.model.Product;
 import com.devsquad10.product.domain.repository.ProductQuerydslRepository;
 import com.devsquad10.product.domain.repository.ProductRepository;
+import com.devsquad10.product.infrastructure.client.CompanyClient;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
