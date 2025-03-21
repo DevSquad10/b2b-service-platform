@@ -3,6 +3,7 @@ package com.devsquad10.order.application.service;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import com.devsquad10.order.application.dto.message.ShippingCreateRequest;
@@ -25,6 +26,9 @@ public class OrderEventService {
 	private final OrderRepository orderRepository;
 	private final CompanyClient companyClient;
 	private final OrderMessageService orderMessageService;
+	private final RedisTemplate<String, String> redisTemplate;
+
+	private static final String RETRY_COUNT_KEY_PREFIX = "shipping_retry_count:";
 
 	/**
 	 * 재고 차감 메시지가 수신되면 해당 주문에 대해 배송 요청을 처리한다.
@@ -66,6 +70,20 @@ public class OrderEventService {
 	 * @param shippingResponseMessage 배송 생성 응답 메시지
 	 */
 	public void retryCreateShipping(ShippingResponseMessage shippingResponseMessage) {
+
+		// Redis에서 재시도 카운트를 가져옴
+		String orderId = shippingResponseMessage.getOrderId().toString();
+		String retryCountKey = RETRY_COUNT_KEY_PREFIX + orderId;
+
+		String retryCountStr = redisTemplate.opsForValue().get(retryCountKey);
+		int retryCount = (retryCountStr != null) ? Integer.parseInt(retryCountStr) : 0;
+
+		// 3회 이상 재시도한 경우 상태를 'ORDER_RECEIVED'로 변경하고 종료
+		if (retryCount >= 3) {
+			updateOrderStatus(findOrderById(shippingResponseMessage.getOrderId()), OrderStatus.ORDER_FAILED);
+			return;
+		}
+
 		Order targetOrder = findOrderById(shippingResponseMessage.getOrderId());
 		Optional<String> recipientsAddress = findRecipientAddress(targetOrder.getRecipientsId());
 
@@ -74,6 +92,9 @@ public class OrderEventService {
 			.build();
 
 		processShippingRequest(targetOrder, stockDecrementMessage, recipientsAddress);
+
+		// Redis에 재시도 카운트를 저장
+		redisTemplate.opsForValue().set(retryCountKey, String.valueOf(retryCount + 1));
 	}
 
 	/*** 공통 로직 ***/
