@@ -2,6 +2,7 @@ package com.devsquad10.shipping.domain.model;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -80,7 +81,9 @@ public class Shipping {
 	private UUID companyShippingManagerId;
 
 	@Column
-	private String deadLine;
+	private Date deadLine;
+	// @Column
+	// private String deadLine;
 
 	@OneToMany(mappedBy = "shipping", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<ShippingHistory> historyList = new ArrayList<>();

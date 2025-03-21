@@ -3,6 +3,7 @@ package com.devsquad10.shipping.application.service;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -55,7 +56,8 @@ public class ShippingEventService {
 		UUID recipientsId = shippingCreateRequest.getRecipientsId();
 		String address = shippingCreateRequest.getAddress();
 		String requestDetails = shippingCreateRequest.getRequestDetails();
-		String deadLine = shippingCreateRequest.getDeadLine();
+		Date deadLine = shippingCreateRequest.getDeadLine(); // Fri Mar 21 09:00:00 KST 2025
+		// String deadLine = shippingCreateRequest.getDeadLine(); //
 		// String deadLineToString = DATE_FORMAT.format(deadLine);
 		log.info("orderId: {}, supplierId: {}, recipientsId: {}", orderId, supplierId, recipientsId);
 		log.info("address: {}, requestDetails: {}, deadLine: {}", address, requestDetails, deadLine);
@@ -76,13 +78,16 @@ public class ShippingEventService {
 		UUID departureHubId = supplierIdInfo.getHubId();
 		UUID destinationHubId = recipientsInfo.getHubId();
 		UUID recipientId = recipientsInfo.getVenderId();
+		log.info("departureHubId: {}, destinationHubId: {}, recipientId: {}",
+			departureHubId, destinationHubId, recipientId);
 
 		// TODO 값 확인: 도착허브에서 수령업체의 담당자ID로 User feign client 이름 조회하여 수령인 이름 사용
-		UserInfoFeignClientRequest userInfo = userClient.getUserInfoRequest(recipientId);
+		// UserInfoFeignClientRequest userInfo = userClient.getUserInfoRequest(recipientId);
 		// String username = userInfo.getUsername();
 		// String slackId = userInfo.getSlackId();
 		String username = "더미데이터 이름";
 		String slackId = "더미데이터 슬랙아이디";
+		log.info("username: {}, slackId: {}", username, slackId);
 		// ObjectMapper objectMapper = new ObjectMapper();
 		// JsonNode jsonNode = objectMapper.readTree(objectMapper.writeValueAsString(userInfo.getBody()));
 		// String name = jsonNode.get("name").asText();
@@ -106,7 +111,7 @@ public class ShippingEventService {
 			.build();
 
 		Shipping savedShipping = shippingRepository.save(shipping);
-
+		log.info("savedShipping: {}", savedShipping);
 		// 배송 경로기록 생성: 허브간 이동정보 feign client 매개변수(출발/도착허브 ID)와 일치하는 예상거리, 소요시간, 경유지(List) 추출
 		// 허브간 이동정보(하) 구현 시, 배송 허브 순번 1 고정 & 허브간 이동정보(상) 구현 시, 경유지 엔티티 추가 생성
 		List<HubFeignClientGetRequest> hubRouteInfo = hubClient.getHubRouteInfo(departureHubId, destinationHubId);
