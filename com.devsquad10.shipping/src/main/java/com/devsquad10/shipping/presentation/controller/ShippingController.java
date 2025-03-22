@@ -116,16 +116,9 @@ public class ShippingController {
 	}
 
 	// TODO: 권한 확인 - MASTER, 담당 HUB
-	@DeleteMapping("/{id}")
-	public ResponseEntity<ShippingResponse<String>> deleteShipping(
-		@PathVariable(name = "id") UUID id) {
-
-		shippingService.deleteShipping(id);
-
-		return ResponseEntity.status(HttpStatus.OK)
-			.body(ShippingResponse.success(
-				HttpStatus.OK.value(),
-				"배송이 삭제되었습니다.")
-			);
+	@DeleteMapping("/order/{orderId}")
+	public boolean deleteShippingForOrder(
+		@PathVariable(name = "orderId") UUID orderId) {
+		return shippingService.deleteShippingForOrder(orderId);
 	}
 }

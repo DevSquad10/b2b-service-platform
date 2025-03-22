@@ -17,11 +17,16 @@ import com.devsquad10.shipping.application.dto.response.ShippingResDto;
 import com.devsquad10.shipping.application.exception.shipping.ShippingNotFoundException;
 import com.devsquad10.shipping.application.exception.shippingAgent.ShippingAgentAlreadyAllocatedException;
 import com.devsquad10.shipping.application.exception.shippingAgent.ShippingAgentNotAllocatedException;
+import com.devsquad10.shipping.application.exception.shippingAgent.ShippingAgentNotFoundException;
 import com.devsquad10.shipping.application.service.allocation.ShippingAgentAllocation;
+import com.devsquad10.shipping.domain.enums.ShippingStatus;
 import com.devsquad10.shipping.domain.model.Shipping;
+import com.devsquad10.shipping.domain.model.ShippingAgent;
 import com.devsquad10.shipping.domain.model.ShippingHistory;
+import com.devsquad10.shipping.domain.repository.ShippingAgentRepository;
 import com.devsquad10.shipping.domain.repository.ShippingHistoryRepository;
 import com.devsquad10.shipping.domain.repository.ShippingRepository;
+import com.devsquad10.shipping.infrastructure.repository.JpaShippingAgentRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +39,7 @@ public class ShippingService {
 
 	private final ShippingRepository shippingRepository;
 	private final ShippingHistoryRepository shippingHistoryRepository;
+	private final ShippingAgentRepository shippingAgentRepository;
 	private final ShippingAgentAllocation shippingAgentAllocation;
 
 	// TODO: 권한 확인 - MASTER, 담당 HUB, DVL_AGENT
@@ -143,32 +149,40 @@ public class ShippingService {
 	// TODO: 권한 확인 - MASTER, 담당 HUB
 	//TODO: 1) condition="#id != null"인 경우, 개별 캐싱(shippingCache) 삭제 안됨
 // 			2) condition 없는 경우, 캐싱 삭제 자체가 안됨 & postgres 의 데이터는 삭제됨
-	@Caching(evict = {
-		@CacheEvict(cacheNames = "shippingCache", key = "#id"),
-		@CacheEvict(cacheNames = "shippingSearchCache",
-			allEntries = true,
-			condition = "@cacheManager.getCache('shippingSearchCache') != null")
-	})
+	public boolean deleteShippingForOrder(UUID orderId) {
+		Shipping shipping = shippingRepository.findByOrderIdAndDeletedAtIsNull(orderId)
+			.orElseThrow(() -> new ShippingNotFoundException("배송한 내역에서 해당하는 주문 ID: " + orderId + "가 존재하지 않습니다."));
 
-	public void deleteShipping(UUID id) {
-		Shipping shipping = shippingRepository.findByIdAndDeletedAtIsNull(id)
-			.orElseThrow(() -> new ShippingNotFoundException(id + " 해당하는 배송 ID가 존재하지 않습니다."));
+		// 배송 상태가 HUB_WAIT(허브 대기 중) 경우만 삭제 가능
+		if(shipping.getStatus() != ShippingStatus.HUB_WAIT) {
+			log.info(shipping.getStatus() + " 상태는 배송 취소가 불가능합니다.");
+			return false;
+		} else {
+			// 배송 ID로 배송경로기록 List 추출
+			List<ShippingHistory> historyList = shippingHistoryRepository.findByShippingIdAndDeletedAtIsNull(shipping.getId());
 
-		// 배송 삭제 처리
-		shippingRepository.save(shipping.softDelete());
-
-		// 배송 ID로 배송경로기록 List 추출
-		List<ShippingHistory> historyList = shippingHistoryRepository.findByShippingIdAndDeletedAtIsNull(id);
-
-		// 배송 삭제 될 때, 배송 경로기록도 삭제 처리
-		if(!historyList.isEmpty()) {
-			List<UUID> historyIdList = historyList.stream()
-				.map(ShippingHistory::getId)
-				.toList();
-			for(UUID historyId : historyIdList) {
-				ShippingHistory history = shippingHistoryRepository.findByIdAndDeletedAtIsNull(historyId);
-				shippingHistoryRepository.save(history.softDelete());
+			// 배송 삭제 될 때, 배송 경로기록도 삭제 처리
+			if (!historyList.isEmpty()) {
+				List<UUID> historyIdList = historyList.stream()
+					.map(ShippingHistory::getId)
+					.toList();
+				for (UUID historyId : historyIdList) {
+					ShippingHistory history = shippingHistoryRepository.findByIdAndDeletedAtIsNull(historyId);
+					shippingHistoryRepository.save(history.softDelete());
+					// 허브간 배송이 모두 1명의 허브배송 담당자로 배정했다는 가정하에 배송 경로삭제 시, 허브 담당자 isTransit=false 로 변경
+					UUID shippingManagerId = history.getShippingManagerId();
+					ShippingAgent selectedAgent = shippingAgentRepository.findByShippingManagerIdAndDeletedAtIsNull(shippingManagerId)
+						.orElseThrow(() -> new ShippingAgentNotFoundException("배송 담당자 id 가 존재하지 않습니다."));
+					if(selectedAgent.getIsTransit()) {
+						selectedAgent.isTransitToFalse();
+						selectedAgent.decreaseAssignmentCount();
+						shippingAgentRepository.save(selectedAgent);
+					}
+				}
 			}
+			// 배송 삭제 처리
+			shippingRepository.save(shipping.softDelete());
+			return true;
 		}
 	}
 }
