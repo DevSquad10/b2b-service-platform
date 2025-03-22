@@ -21,7 +21,7 @@ public interface JpaProductRepository
 
 	@Override
 	@Lock(LockModeType.PESSIMISTIC_WRITE)
-	@Query("SELECT p FROM Product p WHERE p.id = :productId AND p.quantity >= :orderQuantity AND p.deletedAt IS NULL")
-	Optional<Product> findByIdWithLock(@Param("productId") UUID productId, @Param("orderQuantity") int orderQuantity);
+	@Query("SELECT p FROM Product p WHERE p.id = :productId AND p.deletedAt IS NULL")
+	Optional<Product> findByIdWithLock(@Param("productId") UUID productId);
 
 }

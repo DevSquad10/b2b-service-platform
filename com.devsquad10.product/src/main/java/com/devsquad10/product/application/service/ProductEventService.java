@@ -35,7 +35,7 @@ public class ProductEventService {
 		UUID targetProductId = stockDecrementMessage.getProductId();
 		int orderQuantity = stockDecrementMessage.getQuantity();
 
-		Product product = productRepository.findByIdWithLock(targetProductId, orderQuantity)
+		Product product = productRepository.findByIdWithLock(targetProductId)
 			.orElseThrow(() -> new ProductNotFoundException("Product Not Found By Id :" + targetProductId));
 
 		// 2. 재고 부족 처리

@@ -11,5 +11,5 @@ public interface ProductRepository {
 
 	Product save(Product product);
 
-	Optional<Product> findByIdWithLock(UUID productId, int orderQuantity);
+	Optional<Product> findByIdWithLock(UUID productId);
 }
