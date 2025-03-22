@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.devsquad10.product.application.dto.PageProductResponseDto;
 import com.devsquad10.product.application.dto.ProductReqDto;
 import com.devsquad10.product.application.dto.ProductResDto;
 import com.devsquad10.product.application.exception.ProductNotFoundException;
@@ -63,12 +64,14 @@ public class ProductService {
 	}
 
 	@Cacheable(cacheNames = "productSearchCache", key = "#q + '-' + #category + '-' + #page + '-' + #size")
-	public Page<ProductResDto> searchProducts(String q, String category, int page, int size, String sort,
+	public PageProductResponseDto searchProducts(String q, String category, int page, int size, String sort,
 		String order) {
 
 		Page<Product> productPages = productQuerydslRepository.findAll(q, category, page, size, sort, order);
 
-		return productPages.map(Product::toResponseDto);
+		Page<ProductResDto> productResDtoPages = productPages.map(Product::toResponseDto);
+
+		return PageProductResponseDto.toResponse(productResDtoPages);
 	}
 
 	@CachePut(cacheNames = "productCache", key = "#id")
