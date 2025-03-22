@@ -22,7 +22,7 @@ public class ShippingEndPoint {
 		try {
 			shippingEventService.handlerShippingCreateRequest(shippingCreateRequest);
 		} catch (JsonProcessingException e) {
-			log.warn("배송 생성을 위한 RabbitMQ 메시지 처리 실패: " + e.getMessage());
+			log.error("배송 생성을 위한 RabbitMQ 메시지 처리 실패: " + e.getMessage());
 			throw new RuntimeException("배송 생성을 위한 RabbitMQ 메시지 처리 실패: " + e.getMessage(), e);
 		}
 	}
