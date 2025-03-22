@@ -14,7 +14,7 @@ import lombok.ToString;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ShippingCreateRequest {
+public class ShippingCreateMessage {
 	//배송에 보낼 메시지 생생 (공급업체, 수량업체,  업체 주소, orderId, 요청 사항)
 	private UUID orderId;
 
