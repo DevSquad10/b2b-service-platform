@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 public class RabbitMqMessageService implements ShippingMessageService {
 	private final RabbitTemplate rabbitTemplate;
 
-	@Value("${shippingMessage.exchange.shipping.response}")
+	@Value("${shippingMessage.queue.shipping.response}")
 	private String queueShippingCreateResponse;
 
 	@Override
