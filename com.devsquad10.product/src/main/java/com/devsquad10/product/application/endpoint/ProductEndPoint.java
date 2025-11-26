@@ -17,7 +17,7 @@ public class ProductEndPoint {
 
 	private final ProductEventService productEventService;
 
-	@RabbitListener(queues = "${stockMessage.queue.stock.request}", concurrency = "1")
+	@RabbitListener(queues = "${stockMessage.queue.stock.request}", concurrency = "20")
 	public void handleStockDecrementRequest(StockDecrementMessage stockDecrementMessage) {
 		log.info("재고 차감 요청 수신 - 상품 ID: {}, 차감 수량: {}", stockDecrementMessage.getProductId(),
 			stockDecrementMessage.getQuantity());

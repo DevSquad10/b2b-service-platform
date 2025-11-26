@@ -46,26 +46,31 @@ public class ProductEventService {
 				return new ProductNotFoundException("Product Not Found By Id :" + targetProductId);
 			});
 
-		// 2. 재고 부족 처리
-		if (product.getQuantity() < orderQuantity) {
-			log.warn("재고 부족 - 상품 ID: {}, 현재 재고: {}, 요청 수량: {}", targetProductId, product.getQuantity(), orderQuantity);
-			productMessageService.sendStockDecrementMessage(stockDecrementMessage, product, "OUT_OF_STOCK");
-			return;
-		}
+		try {
+			// 2. 재고 차감 시도 (엔티티의 로직을 믿고 호출)
+			// 재고가 부족하면 엔티티 내부에서 IllegalArgumentException 발생
+			product.decreaseStock(orderQuantity);
 
-		product.decreaseStock(orderQuantity);
-		log.info("재고 차감 완료 - 상품 ID: {}, 차감 후 재고: {}", targetProductId, product.getQuantity());
+			// 3. 성공 로직
+			log.info("재고 차감 완료 - 상품 ID: {}, 차감 후 재고: {}", targetProductId, product.getQuantity());
 
-		if (product.getQuantity() == 0) {
-			product.statusSoldOut();
+			// 품절 처리
+			if (product.getQuantity() == 0) {
+				product.statusSoldOut();
+				productMessageService.sendStockSoldOutMessage(product);
+			}
+
+			// DB 저장 (Dirty Checking으로 생략 가능하지만 명시적으로 작성함)
 			productRepository.save(product);
-			log.info("품절 처리 완료 - 상품 ID: {}", targetProductId);
+			productMessageService.sendStockDecrementMessage(stockDecrementMessage, product, "SUCCESS");
 
-			productMessageService.sendStockSoldOutMessage(product);
-			log.info("재고 차감 메시지 전송 - 상품 ID: {}, 상태: SUCCESS", targetProductId);
+		} catch (IllegalArgumentException e) {
+			// 4. 재고 부족 예외 처리 (엔티티에서 던진 예외를 잡음)
+			log.warn("재고 부족 - 상품 ID: {}, 요청 수량: {}", targetProductId, orderQuantity);
+
+			// 실패 메시지 전송 (OUT_OF_STOCK)
+			productMessageService.sendStockDecrementMessage(stockDecrementMessage, product, "OUT_OF_STOCK");
 		}
-
-		productMessageService.sendStockDecrementMessage(stockDecrementMessage, product, "SUCCESS");
 	}
 
 	/**
