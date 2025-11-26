@@ -17,7 +17,7 @@ public class OrderEndPoint {
 
 	private final OrderEventService orderEventService;
 
-	@RabbitListener(queues = "${stockMessage.queue.stock.response}")
+	@RabbitListener(queues = "${stockMessage.queue.stock.response}", concurrency = "1")
 	public void handlerStockDecrementResponse(StockDecrementMessage stockDecrementMessage) {
 		if (stockDecrementMessage.getStatus().equals("SUCCESS")) {
 			log.info("재고 차감 성공: 주문 ID = {}, 상품 ID = {}",
