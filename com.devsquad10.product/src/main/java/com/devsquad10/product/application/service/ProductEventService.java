@@ -40,7 +40,7 @@ public class ProductEventService {
 		UUID targetProductId = stockDecrementMessage.getProductId();
 		int orderQuantity = stockDecrementMessage.getQuantity();
 
-		Product product = productRepository.findByIdAndDeletedAtIsNull(targetProductId)
+		Product product = productRepository.findByIdWithLock(targetProductId)
 			.orElseThrow(() -> {
 				log.error("재고 차감 실패 - 상품 ID: {}를 찾을 수 없습니다.", targetProductId);
 				return new ProductNotFoundException("Product Not Found By Id :" + targetProductId);
