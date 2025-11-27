@@ -111,7 +111,7 @@ public class OrderEventService {
 		if (retryCount >= 3) {
 			log.error("[배송 실패] 주문 ID = {}, 재시도 횟수 초과 -> 상태: ORDER_FAILED", orderId);
 			updateOrderStatus(findOrderById(shippingResponseMessage.getOrderId()), OrderStatus.ORDER_FAILED);
-			redisTemplate.delete(retryCountKey); // 키 삭
+			redisTemplate.delete(retryCountKey);
 			return;
 		}
 
