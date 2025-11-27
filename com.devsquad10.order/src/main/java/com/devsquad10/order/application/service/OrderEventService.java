@@ -70,15 +70,24 @@ public class OrderEventService {
 	 * @param shippingResponseMessage 배송 생성 응답 메시지
 	 */
 	public void updateOrderStatusToWaitingForShipment(ShippingResponseMessage shippingResponseMessage) {
-		Order targetOrder = findOrderById(shippingResponseMessage.getOrderId());
-
-		log.info("[배송 생성 성공] 주문 ID = {}, 배송 ID = {} -> 상태 변경: WAITING_FOR_SHIPMENT",
-			shippingResponseMessage.getOrderId(), shippingResponseMessage.getShippingId());
+		UUID orderId = shippingResponseMessage.getOrderId();
+		Order targetOrder = findOrderById(orderId);
 
 		targetOrder = targetOrder.toBuilder()
 			.shippingId(shippingResponseMessage.getShippingId())
 			.build();
 		updateOrderStatus(targetOrder, OrderStatus.WAITING_FOR_SHIPMENT);
+
+		log.info("[배송 생성 성공] 주문 ID = {}, 배송 ID = {} -> 상태 변경: WAITING_FOR_SHIPMENT",
+			shippingResponseMessage.getOrderId(), shippingResponseMessage.getShippingId());
+
+		// 2. [중요] 성공했으므로 Redis 재시도 카운트 삭제 (정상화)
+		String retryCountKey = RETRY_COUNT_KEY_PREFIX + orderId.toString();
+		if (Boolean.TRUE.equals(redisTemplate.hasKey(retryCountKey))) {
+			redisTemplate.delete(retryCountKey);
+			log.info("[재시도 종료] Redis 카운트 삭제 완료: key={}", retryCountKey);
+		}
+
 	}
 
 	/**
@@ -98,10 +107,11 @@ public class OrderEventService {
 
 		log.warn("[배송 재시도] 주문 ID = {}, 현재 재시도 횟수 = {}", orderId, retryCount);
 
-		// 3회 이상 재시도한 경우 상태를 'ORDER_RECEIVED'로 변경하고 종료
+		// 3회 이상 재시도한 경우 상태를 'ORDER_FAILED'로 변경하고 종료
 		if (retryCount >= 3) {
 			log.error("[배송 실패] 주문 ID = {}, 재시도 횟수 초과 -> 상태: ORDER_FAILED", orderId);
 			updateOrderStatus(findOrderById(shippingResponseMessage.getOrderId()), OrderStatus.ORDER_FAILED);
+			redisTemplate.delete(retryCountKey);
 			return;
 		}
 
@@ -115,7 +125,7 @@ public class OrderEventService {
 		processShippingRequest(targetOrder, stockDecrementMessage, recipientsAddress);
 
 		// Redis에 재시도 카운트를 저장
-		redisTemplate.opsForValue().set(retryCountKey, String.valueOf(retryCount + 1));
+		redisTemplate.opsForValue().increment(retryCountKey);
 	}
 
 	/*** 공통 로직 ***/
