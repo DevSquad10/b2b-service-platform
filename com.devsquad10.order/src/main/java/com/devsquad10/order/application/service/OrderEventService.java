@@ -125,7 +125,7 @@ public class OrderEventService {
 		processShippingRequest(targetOrder, stockDecrementMessage, recipientsAddress);
 
 		// Redis에 재시도 카운트를 저장
-		redisTemplate.opsForValue().set(retryCountKey, String.valueOf(retryCount + 1));
+		redisTemplate.opsForValue().increment(retryCountKey);
 	}
 
 	/*** 공통 로직 ***/
