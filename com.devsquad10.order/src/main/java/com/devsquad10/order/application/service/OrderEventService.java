@@ -70,15 +70,24 @@ public class OrderEventService {
 	 * @param shippingResponseMessage 배송 생성 응답 메시지
 	 */
 	public void updateOrderStatusToWaitingForShipment(ShippingResponseMessage shippingResponseMessage) {
-		Order targetOrder = findOrderById(shippingResponseMessage.getOrderId());
-
-		log.info("[배송 생성 성공] 주문 ID = {}, 배송 ID = {} -> 상태 변경: WAITING_FOR_SHIPMENT",
-			shippingResponseMessage.getOrderId(), shippingResponseMessage.getShippingId());
+		UUID orderId = shippingResponseMessage.getOrderId();
+		Order targetOrder = findOrderById(orderId);
 
 		targetOrder = targetOrder.toBuilder()
 			.shippingId(shippingResponseMessage.getShippingId())
 			.build();
 		updateOrderStatus(targetOrder, OrderStatus.WAITING_FOR_SHIPMENT);
+
+		log.info("[배송 생성 성공] 주문 ID = {}, 배송 ID = {} -> 상태 변경: WAITING_FOR_SHIPMENT",
+			shippingResponseMessage.getOrderId(), shippingResponseMessage.getShippingId());
+
+		// 2. [중요] 성공했으므로 Redis 재시도 카운트 삭제 (정상화)
+		String retryCountKey = RETRY_COUNT_KEY_PREFIX + orderId.toString();
+		if (Boolean.TRUE.equals(redisTemplate.hasKey(retryCountKey))) {
+			redisTemplate.delete(retryCountKey);
+			log.info("[재시도 종료] Redis 카운트 삭제 완료: key={}", retryCountKey);
+		}
+
 	}
 
 	/**
