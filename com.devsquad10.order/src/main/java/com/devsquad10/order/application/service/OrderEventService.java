@@ -107,7 +107,7 @@ public class OrderEventService {
 
 		log.warn("[배송 재시도] 주문 ID = {}, 현재 재시도 횟수 = {}", orderId, retryCount);
 
-		// 3회 이상 재시도한 경우 상태를 'ORDER_RECEIVED'로 변경하고 종료
+		// 3회 이상 재시도한 경우 상태를 'ORDER_FAILED'로 변경하고 종료
 		if (retryCount >= 3) {
 			log.error("[배송 실패] 주문 ID = {}, 재시도 횟수 초과 -> 상태: ORDER_FAILED", orderId);
 			updateOrderStatus(findOrderById(shippingResponseMessage.getOrderId()), OrderStatus.ORDER_FAILED);
