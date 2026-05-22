@@ -100,8 +100,18 @@ public class OrderApplicationQueueConfig {
      * queue
      */
     @Bean
-    public Queue queueRequestStock() {
-        return new Queue(queueRequestStock);
+    public Queue queueRequestStock1() {
+        return new Queue(queueRequestStock + ".1");
+    }
+
+    @Bean
+    public Queue queueRequestStock2() {
+        return new Queue(queueRequestStock + ".2");
+    }
+
+    @Bean
+    public Queue queueRequestStock3() {
+        return new Queue(queueRequestStock + ".3");
     }
 
     @Bean
