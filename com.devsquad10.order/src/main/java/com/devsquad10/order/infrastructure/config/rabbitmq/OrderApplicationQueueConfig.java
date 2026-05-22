@@ -147,9 +147,34 @@ public class OrderApplicationQueueConfig {
     /**
      * binding
      */
+
+    /**
+     * binding 변경: 분할된 큐들을 Consistent Hash Exchange에 바인딩.
+     * x-consistent-hash에서 with()에 들어가는 값은 라우팅 키가 아니라 큐의 가중치
+     * 모든 큐에 균등하게 분배하기 위해 가중치를 "1"로 통일합니다.
+     */
     @Bean
-    public Binding bindingRequestStock() {
-        return BindingBuilder.bind(queueRequestStock()).to(stockRequestExchange()).with(queueRequestStock);
+    public Binding bindingRequestStock1() {
+        return BindingBuilder.bind(queueRequestStock1())
+                .to(stockRequestExchange())
+                .with("1")
+                .noargs();
+    }
+
+    @Bean
+    public Binding bindingRequestStock2() {
+        return BindingBuilder.bind(queueRequestStock2())
+                .to(stockRequestExchange())
+                .with("1")
+                .noargs();
+    }
+
+    @Bean
+    public Binding bindingRequestStock3() {
+        return BindingBuilder.bind(queueRequestStock3())
+                .to(stockRequestExchange())
+                .with("1")
+                .noargs();
     }
 
     @Bean
