@@ -2,6 +2,7 @@ package com.devsquad10.product.application.endpoint;
 
 import com.devsquad10.product.application.dto.message.StockDecrementMessage;
 import com.devsquad10.product.application.dto.message.StockReversalMessage;
+import com.devsquad10.product.application.facade.ProductStockLockFacade;
 import com.devsquad10.product.application.service.ProductEventService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,13 +15,14 @@ import org.springframework.stereotype.Component;
 public class ProductEndPoint {
 
     private final ProductEventService productEventService;
+    private final ProductStockLockFacade productStockLockFacade;
 
     // 1번 재고차감 파티션 큐 전담 리스너
     @RabbitListener(queues = "${stockMessage.queue.stock.request}.1", concurrency = "1")
     public void handleStockDecrementRequestPartition1(StockDecrementMessage stockDecrementMessage) {
         log.info("재고 차감 요청 수신 - 1번 리스너 상품 ID: {}, 차감 수량: {}", stockDecrementMessage.getProductId(),
                 stockDecrementMessage.getQuantity());
-        productEventService.decreaseStock(stockDecrementMessage);
+        productStockLockFacade.decreaseStockWithLock(stockDecrementMessage);
     }
 
     // 2번 재고차감 파티션 큐 전담 리스너
@@ -28,7 +30,7 @@ public class ProductEndPoint {
     public void handleStockDecrementRequestPartition2(StockDecrementMessage stockDecrementMessage) {
         log.info("재고 차감 요청 수신 - 2번 리스너 상품 ID: {}, 차감 수량: {}", stockDecrementMessage.getProductId(),
                 stockDecrementMessage.getQuantity());
-        productEventService.decreaseStock(stockDecrementMessage);
+        productStockLockFacade.decreaseStockWithLock(stockDecrementMessage);
     }
 
     // 3번 재고차감 파티션 큐 전담 리스너
@@ -36,7 +38,7 @@ public class ProductEndPoint {
     public void handleStockDecrementRequestPartition3(StockDecrementMessage stockDecrementMessage) {
         log.info("재고 차감 요청 수신 - 3번 리스너 상품 ID: {}, 차감 수량: {}", stockDecrementMessage.getProductId(),
                 stockDecrementMessage.getQuantity());
-        productEventService.decreaseStock(stockDecrementMessage);
+        productStockLockFacade.decreaseStockWithLock(stockDecrementMessage);
     }
 
     @RabbitListener(queues = "${stockMessage.queue.stockRecovery.request}", concurrency = "1")
