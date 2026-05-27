@@ -87,7 +87,7 @@ public class ProductEventService {
         UUID productId = stockReversalMessage.getProductId();
         int recoveryQuantity = stockReversalMessage.getQuantity();
 
-        Product recoveryProduct = productRepository.findByIdWithLock(productId)
+        Product recoveryProduct = productRepository.findByIdAndDeletedAtIsNull(productId)
                 .orElseThrow(() -> {
                     log.error("재고 복원 실패 - 상품 ID: {}를 찾을 수 없습니다.", productId);
                     return new ProductNotFoundException("Product Not Found By Id :" + productId);

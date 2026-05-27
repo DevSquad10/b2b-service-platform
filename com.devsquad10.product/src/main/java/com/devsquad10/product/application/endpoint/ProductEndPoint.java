@@ -45,6 +45,6 @@ public class ProductEndPoint {
     public void handlerStockRecoveryRequest(StockReversalMessage stockReversalMessage) {
         log.info("재고 복원 요청 수신 - 상품 ID: {}, 복원 수량: {}", stockReversalMessage.getProductId(),
                 stockReversalMessage.getQuantity());
-        productEventService.recoveryStock(stockReversalMessage);
+        productStockLockFacade.recoveryStockWithLock(stockReversalMessage);
     }
 }
