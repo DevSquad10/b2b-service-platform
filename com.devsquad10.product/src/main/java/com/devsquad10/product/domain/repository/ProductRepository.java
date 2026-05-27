@@ -1,15 +1,13 @@
 package com.devsquad10.product.domain.repository;
 
+import com.devsquad10.product.domain.model.Product;
+
 import java.util.Optional;
 import java.util.UUID;
 
-import com.devsquad10.product.domain.model.Product;
-
 public interface ProductRepository {
 
-	Optional<Product> findByIdAndDeletedAtIsNull(UUID id);
+    Optional<Product> findByIdAndDeletedAtIsNull(UUID id);
 
-	Product save(Product product);
-
-	Optional<Product> findByIdWithLock(UUID productId);
+    Product save(Product product);
 }
